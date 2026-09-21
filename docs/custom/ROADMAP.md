@@ -6,7 +6,7 @@
 - **Level cap 99, subjob 99** (99/99)
 - **EXP x2.5**, **drops x2**, **gil drops x2**, **movement speed +50%**
 - **Starter kit:** 100,000 gil, all maps, all outpost warps, all Survival Guides
-- **Commands:** `!buff` (10 hours), `!home`, `!city`, `!tele` / `!telelist`, `!shop`
+- **Commands:** `!buff` (10 hours), `!home`, `!city`, `!tele` / `!telelist`, `!shop`, `!status` (stats of your target or yourself)
 - Server open for small-group testing
 
 ## 🧪 Live, in testing
