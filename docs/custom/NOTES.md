@@ -289,3 +289,73 @@ Anyone who used the OLD `!buff` still holds the big pool in memory until it ends
   The real test (`scripts/tests/modules/buff_command.lua`, now "lasts ten hours") still has to be run in the next restart window, together with `starter_kit.lua` and the pool tests.
 - `char_effects.duration` is an unsigned int, so 10 hours fits whether it is stored in seconds or milliseconds.
 - Player-facing text that says "1 hour" and needs updating: the Discord changelog draft, and the message already sent to the friend.
+
+## 2026-09-21 — Augment system, Phase 1 (config + logic + tests; nothing player-visible yet)
+
+**Design (approved by Eric, "go with your defaults", then "everything looks good" for the numbers):** retail stats stay retail, custom augments are the progression.
+4 augment slots per item (engine allows 5), one NPC "Augmenter" in Lower Jeuno (+ GM Home for testing), gil-only prices, 4 tiers unlocked by MAIN job level (1 / 30 / 60 / 90),
+removal costs gil per slot, only gear with no augments (or augments this system made) is accepted, a stat can be added once per item.
+Prices per augment: 10,000 / 50,000 / 250,000 / 1,000,000 gil. Removal: 5,000 x tier. 16 stats (Dual/Double/Triple Attack, crit rate, Store TP, gear Haste, Fast Cast, Acc/Atk/MAcc/MAB, HP, MP, Refresh, Regen, Cure Potency).
+The exact stat table lives in `modules/custom/lua/augment_config.lua`; the draft player-facing how-to is in the chat history (not posted; the NPC does not exist yet).
+
+**How the engine handles augments (verified in the code):**
+- Exdata for augmented gear: kind, subkind, up to 5 augments of { id (11 bits), value (5 bits, 0-31) }, plus a 12-byte signature (`src/map/items/exdata/augment_standard.h`).
+- Bonus = `(base + storedValue) x max(multiplier, 1)` from the `augments` SQL table (`item_equipment.cpp` `SetAugmentMod`). The table has 2,223 rows for ids 1-2047 and covers 319 distinct stats.
+- The client draws augment text from its own data by id, so ONLY retail ids can be used. Do not invent ids.
+- HP and MP need one id per 32 points (ids 1-4 and 9-12, bases 1/33/65/97). Gear Haste is stored in hundredths of a percent (multiplier 100) and the engine caps total Haste at 25%; Fast Cast is clamped at 50 and Cure Potency at 50%.
+  No cap was found in the code for Dual Wield, Triple Attack, Store TP, crit rate, Regen or Refresh (search may have missed one). Augments stack across ALL worn gear, so worst case is large; the once-per-stat-per-item rule and small values are the safeguard.
+- `item:getAugment(slot)` returns `{ id, value }` (slot 0-4); `item:getExData()` returns `{ augmentKind, augmentSubKind, augments = { {id,value} x5 }, signature }`; `player:addItem({ id, exdata = { augmentKind, augmentSubKind, augments } })` writes it. GM `!giveitem <player> <itemId> <amount> <aug1> <v1> ...` already does this (up to 4).
+
+**Design wrinkle:** for Triple Attack, gear Haste and Refresh the amounts are `1,1,2,2`, so Tier 2 gives the same bonus as Tier 1. `core.effectiveTier` therefore charges/unlocks the LOWER tier for an identical bonus, and removal uses that lower tier too
+(a stored augment cannot record which tier it was bought at). The Discord post should say "if a tier gives the same bonus as the one before, you pay the lower price".
+
+**Files (all in git, none active in the game yet):**
+`modules/custom/lua/augment_config.lua` (numbers), `modules/custom/lua/augment_core.lua` (pure rules: tiers, encode/decode, checkAdd/checkRemove, buildExdata, readItem),
+`scripts/tests/modules/augment_core.lua` (41 pure tests, incl. a check of every catalog id against `sql/augments.sql`), `scripts/tests/modules/augment_engine.lua` (real-engine checks: equips an augmented Copper Ring for all 64 stat/tier combinations and compares the mod change).
+Verified offline with `lupa` (Lua 5.1 in `~/lsb-venv`): 41/41 pass, and 8 deliberate breaks were all caught (an earlier run MISSED a wrong HP base because the catalog only checked itself, which is why the `sql/augments.sql` truth check exists).
+**Not yet run:** `augment_engine.lua` needs the real engine, i.e. `xi_test` with the servers stopped. Run it at the next restart window, together with `./xi_test --file 'modules/'`.
+
+**Next:** Phase 2 = the Augmenter NPC (trade gear in, `customMenu` to pick slot/stat/tier, confirm price, swap the item), exact position next to the Lower Jeuno Auction House. Phase 0 (client display check via `!giveitem`) is still waiting on Eric.
+
+## 2026-09-21 — Augment system, Phase 2 (the Augmenter NPC) — written and tested offline, NOT live until the next restart
+
+**What it is:** an NPC named "Augmenter" (model 50, the Auction Counter clerk model, so it certainly exists in the client) inserted into Lower Jeuno and GM Home by `modules/custom/lua/augmenter_npc.lua` (listed in `modules/init.txt`).
+Module files and overrides are not applied by the file watcher, so it appears after the next `xi_map` restart. Positions are in the `placements` table at the top of that file; **the Lower Jeuno spot (-13.0, -0.1, -31.0) is a first guess** beside the four Auction Counters
+(which run from (-16.1, -32.0) to (-8.7, -19.0)); stand where it should be, read coordinates with `!pos`, and edit the table.
+
+**How a player uses it:** trade ONE weapon/armor (unequipped) -> menus (Add an augment / Remove an augment / Never mind) -> stat (6 per page, 16 stats) -> bonus with price -> confirm -> the item is swapped.
+Logic lives in `modules/custom/lua/augmenter_flow.lua`; the rules and numbers in `augment_core.lua` / `augment_config.lua` (Phase 1).
+
+**Engine facts that shaped it (from the C++):**
+- `customMenu` matches a click to an option by its EXACT LABEL TEXT (`HandleCustomMenu`), so labels in one menu must be unique, and every click ends that menu, so each step opens a new one (sent 50 ms later with `player:timer`, the pattern in `test_npcs_in_gm_home.lua`).
+- Menu callbacks only receive the player, so the conversation (item id/slot, augment list) is kept in a per-player table in `augmenter_flow.lua` (cleared on finish or cancel).
+- The trade is NOT completed with `confirmTrade`: the item stays in the bag while the player chooses. On confirm the item is re-fetched with `getStorageItem(container, slot, 255)` and re-read; if it moved or changed the NPC refuses and charges nothing.
+- The swap order is undoable at every step: take gil -> add the new item (needs 1 free slot) -> take the old item; if a later step fails the earlier ones are reversed (gil refunded, the copy removed).
+- If a bonus is identical at two tiers (Triple Attack, gear Haste, Refresh are 1,1,2,2) the menu lists it once at the lower tier's price.
+
+**Tests:** `scripts/tests/modules/augmenter_flow.lua` (33 tests with a stand-in player/item/trade: what is accepted, the menus, paging, tiers, adding, removing, and the failure paths) — 33/33 pass offline (`lupa`), and 10 deliberate breaks (no re-check, no refund, copy not removed, no free-slot check,
+duplicate bonuses, locked tiers offered, gil in the trade accepted, cancel not clearing, already-owned stat offered, ...) were all caught. `scripts/tests/modules/augmenter_engine.lua` (real NPC, real `tradeNpc`, real items/gil/mods) is written and syntax-checked but **NOT RUN**: it needs `xi_test` with the servers stopped.
+The two Augment engine files (`augment_engine.lua`, `augmenter_engine.lua`) plus `./xi_test --file 'modules/'` are the checklist for the next restart window.
+
+**Unknowns only the game can answer:** does the client show the augment text on the returned item (Phase 0: `!giveitem <name> 16480 1 146 2`); does the GM-prompt style menu still open right after a trade (it is cancelled if the player is "in an event"); is the NPC standing somewhere reachable.
+If the menu does not open after a trade, the fallback is to open it from `onTrigger` instead (talk to the NPC after trading).
+
+## 2026-09-21 22:0x — Restart window: augment system verified in the REAL engine, servers restarted, `!city` added
+
+**Result: `./xi_test --file 'modules/'` = 155 passed, 0 failed** (with the servers stopped; exit 0). This includes `augment_engine.lua` (9: every one of the 16 stats at all 4 tiers changes the right mod by exactly the promised amount, plus reading/adding/removing on real items)
+and `augmenter_engine.lua` (13: the real Augmenter NPC in GM Home and Lower Jeuno, a real `tradeNpc`, real gil, real swaps, refusals, and a click-through of the whole menu conversation). Servers restarted 22:22; `augmenter_npc` and `!city` loaded, no errors. Registration is closed (`xi_connect` was restarted by the watcher at 22:04 with `ACCOUNT_CREATION = false`).
+
+**Things the engine taught us (all found by the tests, none by reading):**
+1. **Fishable items cannot be augmented.** `Exdata::getType` (`src/map/items/exdata.cpp`) checks `fishingutils::IsFish` BEFORE "is equipment". Copper Ring is fishing junk, so it gets fish exdata (`isRanked/size/weight`) and augment data is silently ignored.
+   The item reader refuses such items ("carries other data"), which is the safe outcome. Tests use the Ascetic's Ring (13440: level 1, all jobs, not Rare/Ex, not fishable). Worth a line in the player how-to: some fishing-junk gear cannot be augmented.
+2. **Upstream engine bug: a process that exits with a custom menu still open segfaults.** `customMenuContext` (`luautils.cpp`) is a global `HashMap<uint32, sol::table>`; its destructor runs after the Lua state is closed, so `luaL_unref` crashes in `exit()`.
+   It hit `xi_test` (it also cut off the terminal summary, which looked like a crash inside an unrelated shop test). Fix on our side: `flow.setMenuSender(fn)` lets tests capture menus instead of opening real ones. For a live `xi_map` the same crash can only happen at SHUTDOWN if a player was left with a menu open; data is already saved by then.
+3. **A fresh character zoning into a city is put in an arrival event**, and so is entering a Mog House; `qol.blockedReason` correctly refuses commands during an event. Tests call `player:release()` first. Real players past the intro cutscene are not affected.
+4. `xi_test` cannot run next to the live servers (its own embedded world server / IPC) and `TestChar::clean` only deletes ids >= 20,000,000, so it never touches real characters. The results file (`--output`) survives even when the process dies at exit.
+5. Item creation with `player:addItem({ id, exdata = { augmentKind, augmentSubKind, augments } })` DOES apply the augment mods when the item is equipped (`item:getMod(DUAL_WIELD)` was 3 for Dual Wield +3), so no reload is needed.
+
+**`!city`** (`modules/custom/commands/city.lua`, permission 0, same safeguards as `!home`): `!city sandoria|bastok|windurst|jeuno` (aliases: sandy/san/sd, bas, windy/win, jue). Arrives at Home Point #1 of the nation's main zone:
+Southern San d'Oria (-85.468, 1.0, -66.454), Bastok Markets (-344.0, -10.0, -155.0, rot 160), Windurst Woods (9.088, -2.5, -0.383, rot 244), Lower Jeuno (-98.588, 0.0, -183.416, rot 167). Free, no cooldown. A test compares the coordinates with `data/zones/<zone>/npcs.yaml`.
+Tests: `city_command.lua` (7, pure) and `city_engine.lua` (7, real teleports incl. from a Mog House).
+
+**Still unverified (needs the real client):** does the menu open after a trade and does the client show the augment text (Phase 0: `!giveitem <name> 13440 1 146 2` — note the ring is now 13440, not the Thief's Knife); is the Lower Jeuno Augmenter spot (-13.0, -0.1, -31.0) reachable/sensible (use `!pos` and edit `augmenter_npc.lua`).
