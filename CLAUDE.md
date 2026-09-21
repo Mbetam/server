@@ -93,6 +93,14 @@ Philosophy: for solo and small-group adults with limited time. Custom story, fas
 
 Unknown from public sources: exact XP/drop multipliers, server rules, roadmap, and why it closed. Treat numbers as tunable starting points, not facts to match.
 
+## Owner decisions (these override the NocSouls baseline where they differ)
+
+- **Retail stats and skills.** Base stats, skills, gear, mobs and job data stay as retail (as shipped by LSB). Extra power comes from **custom augments layered on top of retail items**, not from buffing base values.
+  This replaces the baseline line "base stats are bumped, so augments focus on secondary stats". Do not change item/mob/job base data to make things stronger without asking.
+  The repo already has augment plumbing to build on: item extra data in `src/map/items/exdata/` (`augment_standard`, `augment_trial`, ...), `scripts/enum/augment.lua`, and the `Exdata` Lua spec (`scripts/specs/core/Exdata.lua`).
+- **Rates and caps chosen so far (all in git-ignored `settings/`):** level cap 99 with subjob at the main job's level, EXP x2.5 (kills, quests, books, RoE), drops x2 and mob gil x2, movement speed +50% (on foot and mounted). Record every change in `docs/custom/NOTES.md`.
+- **Server is public for a small group of testers.** The public IP must never be written to a tracked file, and never posted publicly. Account creation should be closed once testers have accounts.
+
 ## Style
 
 - Explain briefly what you changed and why. Show the exact commands you ran for anything that affects the system.

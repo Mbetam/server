@@ -205,3 +205,55 @@ Test-writing notes: chat text is read from 0x017 packets at byte 23 (same as `te
 - Also existing: `!homepoint` (GM, sends a target to their home point), unrelated to `!home`.
 
 **Not verified:** anything client-side (the shop window, the chat text, how a teleport looks). Tests exercise the server side only.
+
+## 2026-09-21 — Going public for a friend to test
+
+- Pre-public DB backup: `sql/backups/mbetam_xi-20260921-193754-pre-public.sql`.
+- **The public IP is deliberately NOT recorded in any file** (this file is pushed to GitHub). To see what zone IPs are currently handed out:
+  `SELECT zoneip, COUNT(*) FROM zone_settings GROUP BY zoneip;`
+- Router forwards (done by Eric, to the VM at `192.168.0.104`): TCP 54001, 54002, 54230, 54231 and UDP 54230. Port 22 must NOT be forwarded. The VM address should be a DHCP reservation.
+- Switched every `zone_settings.zoneip` to the current public IPv4 (fetched from api.ipify.org at switch time), then restarted all four servers. All up, no erro/crit.
+  xi_connect hands one zone address to every client, so **LAN clients also get the public IP**. If the router lacks NAT loopback/hairpin, a client on the LAN cannot enter the world while it is set.
+  An inside-the-LAN TCP test to the public IP failed on all four ports both before and after the forwards were made, so hairpin is probably not supported (not proven; the friend's outside test is the real proof).
+- **Switch back to LAN-only** (to play from the LAN when the router has no loopback), then restart `xi_map` (or all four):
+  `UPDATE zone_settings SET zoneip = '192.168.0.104';`   Switch to public again: the same statement with the public IP.
+- **If the home IP changes** (ISP dynamic address) the friend can no longer enter the world: update `zoneip` to the new public IP and restart.
+- UDP 54230 (map) cannot be tested from inside; only a real outside login proves it.
+- `settings/login.lua`: `ACCOUNT_CREATION = true` (anyone who finds the address can register). Plan: set it to `false` and restart `xi_connect` once the friend has an account. `LOGIN_LIMIT = 0`, `LOG_USER_IP = false`.
+- Docs indicate the login connection uses SSL (an old xiloader fails with "wrong version number (SSL routines)"), so passwords are not sent in clear, but the friend was still told to use a unique password.
+- Only game ports are on 0.0.0.0. MariaDB (3306) and xi_world (54003) are bound to 127.0.0.1. SSH (22) listens on all interfaces, so the firewall should limit it to the LAN.
+
+### VM firewall (ufw) — needs sudo, run by Eric (was `ENABLED=no`)
+    sudo ufw default deny incoming
+    sudo ufw default allow outgoing
+    sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp comment 'SSH from LAN only'
+    sudo ufw allow 54001/tcp comment 'FFXI login'
+    sudo ufw allow 54002/tcp comment 'FFXI search'
+    sudo ufw allow 54230/tcp comment 'FFXI data'
+    sudo ufw allow 54231/tcp comment 'FFXI view'
+    sudo ufw allow 54230/udp comment 'FFXI map'
+    sudo ufw enable
+    sudo ufw status verbose
+The SSH rule MUST come before `enable`. Recovery if locked out: from the VM console run `sudo ufw disable`.
+
+### `--hairpin` (xiloader) — how to play from the LAN while zone IPs are public
+Read from the xiloader source (`src/main.cpp`, LandSandBoat/xiloader): `--hairpin` is documented as "use this if connecting to a local server which you have exposed publicly".
+It hooks `FFXiMain.dll` (found by byte pattern) so the map/zone address the client uses is replaced with the address given to `--server`.
+- Eric's PC (LAN): `xiloader.exe --server 192.168.0.104 --hairpin` (Ashita: same text in the `command =` line of the boot `.ini`). No DB change needed.
+- Remote testers: `xiloader.exe --server <public ip>` and NO `--hairpin`.
+- If it prints `Failed to locate main hairpin hack address!`, the client build no longer matches the pattern; fall back to `UPDATE zone_settings SET zoneip = '192.168.0.104'` while playing locally.
+- Not tested by me (no Windows client on this VM).
+- Firewall: `/etc/ufw/ufw.conf` shows `ENABLED=yes` (Eric turned it on). The rule list itself needs sudo to read (`sudo ufw status verbose`).
+
+## 2026-09-21 — Movement speed +50% (on foot and mounted)
+
+Settings only, no code (`settings/map.lua`, git-ignored): `BASE_SPEED 50 -> 75`, `SPEED_LIMIT 80 -> 120`, `MOUNT_SPEED 80 -> 120`. `ANIMATION_SPEED_DIVISOR` left at 1.0.
+- Run and walk are one number in this engine: final speed = `BASE_SPEED` + gear/song mods, then clamped to `SPEED_LIMIT` (`CBattleEntity::UpdateSpeed`, `battle_entity.cpp`).
+  **Raising only `BASE_SPEED` would have been wrong:** the cap of 80 would swallow almost every bonus (75 + 10 = 85 -> 80). The cap scales by the same 1.5x (80 -> 120) to keep the same headroom.
+- Mounts: output is `MOUNT_SPEED / 2` (so 80 -> 40, 120 -> 60) and is NOT limited by `SPEED_LIMIT`.
+- Animation speed is derived from `baseSpeed / ANIMATION_SPEED_DIVISOR` (`base_entity.cpp:65`), so the run animation speeds up on its own; no separate change needed.
+- `BASE_SPEED` is the default `baseSpeed` of any base entity. Mobs and NPCs override it from their DB rows, so only players change; mobs are NOT faster. Engaged mobs still chase at `MOB_RUN_SPEED_MULTIPLIER` (2.5x their own speed).
+- The position-packet handler (`0x015_pos.cpp`) does not compare movement to speed, so there is no server-side rubber-banding. The GM `!speed` command already sets up to 255, so the client copes with values above 80.
+- Verified with a throwaway `xi_test` against the real settings (5/5, file deleted afterwards): 75 on foot; base 75 + 10 = 85 (past the old cap); +100 caps at 120; `animation = CHOCOBO` -> 60.
+- **Not verified:** how it feels or looks in the real client (animation smoothness, zone-edge behaviour, event/cutscene movement). Rollback = set the three values back to 50 / 80 / 80 and restart `xi_map`.
+- Only takes effect after a restart and re-login (settings are read at startup / entity creation).
