@@ -106,3 +106,23 @@ Tooling gotcha: a background task's "exit 0" notification is only the wrapper's 
 - Also raised to 2.500 in `settings/main.lua` (same day, second restart of `xi_map`): `BOOK_EXP_RATE` (FoV/GoV pages) and `ROE_EXP_RATE` (Records of Eminence).
 - Left at 1.0 on purpose: `CAPACITY_RATE`, `EXP_LOSS_RATE`, `TABS_RATE`, `SPARKS_RATE`, `BAYLD_RATE`, `GIL_RATE`.
 - Verified in the settings files and by restarting the map server cleanly; not yet verified by killing a mob in-game. First check: kill a mob at a known level and compare EXP against the retail value x 2.5.
+
+## 2026-09-21 — Drops 2.0x, DB backup, `!buff` command
+
+- **Drops:** `settings/map.lua` `DROP_RATE_MULTIPLIER = 2.0` and `MOB_GIL_MULTIPLIER = 2.0` (git-ignored). `ALL_MOBS_GIL_BONUS` left at 0.
+- **Backup:** first DB dump, `sql/backups/mbetam_xi-20260921-182232.sql` (9.9 MB, `mysqldump --hex-blob --add-drop-trigger`, same as dbtool; that folder is git-ignored).
+  It contains account password hashes, so never commit or share it.
+- **`!buff`** (`modules/custom/commands/buff.lua`, listed in `modules/init.txt` as `custom/commands/`; test: `scripts/tests/modules/buff_command.lua`, 6/6 pass):
+  available to every player (`permission = 0`), lasts 3600 s, re-running restarts the timer and never stacks. Constants are at the top of the file.
+  | Effect | How it is done |
+  |---|---|
+  | EXP +200% | `xi.effect.DEDICATION`, `power = 200`, `subPower = 99999999`. Dedication pays its bonus out of `subPower` and ends when it is empty, so the pool is huge. |
+  | Regen +50 | `xi.effect.REGEN` power 50 (HP per 3 s tick). |
+  | Refresh +50 | `xi.effect.REFRESH` power 50 (MP per 3 s tick). |
+  | Regain +50 | `xi.effect.REGAIN` **power 5**: `scripts/effects/regain.lua` multiplies power by 10 to get the REGAIN mod, and the mod is TP gained per tick (`status_effect_container.cpp`). |
+  - **EXP math:** kill EXP is `base x (1 + bonus%)` in `xi.experiencePoints.calculate`, and the server's `map.EXP_RATE` (2.5) is applied afterwards in C++.
+    So the buff is x3 before the rate and about x7.5 in total. If "200%" was meant as x2 (a +100% bonus), change `expPercent` to 100.
+  - Dedication does not pay out in Abyssea (`regionId == ABYSSEA` check in `experience_points.lua`).
+  - `modules/init.txt` is tracked but its own header says to `git update-index --assume-unchanged` it; we commit our one added line instead, because the module never loads without it.
+- **Git:** commit `61413db` (CLAUDE.md + NOTES.md). No git identity is configured on this VM; commits pass `-c user.name -c user.email` (Eric / ericelizondo99@gmail.com) so nothing is written to git config.
+  `scripts/tests/systems/charutils.lua` is still untracked on purpose.
