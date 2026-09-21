@@ -13,8 +13,8 @@ local flow = require('modules/custom/lua/augmenter_flow')
 -- Rotation is 0-255 (0 = east).
 local placements =
 {
-    -- Lower Jeuno, beside the row of Auction Counters (which run from about x -16, z -32 to x -9, z -19)
-    { zone = 'Lower_Jeuno', x = -13.0, y = -0.1, z = -31.0, rotation = 60 },
+    -- Lower Jeuno, in the middle of the zone (about 8 yalms from the Moogle at 0, 1.5). Chosen by Eric with !pos.
+    { zone = 'Lower_Jeuno', x = 7.03, y = 0.0, z = 6.05, rotation = 84 },
 
     -- GM Home, for testing
     { zone = 'GM_Home', x = 8.0, y = 0.0, z = 3.0, rotation = 128 },

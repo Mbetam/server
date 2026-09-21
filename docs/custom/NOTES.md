@@ -359,3 +359,22 @@ Southern San d'Oria (-85.468, 1.0, -66.454), Bastok Markets (-344.0, -10.0, -155
 Tests: `city_command.lua` (7, pure) and `city_engine.lua` (7, real teleports incl. from a Mog House).
 
 **Still unverified (needs the real client):** does the menu open after a trade and does the client show the augment text (Phase 0: `!giveitem <name> 13440 1 146 2` — note the ring is now 13440, not the Thief's Knife); is the Lower Jeuno Augmenter spot (-13.0, -0.1, -31.0) reachable/sensible (use `!pos` and edit `augmenter_npc.lua`).
+
+## 2026-09-21 22:4x — Every mob drops at least 500 gil; Augmenter moved; roadmap updated; servers restarted 22:46
+
+**Ask:** "gil feels a little low, make every mob drop gil, base drop 500."
+**Why not a setting:** `ALL_MOBS_GIL_BONUS` is PER MOB LEVEL (`bonus = setting x mob level`, clamped to `MAX_GIL_BONUS`, and the setting is a single byte, max 255), so it cannot give a flat 500.
+**How the engine decides (verified in `charutils.cpp` `DistributeGil` and `mob_entity.cpp` `DistributeRewards`):** on a kill the game first calls `xi.mob.onMobDeathEx` (once per alliance member) and only THEN decides on gil. A mob rolls gil from its `GIL_MIN`/`GIL_MAX` mob mods
+(both set and max > min: random in range; max <= min: exactly min; otherwise a level formula); `CanDropGil()` is false for a mob with neither mod nor `GIL_BONUS`; a NEGATIVE `GIL_MAX` means "never drops gil" (Dynamis/Limbus). `MOB_GIL_MULTIPLIER` is applied to the roll AFTERWARDS.
+The total is split evenly between party members within 100 yalms (`gil / members`), so 500 in a party of 6 is 83 each.
+
+**What was built (modules only, no core change):** `modules/custom/lua/mob_gil.lua` (rules + the number: `baseGil = 500`) and `modules/custom/lua/mob_gil_floor.lua` (a Module overriding `xi.mob.onMobDeathEx` to call it), listed in `modules/init.txt`.
+The floor is stored as `ceil(500 / MOB_GIL_MULTIPLIER)` (250 with the current x2) so players receive at least 500 whatever the multiplier is. Rules: a mob with no gil gets exactly the floor; a smaller drop is raised to it; a bigger natural drop is NEVER lowered;
+mobs with a negative `GIL_MAX` are left alone; mobs that use the level formula plus a `GIL_BONUS` are left alone (a fixed floor could lower a special mob's drop); a range one wide (which the game treats as a mistake) is made exact.
+**Tuning:** change `mobGil.baseGil` in `mob_gil.lua`; it is picked up by the file watcher for the helper, but the module itself needs a restart only if it was never loaded.
+**Economy notes for Eric:** every kill of every mob now pays at least 500 gil, including trivial low-level mobs and battlefield mobs (the gil decision is outside the battlefield check that gates EXP). That makes fast-respawning low-level mobs a gil farm; T1 augments (10,000) cost 20 kills and T4 (1,000,000) about 2,000.
+**Tests:** `scripts/tests/modules/mob_gil.lua` (11 pure, incl. a break where the floor is not divided by the multiplier, one where a bigger drop is lowered, and one where never-drops-gil mobs are raised: all 8 deliberate breaks caught; the first run MISSED a "range of one" case because my test never produced one, then fixed)
+and `scripts/tests/modules/mob_gil_engine.lua` (6 real kills: exactly 500 for an ordinary mob, 10-20 raised to 500, 3,000 stays 6,000, never-drops-gil stays 0, still 500 with a x1 multiplier, 3 kills = 1,500). `./xi_test --file 'modules/'` = **172 passed, 0 failed**.
+
+**Augmenter position (Lower Jeuno):** now (7.03, 0.0, 6.05, rotation 84), from Eric's `!pos` reading, in the middle of the zone about 8 yalms from the Moogle at (0, 1.5) and ~30 yalms from the nearest Auction Counter. It takes effect at the 22:46 restart.
+**Roadmap** (`docs/custom/ROADMAP.md`) updated: `!city` and `!buff` (10 hours) under Done, the Augmenter under "Live, in testing".
