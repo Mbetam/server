@@ -42,3 +42,4 @@ custom/lua/test_npcs_in_gm_home.lua
 custom/commands/
 custom/lua/buff_pool.lua
 custom/lua/starter_survival_guides.lua
+custom/lua/augmenter_npc.lua

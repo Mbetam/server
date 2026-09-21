@@ -1,0 +1,47 @@
+-----------------------------------
+-- The Augmenter NPC.
+-- Puts one "Augmenter" NPC into each zone listed below. Trade the NPC a weapon or piece of armor to add or remove
+-- augments; the conversation and the item swap live in augmenter_flow.lua and the numbers in augment_config.lua.
+-----------------------------------
+require('modules/module_utils')
+require('scripts/zones/Lower_Jeuno/Zone')
+require('scripts/zones/GM_Home/Zone')
+local flow = require('modules/custom/lua/augmenter_flow')
+-----------------------------------
+
+-- Where the Augmenter stands. Stand where you want it in game, use !pos to read your coordinates, then edit here.
+-- Rotation is 0-255 (0 = east).
+local placements =
+{
+    -- Lower Jeuno, beside the row of Auction Counters (which run from about x -16, z -32 to x -9, z -19)
+    { zone = 'Lower_Jeuno', x = -13.0, y = -0.1, z = -31.0, rotation = 60 },
+
+    -- GM Home, for testing
+    { zone = 'GM_Home', x = 8.0, y = 0.0, z = 3.0, rotation = 128 },
+}
+
+-- Model 50 is the one the Auction Counter clerks use, so it is certain to exist in the client
+local model = 50
+
+local m = Module:new('augmenter_npc')
+
+for _, place in ipairs(placements) do
+    m:addOverride(string.format('xi.zones.%s.Zone.onInitialize', place.zone), function(zone)
+        super(zone)
+
+        zone:insertDynamicEntity(
+        {
+            objtype    = xi.objType.NPC,
+            name       = 'Augmenter',
+            packetName = 'Augmenter',
+            look       = model,
+            x          = place.x,
+            y          = place.y,
+            z          = place.z,
+            rotation   = place.rotation,
+            widescan   = 1,
+            onTrade    = flow.onTrade,
+            onTrigger  = flow.onTrigger,
+        })
+    end)
+end
