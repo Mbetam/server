@@ -137,6 +137,19 @@ local function copyList(augments)
     return copy
 end
 
+-- How many of the augments in this list are this stat.
+core.countOf = function(augments, key)
+    local count = 0
+
+    for _, augment in ipairs(augments) do
+        if core.decode(augment.id, augment.value) == key then
+            count = count + 1
+        end
+    end
+
+    return count
+end
+
 -- Can this stat be added to an item with these augments by a player with this level and gil?
 -- ctx = { level, gil, augments, key, tier }
 -- Returns true and { price, tier, id, value, amount }, or false and a message for the player.
@@ -158,10 +171,12 @@ core.checkAdd = function(ctx)
         return false, 'This item has no free augment slot.'
     end
 
-    for _, augment in ipairs(ctx.augments) do
-        if core.decode(augment.id, augment.value) == ctx.key then
+    if core.countOf(ctx.augments, ctx.key) >= config.maxPerStat then
+        if config.maxPerStat == 1 then
             return false, 'This item already has that stat.'
         end
+
+        return false, string.format('This item already has that stat %d times, the most it can.', config.maxPerStat)
     end
 
     local price = core.price(tier)

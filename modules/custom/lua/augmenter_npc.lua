@@ -6,7 +6,8 @@
 require('modules/module_utils')
 require('scripts/zones/Lower_Jeuno/Zone')
 require('scripts/zones/GM_Home/Zone')
-local flow = require('modules/custom/lua/augmenter_flow')
+local flow   = require('modules/custom/lua/augmenter_flow')
+local config = require('modules/custom/lua/augment_config')
 -----------------------------------
 
 -- Where the Augmenter stands. Stand where you want it in game, use !pos to read your coordinates, then edit here.
@@ -20,8 +21,8 @@ local placements =
     { zone = 'GM_Home', x = 8.0, y = 0.0, z = 3.0, rotation = 128 },
 }
 
--- Model 50 is the one the Auction Counter clerks use, so it is certain to exist in the client
-local model = 50
+-- The look is set in augment_config.lua (a Moogle). Do not use model 50: it is the blank placeholder the Auction Counters use.
+local model = config.npcModel
 
 local m = Module:new('augmenter_npc')
 

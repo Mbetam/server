@@ -13,6 +13,15 @@ return
 {
     slotsPerItem = 4, -- the engine allows 5
 
+    -- How many times the SAME stat may be on one item: 1 = each stat once, 4 = the same augment in every slot.
+    -- Every copy counts (two Dual Wield +2 augments give Dual Wield +4). Stats add up across all worn gear too,
+    -- and the game only caps a few of them (gear Haste 25%, Fast Cast 50, Cure Potency 50%).
+    maxPerStat = 4,
+
+    -- What the Augmenter NPC looks like: a model id from docs/model_ids.txt. 82 is the Moogle, the same model the game's own
+    -- Moogle NPCs use. Do NOT use 50: that model is a blank placeholder (the Auction Counters use it) and the NPC is invisible.
+    npcModel = 82,
+
     -- Tiers unlock with the player's MAIN job level. `price` is what one augment costs at that tier.
     -- If two tiers give the same bonus for a stat, the LOWER tier's level and price apply.
     tiers =

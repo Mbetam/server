@@ -1835,9 +1835,16 @@ void CBattleEntity::addEquipModifiers(CItemEquipment* PItem)
 {
     TracyZoneScoped;
 
-    for (auto& i : PItem->modList)
+    // An item can list one mod several times (a base stat plus augments, or the same augment in several slots), and
+    // GetScaledItemModifier already returns the total for the mod, so each distinct mod must be applied only once.
+    for (auto it = PItem->modList.begin(); it != PItem->modList.end(); ++it)
     {
-        m_modStat[i.getModID()] += battleutils::GetScaledItemModifier(this, PItem, i.getModID());
+        if (std::any_of(PItem->modList.begin(), it, [&](const CModifier& earlier) { return earlier.getModID() == it->getModID(); }))
+        {
+            continue;
+        }
+
+        m_modStat[it->getModID()] += battleutils::GetScaledItemModifier(this, PItem, it->getModID());
     }
 }
 
@@ -1961,9 +1968,15 @@ void CBattleEntity::delEquipModifiers(CItemEquipment* PItem, bool isDelevel /* =
 {
     TracyZoneScoped;
 
-    for (auto& i : PItem->modList)
+    // Same as addEquipModifiers: each distinct mod once, so the removal matches what was added
+    for (auto it = PItem->modList.begin(); it != PItem->modList.end(); ++it)
     {
-        m_modStat[i.getModID()] -= battleutils::GetScaledItemModifier(this, PItem, i.getModID(), isDelevel);
+        if (std::any_of(PItem->modList.begin(), it, [&](const CModifier& earlier) { return earlier.getModID() == it->getModID(); }))
+        {
+            continue;
+        }
+
+        m_modStat[it->getModID()] -= battleutils::GetScaledItemModifier(this, PItem, it->getModID(), isDelevel);
     }
 }
 

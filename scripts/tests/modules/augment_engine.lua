@@ -66,6 +66,61 @@ describe('Augments in the engine', function()
         assert(player:getMod(xi.mod.HASTE_GEAR) - hasteBefore == hasteAmount * 100, 'the third augment was not applied')
     end)
 
+    it('adds up the same augment used in several slots', function()
+        local id, value, amount = core.encode('dual_wield', 2)
+        local before            = player:getMod(xi.mod.DUAL_WIELD)
+
+        wearRing({ { id = id, value = value }, { id = id, value = value }, { id = id, value = value }, { id = id, value = value } })
+
+        assert(player:getMod(xi.mod.DUAL_WIELD) - before == amount * 4,
+            string.format('four Dual Wield +%d augments should give +%d but gave +%d', amount, amount * 4, player:getMod(xi.mod.DUAL_WIELD) - before))
+    end)
+
+    -- The game once added an item's total for a mod once PER ENTRY on that item, so N copies of one augment gave N times
+    -- too much (four Dual Wield +2 gave +32). Fixed in CBattleEntity::addEquipModifiers / delEquipModifiers.
+    it('gives every copy once, for one to four copies of the same augment', function()
+        for copies = 1, config.maxPerStat do
+            spawn()
+
+            local id, value, amount = core.encode('dual_wield', 2)
+            local list              = {}
+
+            for _ = 1, copies do
+                table.insert(list, { id = id, value = value })
+            end
+
+            local before = player:getMod(xi.mod.DUAL_WIELD)
+
+            wearRing(list)
+
+            assert(player:getMod(xi.mod.DUAL_WIELD) - before == amount * copies,
+                string.format('%d copies of Dual Wield +%d should give +%d but gave +%d', copies, amount, amount * copies, player:getMod(xi.mod.DUAL_WIELD) - before))
+        end
+    end)
+
+    it('takes the whole bonus back off when the ring comes off', function()
+        local id, value = core.encode('double_attack', 3)
+        local before    = player:getMod(xi.mod.DOUBLE_ATTACK)
+
+        wearRing({ { id = id, value = value }, { id = id, value = value }, { id = id, value = value } })
+        assert(player:getMod(xi.mod.DOUBLE_ATTACK) > before, 'precondition: the bonus should be on')
+
+        player:unequipItem(xi.slot.RING1)
+
+        assert(player:getMod(xi.mod.DOUBLE_ATTACK) == before, 'after taking the ring off Double Attack should be back to ' .. before .. ' but is ' .. player:getMod(xi.mod.DOUBLE_ATTACK))
+    end)
+
+    it('reads back an item that carries the same augment four times', function()
+        local id, value = core.encode('regen', 1)
+
+        player:addItem({ id = ring, exdata = core.buildExdata({ { id = id, value = value }, { id = id, value = value }, { id = id, value = value }, { id = id, value = value } }) })
+
+        local augments, reason = core.readItem(player:findItem(ring))
+
+        assert(augments ~= nil and #augments == 4, 'an item with the same augment in every slot should be readable: ' .. tostring(reason))
+        assert(core.countOf(augments, 'regen') == 4, 'all four should be Regen')
+    end)
+
     it('reads a plain item as having no augments', function()
         player:addItem(ring)
 

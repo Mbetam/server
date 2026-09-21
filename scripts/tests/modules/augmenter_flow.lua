@@ -380,13 +380,30 @@ describe('Augmenter: choosing a stat and a bonus', function()
         assert(said(low):find('unlock as you level', 1, true), 'the NPC should say more unlocks later')
     end)
 
-    it('leaves out a stat the item already has', function()
+    it('still offers a stat the item already has, since stats can be stacked', function()
         local carrying = bagWith(makePlayer(), augmentExdata({ { id = 146, value = 0 } }))
         trade(carrying, 1)
         pick(carrying, 'Add an augment')
 
-        assert(not hasLabel(carrying, 'Dual Wield'), 'Dual Wield is already on the item')
+        assert(hasLabel(carrying, 'Dual Wield'), 'Dual Wield can be added again')
         assert(hasLabel(carrying, 'Double Attack'))
+    end)
+
+    it('stops offering a stat once it reaches the per-stat limit', function()
+        local original = config.maxPerStat
+        config.maxPerStat = 2
+
+        local carrying = bagWith(makePlayer(), augmentExdata({ { id = 146, value = 0 }, { id = 146, value = 1 } }))
+        trade(carrying, 1)
+        pick(carrying, 'Add an augment')
+
+        local offersDualWield  = hasLabel(carrying, 'Dual Wield')
+        local offersOtherStats = hasLabel(carrying, 'Double Attack')
+
+        config.maxPerStat = original
+
+        assert(not offersDualWield, 'Dual Wield is at the limit of 2 and should no longer be offered')
+        assert(offersOtherStats, 'other stats should still be offered')
     end)
 end)
 
@@ -427,6 +444,19 @@ describe('Augmenter: adding an augment', function()
 
         assert(player.gil == 10000000 and augmentIds(theOnlyItem(player)) == '', 'saying no should change nothing')
         assert(hasLabel(player, 'Add an augment'), 'saying no should return to the first menu')
+    end)
+
+    it('adds the same stat to an item again', function()
+        local player = bagWith(makePlayer(), augmentExdata({ { id = 146, value = 0 } }))
+
+        trade(player, 1)
+        pick(player, 'Add an augment')
+        pick(player, 'Dual Wield')
+        pick(player, '+1 (10,000 gil)')
+        pick(player, 'Yes, augment it')
+
+        assert(augmentIds(theOnlyItem(player)) == '146:0,146:0', 'the item should now carry Dual Wield twice: ' .. augmentIds(theOnlyItem(player)))
+        assert(player.gil == 10000000 - 10000, 'the second copy costs the same as the first')
     end)
 
     it('adds a second augment to an item that already has one', function()

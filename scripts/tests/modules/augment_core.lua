@@ -57,6 +57,10 @@ describe('Augment catalog', function()
         end
     end)
 
+    it('keeps the per-stat limit between one and the number of slots', function()
+        assert(config.maxPerStat >= 1 and config.maxPerStat <= config.slotsPerItem, 'maxPerStat should be between 1 and ' .. config.slotsPerItem)
+    end)
+
     it('spreads HP and MP over four retail ids', function()
         assert(select(1, core.encode('hp', 1)) == 1, 'HP +20 should use augment 1')
         assert(select(1, core.encode('hp', 2)) == 2, 'HP +40 should use augment 2')
@@ -187,11 +191,42 @@ describe('Adding an augment', function()
         assert(core.checkAdd(ctx({ gil = 10000 })), 'exactly enough gil should be enough')
     end)
 
-    it('refuses a stat the item already has', function()
-        local existing = { { id = 146, value = 0 } }
-        local ok, message = core.checkAdd(ctx({ augments = existing, tier = 2 }))
+    it('lets the same stat be stacked', function()
+        local three = { { id = 146, value = 0 }, { id = 146, value = 0 }, { id = 146, value = 0 } }
+        local ok, plan = core.checkAdd(ctx({ augments = three, key = 'dual_wield', tier = 1 }))
 
-        assert(not ok and message:find('already', 1, true), 'a second Dual Wield should be refused: ' .. tostring(message))
+        assert(ok and plan.id == 146, 'a fourth Dual Wield should be allowed while stacking is on: ' .. tostring(plan))
+    end)
+
+    it('refuses a stat that has reached the per-stat limit', function()
+        local original = config.maxPerStat
+        config.maxPerStat = 2
+
+        local two = { { id = 146, value = 0 }, { id = 146, value = 1 } }
+        local ok, message = core.checkAdd(ctx({ augments = two, key = 'dual_wield', tier = 1 }))
+        local other = core.checkAdd(ctx({ augments = two, key = 'double_attack', tier = 1 }))
+
+        config.maxPerStat = original
+
+        assert(not ok and message:find('2 times', 1, true), 'a third Dual Wield should be refused at a limit of 2: ' .. tostring(message))
+        assert(other, 'a different stat should still be accepted')
+    end)
+
+    it('says the stat is already there when each stat may only be used once', function()
+        local original = config.maxPerStat
+        config.maxPerStat = 1
+
+        local ok, message = core.checkAdd(ctx({ augments = { { id = 146, value = 0 } }, key = 'dual_wield', tier = 2 }))
+
+        config.maxPerStat = original
+
+        assert(not ok and message:find('already has that stat', 1, true), 'the once-per-stat rule should still work: ' .. tostring(message))
+    end)
+
+    it('counts every copy of a stat', function()
+        local list = { { id = 146, value = 0 }, { id = 143, value = 0 }, { id = 146, value = 2 } }
+
+        assert(core.countOf(list, 'dual_wield') == 2 and core.countOf(list, 'double_attack') == 1 and core.countOf(list, 'fast_cast') == 0)
     end)
 
     it('refuses when every slot is used', function()
@@ -372,5 +407,54 @@ describe('Reading an item', function()
         local five = augmented({ { id = 146, value = 0 }, { id = 143, value = 0 }, { id = 144, value = 0 }, { id = 41, value = 0 }, { id = 140, value = 0 } })
 
         assert(core.readItem(fakeItem(true, five)) == nil, 'a fifth used slot is beyond what this system manages')
+    end)
+end)
+
+describe('Augmenter NPC look', function()
+    it('is the same model the game gives its own Moogle NPCs', function()
+        -- data/zones/lower_jeuno/npcs.yaml lists the zone's Moogle as `display_name: Moogle` then `model: <id>`
+        local file = io.open('data/zones/lower_jeuno/npcs.yaml', 'r')
+        assert(file, 'could not open the Lower Jeuno NPC data (tests must run from the repository root)')
+
+        local sawMoogle = false
+        local model     = nil
+
+        for line in file:lines() do
+            if line:match('display_name:%s+Moogle%s*$') then
+                sawMoogle = true
+            elseif sawMoogle and line:match('^%s+model:') then
+                model = tonumber(line:match('model:%s*(%d+)'))
+
+                break
+            end
+        end
+
+        file:close()
+
+        assert(model ~= nil, 'the game\'s own Moogle was not found in the Lower Jeuno NPC data')
+        assert(config.npcModel == model, string.format('the Augmenter uses model %d but the game\'s Moogle uses model %d', config.npcModel, model))
+    end)
+
+    it('is not the blank placeholder model', function()
+        -- docs/model_ids.txt lists `<id>    <name>`, and a model with no appearance is listed as `*` (the Auction Counters use one, and are invisible)
+        local file = io.open('docs/model_ids.txt', 'r')
+        assert(file, 'could not open docs/model_ids.txt (tests must run from the repository root)')
+
+        local name = nil
+
+        for line in file:lines() do
+            local id, label = line:match('^%s*(%d+)%s+(.-)%s*$')
+
+            if tonumber(id) == config.npcModel then
+                name = label
+
+                break
+            end
+        end
+
+        file:close()
+
+        assert(name ~= nil, 'model ' .. config.npcModel .. ' is not in docs/model_ids.txt')
+        assert(name ~= '*', 'model ' .. config.npcModel .. ' is a blank placeholder, so the NPC would be invisible')
     end)
 end)

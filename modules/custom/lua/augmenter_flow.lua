@@ -230,18 +230,12 @@ local function tierMenu(player, key)
     send(player, menuFor(string.format('%s: choose a bonus', stat.name), options))
 end
 
--- The stats this item does not have yet, in the catalog's order
-local function freeStats(session)
-    local taken = {}
-
-    for _, augment in ipairs(session.augments) do
-        taken[(core.decode(augment.id, augment.value))] = true
-    end
-
+-- The stats this item can still take, in the catalog's order: every stat that has not reached the per-item limit
+local function availableStats(session)
     local list = {}
 
     for _, stat in ipairs(config.stats) do
-        if not taken[stat.key] then
+        if core.countOf(session.augments, stat.key) < config.maxPerStat then
             table.insert(list, stat)
         end
     end
@@ -255,7 +249,7 @@ flow.showStats = function(player, page)
         return
     end
 
-    local stats = freeStats(session)
+    local stats = availableStats(session)
     local pages = math.max(1, math.ceil(#stats / statsPerPage))
     page        = math.max(1, math.min(page, pages))
 
@@ -400,7 +394,9 @@ flow.onTrigger = function(player, npc)
     local name = npc:getPacketName()
 
     say(player, name, 'I can add bonus stats to your weapons and armor. Trade me ONE piece of gear with no augments, or one I have augmented before, and take it off first.')
-    say(player, name, string.format('Each item holds up to %d augments, one of each stat. You pay only when you confirm.', config.slotsPerItem))
+    local stacking = config.maxPerStat > 1 and string.format('The same stat can be added up to %d times.', config.maxPerStat) or 'Each stat can be added once.'
+
+    say(player, name, string.format('Each item holds up to %d augments. %s You pay only when you confirm.', config.slotsPerItem, stacking))
 end
 
 flow.onTrade = function(player, npc, trade)

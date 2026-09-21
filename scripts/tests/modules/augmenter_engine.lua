@@ -120,6 +120,30 @@ describe('Augmenter NPC', function()
         assert(player:getMod(xi.mod.DUAL_WIELD) - before == 1, 'the new ring should give Dual Wield +1')
     end)
 
+    it('stacks the same augment through two real conversations', function()
+        player:addItem(ring)
+
+        for _ = 1, 2 do
+            player.actions:tradeNpc('DE_Augmenter', { ring })
+            settle()
+
+            pick('Add an augment')
+            pick('Dual Wield')
+            pick('+1 (10,000 gil)')
+            pick('Yes, augment it')
+        end
+
+        local augments = core.readItem(player:findItem(ring))
+
+        assert(#augments == 2 and augments[1].id == 146 and augments[2].id == 146, 'the ring should carry Dual Wield twice')
+        assert(player:getGil() == 10000000 - 20000, 'two augments should cost 20,000 gil')
+
+        local before = player:getMod(xi.mod.DUAL_WIELD)
+        player:equipItem(ring, nil, xi.slot.RING1)
+
+        assert(player:getMod(xi.mod.DUAL_WIELD) - before == 2, 'two Dual Wield +1 augments should give +2')
+    end)
+
     it('keeps the augments a ring already has', function()
         giveAugmentedRing({ { id = 146, value = 0 } })
         player.actions:tradeNpc('DE_Augmenter', { ring })
