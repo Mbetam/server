@@ -1,5 +1,5 @@
 -----------------------------------
--- The !buff command (modules/custom/commands/buff.lua): EXP +200%, Regen +50, Refresh +50, Regain +50
+-- The !buff command (modules/custom/commands/buff.lua): EXP +200%, Regen +50, Refresh +50, Regain +50 for ten hours
 -----------------------------------
 
 describe('!buff command', function()
@@ -64,7 +64,32 @@ describe('!buff command', function()
         assert(killExp(mob, baseExp) == baseExp * 3, 'a +200% bonus should pay three times the base EXP')
     end)
 
-    it('lasts an hour', function()
+    it('keeps the EXP pool small enough for the database to save', function()
+        -- char_effects.subpower is a signed smallint. A pool above 32767 makes every effects save fail with
+        -- "Out of range value for column 'subpower'" and the whole batch is rolled back.
+        xi.commands.buff.onTrigger(player)
+
+        local pool = player:getStatusEffect(xi.effect.DEDICATION):getSubPower()
+
+        assert(pool > 0 and pool <= 32767, 'the EXP pool is ' .. pool .. ', which char_effects.subpower cannot store')
+    end)
+
+    it('tops the EXP pool back up after every kill so it never runs dry', function()
+        local mob = player.entities:get('Volcanic_Bomb')
+
+        xi.commands.buff.onTrigger(player)
+        local full = player:getStatusEffect(xi.effect.DEDICATION):getSubPower()
+
+        for _ = 1, 5 do
+            assert(killExp(mob, 1000) > 1000, 'the buff should be paying a bonus')
+        end
+
+        local effect = player:getStatusEffect(xi.effect.DEDICATION)
+        assert(effect ~= nil, 'the EXP buff ended after a few kills')
+        assert(effect:getSubPower() == full, 'the pool should be full again after each kill, but it is ' .. effect:getSubPower())
+    end)
+
+    it('lasts ten hours', function()
         xi.commands.buff.onTrigger(player)
 
         for _, effectId in ipairs({ xi.effect.DEDICATION, xi.effect.REGEN, xi.effect.REFRESH, xi.effect.REGAIN }) do
@@ -73,8 +98,8 @@ describe('!buff command', function()
             assert(effect ~= nil, 'the buff is missing an effect')
 
             -- getDuration() is in milliseconds
-            assert(effect:getDuration() == 3600 * 1000,
-                string.format('every effect in the buff should last 3600 seconds (effect %d lasts %d ms)', effectId, effect:getDuration()))
+            assert(effect:getDuration() == 10 * 3600 * 1000,
+                string.format('every effect in the buff should last 10 hours (effect %d lasts %d ms)', effectId, effect:getDuration()))
         end
     end)
 

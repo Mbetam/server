@@ -257,3 +257,35 @@ Settings only, no code (`settings/map.lua`, git-ignored): `BASE_SPEED 50 -> 75`,
 - Verified with a throwaway `xi_test` against the real settings (5/5, file deleted afterwards): 75 on foot; base 75 + 10 = 85 (past the old cap); +100 caps at 120; `animation = CHOCOBO` -> 60.
 - **Not verified:** how it feels or looks in the real client (animation smoothness, zone-edge behaviour, event/cutscene movement). Rollback = set the three values back to 50 / 80 / 80 and restart `xi_map`.
 - Only takes effect after a restart and re-login (settings are read at startup / entity creation).
+
+## 2026-09-21 — Starter kit (maps, outposts, 100k gil, survival guides) + a `!buff` bug I caused
+
+**How to give an EXISTING online character the kit (no new character, no DB edits):** as a GM in game chat:
+`!addallmaps <name>`, `!addallwarps <name>` (all Survival Guides AND all Home Points), `!givegil 100000 <name>` (adds; `!setgil` only sets the caller's own gil).
+Never edit `chars`/`char_jobs`/... rows while the character is online: the running map server overwrites them on its next save (this already bit us once with `genkai`).
+
+**New characters:** `settings/main.lua` `START_GIL = 100000` (was 10), `ALL_MAPS = 1` (was 0), `UNLOCK_OUTPOST_WARPS = 2` (was 0; 2 = all outposts incl. Tu'Lia and Tavnazia).
+`START_GIL`/`ALL_MAPS` are applied once, in `xi.player.charCreate` (`scripts/globals/player.lua`); START_GIL is a top-up (only if below the value), so it never lowers anyone's gil.
+`UNLOCK_OUTPOST_WARPS` is read live every time an outpost is used (`conquest.lua` `hasOutpost` / `getAllowedTeleports`), so it covers existing characters too.
+Nothing covers Survival Guides, so `modules/custom/lua/starter_survival_guides.lua` overrides `xi.player.charCreate` and registers all 32x3 guides (the loop from `addallwarps.lua`, without its Home Points).
+Tests: `scripts/tests/modules/starter_kit.lua`.
+
+**Bug: `!buff` broke effect saving.** `char_effects.subpower` is a SIGNED smallint (max 32767) but `!buff` set Dedication's pool to 99,999,999. Every autosave of a player holding the buff failed:
+`Out of range value for column 'subpower'` then `Transaction failed, rolling back` (critical), about every 20-30 s, until the buff ended. Effects could not persist; nothing permanent was lost.
+Fix: pool = 32000 (`modules/custom/lua/buff_config.lua`, shared by `buff.lua` and the top-up), and `modules/custom/lua/buff_pool.lua` overrides `xi.experiencePoints.calculate` to refill the pool after every kill, so it never runs dry.
+New tests in `buff_command.lua`: the pool must be <= 32767, and it must be full again after 5 kills.
+Lesson: check the column type before choosing a "big" value for anything that is saved to the DB.
+
+**File watcher (important):** the live map server hot-reloads `scripts/`, `modules/` and `settings/` on save. The `!buff` fix and the new settings went live the moment they were saved (log: `RE-RUNNING MODULE FILE modules/custom/commands/buff.lua`, `RELOADING ALL LUA SETTINGS FILES`).
+Not applied by the watcher: the two NEW module files (`buff_pool.lua`, `starter_survival_guides.lua`); Module overrides need a restart. Saving a test file under `scripts/tests/` logs a harmless `describe` load error.
+Anyone who used the OLD `!buff` still holds the big pool in memory until it ends or they run `!buff` again (the reloaded command replaces it with the safe pool), or the server restarts.
+
+## 2026-09-21 — `!buff` now lasts 10 hours
+
+`modules/custom/lua/buff_config.lua` `duration = 36000` (was 3600). The chat message now reads "Buff active for 10 hours" (`%g` of `duration / 3600`).
+`buff.lua` also clears its cached copy of the config (`package.loaded[...] = nil`) before requiring it, so re-running the file (the file watcher does that on save) picks up an edited config; without it a changed number would only apply after a restart.
+- Live immediately (file watcher: `RE-RUNNING MODULE FILE` for `buff.lua` and `buff_config.lua`, no errors). Effects cast BEFORE the change keep their old 1-hour timer until they end or `!buff` is used again.
+- Verified offline, not with `xi_test`: `xi_test` embeds its own world server (own ZMQ IPC) and must not run next to the live `xi_world`. The change was built in a scratch folder, syntax-checked and run against a fake player with `lupa` (Lua 5.1, installed in `~/lsb-venv`): all four effects 36000 s, pool 32000, message "10 hours".
+  The real test (`scripts/tests/modules/buff_command.lua`, now "lasts ten hours") still has to be run in the next restart window, together with `starter_kit.lua` and the pool tests.
+- `char_effects.duration` is an unsigned int, so 10 hours fits whether it is stored in seconds or milliseconds.
+- Player-facing text that says "1 hour" and needs updating: the Discord changelog draft, and the message already sent to the friend.
