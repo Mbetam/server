@@ -126,3 +126,82 @@ Tooling gotcha: a background task's "exit 0" notification is only the wrapper's 
   - `modules/init.txt` is tracked but its own header says to `git update-index --assume-unchanged` it; we commit our one added line instead, because the module never loads without it.
 - **Git:** commit `61413db` (CLAUDE.md + NOTES.md). No git identity is configured on this VM; commits pass `-c user.name -c user.email` (Eric / ericelizondo99@gmail.com) so nothing is written to git config.
   `scripts/tests/systems/charutils.lua` is still untracked on purpose.
+
+## 2026-09-21 — Pushing to the fork (deploy key)
+
+- The VM has no GitHub login, and dbtool-style `!` commands have no TTY, so HTTPS pushes fail (`could not read Username`). Pushing uses a **repo-scoped deploy key with write access**.
+- Key: `~/.ssh/mbetam_server_deploy` (ed25519, no passphrase, mode 600). Alias in `~/.ssh/config`: `Host github.com-server` (`IdentitiesOnly yes`).
+  `origin` = `git@github.com-server:Mbetam/server.git`; `upstream` = `https://github.com/LandSandBoat/server.git` (fetch only).
+- GitHub's host key was pinned in `~/.ssh/known_hosts` after checking it against the fingerprint published at `https://api.github.com/meta` (ED25519 `SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`).
+- Test: `ssh -T git@github.com-server` should print `Hi Mbetam/server! You've successfully authenticated`. Revoke: delete the key under the fork's Settings -> Deploy keys.
+- First push: `custom` -> `origin/custom` at `626ff0f`. `base` on the fork still equals upstream `base` (`4ce94020bf`).
+- To pull upstream later: `git fetch upstream && git merge upstream/base` on `custom`, then rebuild and `python3 tools/dbtool.py update`.
+
+## 2026-09-21 — Tier 3 test baseline (full `xi_test`)
+
+**Command:** `./xi_test --keep-going --output <report>.ctrf.json` (servers stopped first; ~11 min on 16 cores). Report + log kept outside the repo in `~/lsb-test-reports/`
+(`baseline-2026-09-21.ctrf.json`, 3.6 MB; `.log`). Pre-run DB backup: `sql/backups/mbetam_xi-20260921-185818-pre-baseline.sql`. The run left the DB untouched (1 char, 1 account).
+
+**Result: 915 tests, 911 passed, 4 failed.**
+
+| Area | Passed | Failed |
+|---|---|---|
+| systems | 643 | 1 |
+| missions | 96 | 0 |
+| packets | 67 | 1 |
+| framework | 53 | 0 |
+| jobs (cor dnc geo mnk pup run smn thf war only) | 22 | 2 |
+| modules | 19 | 0 |
+| quests | 11 | 0 |
+
+**Coverage caveat:** upstream only tests what it has written tests for. NPC scripts, most quests, mob scripts, drops, zone behaviour and every client-side thing are untested here.
+"911 pass" does not mean those work; the Tier 3 playthrough and LSB's "What Works" table cover the rest.
+
+**The 4 failures, and what an A/B rerun showed** (same test subset run twice: once with my `settings/main.lua`+`map.lua`, once with the shipped defaults):
+
+| Test | Verdict |
+|---|---|
+| `jobs::thf::traits::Gilfinder::drops GIL_MIN <> GIL_MAX without Gilfinder` | **Caused by my settings.** Fails with mine, passes with defaults. Test pins a mob to exactly 12000 gil; `MOB_GIL_MULTIPLIER = 2.0` changes that. (Not bisected to the single setting.) |
+| `jobs::thf::traits::Treasure Hunter::increases drop rates #long` | **Caused by my settings.** Expected 18.00%, observed 29.45%; passes with defaults. `DROP_RATE_MULTIPLIER = 2.0`. |
+| `packets::s2c::0x028_battle2::...Summoner #smn::Garuda Predator Claws sequence` | **Not my settings, cause unknown.** Failed in the full run, but passed in the subset run with BOTH my settings and defaults. Looks order/state dependent or flaky. Not proven. |
+| `systems::combat::Ranged Attack Free Phase Delay::cannot perform another ranged attack inside of free phase window` | Same as above: failed once in the full run, passed in both subset runs. |
+
+Also seen: `packets::s2c::0x028_battle2::...Weaponskills #ws::Out of range` passes in the full run but FAILS when only its subset is run (with mine and with defaults) —
+direct evidence that some upstream tests depend on test order/state, which fits the two unexplained failures.
+
+**No evidence in this baseline that a real game system is broken.** Two failures are my tuning; two are unexplained and look order-dependent.
+
+**Open follow-ups:**
+- Rerun the full suite with default settings (~11 min, servers down) to see whether Garuda/ranged still fail without my tuning, and rerun once with mine to see if they reproduce (flaky vs deterministic).
+- Optional: make the Gilfinder and Treasure Hunter tests pin their own settings with `xi.test.world:setSetting('map.MOB_GIL_MULTIPLIER', 1)` / `'map.DROP_RATE_MULTIPLIER'` (as `death_exp_loss.lua` already does), so the suite stays green under custom rates.
+- Tooling note: the A/B swap used a script-level `trap` to restore my settings; settings backup was deleted afterwards. Always confirm `grep DROP_RATE_MULTIPLIER settings/map.lua` shows 2.0 after any A/B.
+
+## 2026-09-21 — QoL commands: `!home`, `!tele`, `!telelist`, `!shop`
+
+Modules under `modules/custom/commands/` (loaded by the existing `custom/commands/` line in `modules/init.txt`), shared checks in `modules/custom/lua/qol_common.lua` (a helper, not a module; only loaded by `require`).
+Tests: `scripts/tests/modules/qol_commands.lua` (21 tests, all pass; the whole `modules/` folder is 40/40). All four are `permission = 0` (every player). No core scripts or C++ were touched.
+
+| Command | What it does |
+|---|---|
+| `!home` | `player:warp()`: same as being warped to the home point. |
+| `!tele set <name>` / `!tele <name>` / `!tele del <name>` | Player-set teleport points. Max 10, names are letters+digits, <= 12 chars, case-insensitive, `set`/`del` reserved. Overwriting a name never counts against the limit. |
+| `!telelist` | Lists points alphabetically with zone and x/z. |
+| `!shop` | Opens a general-supplies shop anywhere via `xi.shop.general`. Stock is a table at the top of `shop.lua` (potions, ethers, remedy, antidote, echo drops, pickaxe/hatchet/sickle, arrows, bullets, shuriken); prices are the ones existing NPC vendors in this repo use. |
+
+**Blocked when:** KO'd, in an event, engaged in battle, or inside a battlefield/instance (`qol.blockedReason`). `!tele set` also refuses in a Mog House (`player:inMogHouse()`), since the coordinates there are meaningless in the city zone.
+
+**Storage (no new tables):** a point is five char vars `tele_<name>_<zone|x|y|z|rot>`. Gotchas that shaped this:
+- Char vars are integers, so coordinates are stored x100.
+- `setCharVar(name, 0)` DELETES the row (`PersistCharVar`), and x, z and rotation are often exactly 0. Every field is therefore shifted by +100000000 so a stored value is never 0. A field reading 0 means deleted/missing, and incomplete points are ignored.
+- `getCharVarsWithPrefix('tele_')` is how points are found; the name lives in the var name (varname is 64 chars).
+
+**Test quality check:** two deliberate breaks (offset set to 0; KO check removed) made 6 and 3 tests fail respectively, so the assertions do bite. Files restored byte-identical afterwards.
+Test-writing notes: chat text is read from 0x017 packets at byte 23 (same as `test_npcs_in_gm_home.lua`); the shop path is exercised end to end with `player.actions:shopBuy`.
+
+**`!ah` findings (NOT built):**
+- `scripts/commands/ah.lua` already exists upstream as a GM-only (`permission = 1`) command that calls `player:sendMenu(xi.menuType.AUCTION)`; GM 4 characters (Tester) can already use it.
+- The AH packet handler (`src/map/packets/c2s/0x04e_auc.cpp:32`) requires `hasZoneMiscFlag(ZoneMisc::AuctionHouse)`, so the server only lets AH actions happen in zones flagged for it: 21 city zones, authored in `data/zones/*/zone.yaml` (`misc: [..., auction_house, ...]`) and compiled at build time. A module or SQL cannot change that.
+- Options: (A) leave the GM `!ah` as is (works in the 21 AH zones); (B) remove the zone check in that one C++ line (small core diff + rebuild; note it in the commit); (C) add `auction_house` to the misc list of every zone yaml (300 files, painful upstream merges). Not yet known whether the client itself opens the AH window outside a city; a quick test is `!ah` as Tester in a field zone.
+- Also existing: `!homepoint` (GM, sends a target to their home point), unrelated to `!home`.
+
+**Not verified:** anything client-side (the shop window, the chat text, how a teleport looks). Tests exercise the server side only.
