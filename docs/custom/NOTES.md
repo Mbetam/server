@@ -492,3 +492,27 @@ nobody reuses 90000001 by hand later.
 **Not covered / left for later:** the bot's own delivery-box mail (gil from real players buying its
 stock) will accumulate forever since "AHBot" never logs in to collect it — harmless, but worth a
 periodic sweep eventually. Bought-out player items are simply removed, not recycled into new stock.
+
+## 2026-09-22 — AH bot: whole AH stocked (owner override), random draw order
+
+Owner ran it by hand, saw only materials/food/crystals got listed, and said "I want the whole AH to be
+stocked" - weapons and armor included. `RESTOCK_AH_CATEGORIES` is now `None` (every real category) by
+default; the earlier materials-only list is still available by setting it back to a tuple.
+
+Equipment is priced the same way as everything else (`price_for`: BaseSell if it has one, else
+level x 10 x 30 - see the September 22 "AH bot" entry above), no logic change needed there, only the
+category filter. Equipment gets its own restock target of **1** instead of 5 (`RESTOCK_EQUIPMENT_TARGET_QUANTITY`):
+unlike a material, a weapon or armor piece is not used up by crafting, so 5 identical copies listed at
+once would look strange. Equipment below level 10 is skipped (`RESTOCK_MIN_EQUIPMENT_LEVEL`) - not worth
+a permanent AH slot.
+
+**Found immediately when the category limit came off:** the very next dry run listed almost the same
+40 items again - furniture, plus now some materials - because the query had no ORDER BY, and low
+item ids (furniture is largely 2-107) always win a plain unordered SELECT. At 200 listings per run,
+weapons and armor (much higher item ids) would never have been reached for a long time. Fixed with
+`ORDER BY RAND()` in the restock query, so every run spreads across the whole catalog instead of
+crawling it in id order. Confirmed in a dry run: the very next run's first 20 lines included weapons,
+armor, rings and cards.
+
+Verified with a dry run only (`test_pricing.py` still 15/15; the live `--apply` for this specific
+change has not been run in this session - same limitation as before, see the entry above).

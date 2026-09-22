@@ -10,8 +10,9 @@
 -- are 0 (the lowest, same shape as a disabled account) - it is not meant to ever log in, only to own
 -- rows in the auction_house and chars tables.
 
+-- login is varchar(16); 'ah_bot_system' (13 chars) fits with room to spare.
 INSERT INTO accounts (id, login, password, current_email, registration_email, timecreate, timelastmodify, content_ids, expansions, features, status, priv)
-VALUES (90000001, 'ah_bot_system_account', SHA2(RAND(), 256), 'noreply@localhost', 'noreply@localhost', NOW(), NOW(), 16, 4094, 253, 0, 0);
+VALUES (90000001, 'ah_bot_system', SHA2(RAND(), 256), 'noreply@localhost', 'noreply@localhost', NOW(), NOW(), 16, 4094, 253, 0, 0);
 
 INSERT INTO chars (charid, accid, charname, nation, pos_zone, home_zone)
 VALUES (90000001, 90000001, 'AHBot', 0, 0, 0);

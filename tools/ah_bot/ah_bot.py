@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-The Auction House bot: keeps common materials in stock, and buys out gear (and anything else it can
-price) that a player has listed and nobody bought within BUYOUT_WAIT_HOURS. See config.py for the
-tunable numbers and why they are what they are, and docs/custom/NOTES.md for the design.
+The Auction House bot: keeps the AH stocked (every category by default - see RESTOCK_AH_CATEGORIES in
+config.py to narrow that), and buys out anything a player has listed that nobody bought within
+BUYOUT_WAIT_HOURS. See config.py for the tunable numbers and why they are what they are, and
+docs/custom/NOTES.md for the design.
 
 Prints what it would do and does NOT touch the database unless run with --apply. Meant to be run
 repeatedly (a cron job or a systemd timer - see docs/custom/NOTES.md for the unit files), not as a
@@ -27,7 +28,9 @@ from config import (
     MAX_BUYOUTS_PER_RUN,
     MAX_RESTOCK_ITEMS_PER_RUN,
     RESTOCK_AH_CATEGORIES,
+    RESTOCK_EQUIPMENT_TARGET_QUANTITY,
     RESTOCK_MIN_BASE_SELL,
+    RESTOCK_MIN_EQUIPMENT_LEVEL,
     RESTOCK_TARGET_QUANTITY,
 )
 from pricing import price_for
@@ -44,16 +47,27 @@ NOT_NO_AUCTION = f'(b.flags & {NO_AUCTION_FLAG}) = 0'
 
 
 def restock_candidates(cur):
-    """Items in RESTOCK_AH_CATEGORIES with a real BaseSell: itemid, name, base_sell."""
-    placeholders = ', '.join(['%s'] * len(RESTOCK_AH_CATEGORIES))
+    """Everything eligible to be proactively stocked: itemid, name, base_sell, equip_level (None for
+    non-equipment). A non-equipment item needs a real BaseSell; equipment needs a real level - most
+    equipment has no BaseSell at all (see pricing.py). RESTOCK_AH_CATEGORIES, if set, narrows this to
+    specific categories; None (the default) means every real category."""
+    category_filter = ''
+    params           = [RESTOCK_MIN_BASE_SELL, RESTOCK_MIN_EQUIPMENT_LEVEL]
+
+    if RESTOCK_AH_CATEGORIES is not None:
+        placeholders    = ', '.join(['%s'] * len(RESTOCK_AH_CATEGORIES))
+        category_filter = f'AND b.aH IN ({placeholders})'
+        params          = list(RESTOCK_AH_CATEGORIES) + params
 
     cur.execute(f"""
-        SELECT b.itemid, b.name, b.BaseSell
+        SELECT b.itemid, b.name, b.BaseSell, e.level
         FROM item_basic b
-        WHERE {NOT_NO_AUCTION}
-          AND b.aH IN ({placeholders})
-          AND b.BaseSell >= %s
-    """, RESTOCK_AH_CATEGORIES + (RESTOCK_MIN_BASE_SELL,))
+        LEFT JOIN item_equipment e ON e.itemid = b.itemid
+        WHERE {AUCTIONABLE_AH} AND {NOT_NO_AUCTION}
+          {category_filter}
+          AND (b.BaseSell >= %s OR e.level >= %s)
+        ORDER BY RAND()
+    """, params)
 
     return cur.fetchall()
 
@@ -71,17 +85,18 @@ def restock(cur, apply_changes):
     listed     = 0
     now        = int(time.time())
 
-    for itemid, name, base_sell in candidates:
+    for itemid, name, base_sell, equip_level in candidates:
         if listed >= MAX_RESTOCK_ITEMS_PER_RUN:
             break
 
+        target  = RESTOCK_EQUIPMENT_TARGET_QUANTITY if equip_level else RESTOCK_TARGET_QUANTITY
         have    = stock.get(itemid, 0)
-        missing = RESTOCK_TARGET_QUANTITY - have
+        missing = target - have
 
         if missing <= 0:
             continue
 
-        price = price_for(base_sell)
+        price   = price_for(base_sell, equip_level)
         missing = min(missing, MAX_RESTOCK_ITEMS_PER_RUN - listed)
 
         print(f'restock: {name} (item {itemid}) x{missing} at {price} gil each (had {have})')

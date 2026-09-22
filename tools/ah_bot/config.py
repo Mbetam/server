@@ -16,25 +16,28 @@ PRICE_MULTIPLIER = 30
 # A level 99 piece prices the same as an item with BaseSell 990 (990 * 30 = 29,700 gil).
 EQUIP_LEVEL_UNIT_PRICE = 10
 
-# Restocking: only items in these Auction House categories are proactively listed (see
-# docs/Auction Categories.txt for the full list and what each number means). Chosen to match "keep
-# common materials in stock" - crystals, crafting materials, food - and explicitly NOT weapons, armor,
-# furnishings or anything else a real player would normally be the one selling. The first attempt at
-# this list had no category filter at all and it immediately restocked Mog House furniture at
-# 500,000+ gil each - see docs/custom/NOTES.md. Add or remove numbers here to change what gets stocked.
-RESTOCK_AH_CATEGORIES = (
-    35,  # Crystals
-    38, 39, 40, 41, 42, 43, 44, 63,  # Materials: Smithing, Goldsmithing, Clothcraft, Leathercraft, Bonecraft, Woodworking, Alchemy, Alchemy 2
-    33,  # Medicines
-    51, 52, 53, 54, 55, 56, 57, 58, 59,  # Food: Fish, Meat&Eggs, Seafood, Vegetables, Soups, Breads&Rice, Sweets, Drinks, Ingredients
-)
+# Which Auction House categories get proactively stocked. None means every real category (owner's
+# choice: "I want the whole AH to be stocked"). The first attempt at this restricted it to materials
+# only, because an unfiltered first draft immediately restocked Mog House furniture at 500,000+ gil
+# each - see docs/custom/NOTES.md. That was a pricing surprise, not a bug: BaseSell-based pricing
+# applies to every category exactly the same way, furniture included. Set this to a tuple of category
+# numbers (see docs/Auction Categories.txt) to narrow it back down again.
+RESTOCK_AH_CATEGORIES = None
 
-# How many of an item the bot keeps listed at once.
-RESTOCK_TARGET_QUANTITY = 5
+# How many of an item the bot keeps listed at once. Equipment gets its own, smaller number: unlike a
+# material, a weapon or armor piece is not used up by crafting, so keeping 5 identical copies of the
+# same piece listed at once would look strange. Both are per item, not per category.
+RESTOCK_TARGET_QUANTITY           = 5
+RESTOCK_EQUIPMENT_TARGET_QUANTITY = 1
 
-# The bot only restocks items whose BaseSell is at least this (skips near-worthless junk so the AH
-# does not fill up with 1-gil clutter). Equipment is never restocked regardless of this value.
+# The bot only restocks a non-equipment item whose BaseSell is at least this (skips near-worthless
+# junk so the AH does not fill up with 1-gil clutter). Equipment has its own price floor below instead,
+# since most equipment has no BaseSell at all and is priced by level.
 RESTOCK_MIN_BASE_SELL = 10
+
+# The bot only restocks equipment at or above this level (skips level 1-a-few starter gear, which is
+# usually replaced within an hour anyway and not worth a permanent AH slot).
+RESTOCK_MIN_EQUIPMENT_LEVEL = 10
 
 # Buying unwanted gear (and anything else priceable): a listing the bot will buy out once it has sat
 # unsold this many hours, and only at or under the bot's own computed price (never the seller's asking
