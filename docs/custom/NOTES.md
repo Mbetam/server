@@ -516,3 +516,47 @@ armor, rings and cards.
 
 Verified with a dry run only (`test_pricing.py` still 15/15; the live `--apply` for this specific
 change has not been run in this session - same limitation as before, see the entry above).
+
+## 2026-09-22 — AH bot round 3: equipment quantity, stack listings, !ahprice command
+
+Three requests after watching the first real runs.
+
+**1. Equipment restock quantity 1 -> 3** (`RESTOCK_EQUIPMENT_TARGET_QUANTITY` in config.py). Existing
+equipment listings already at 1 will top up to 3 on the next run automatically - no action needed.
+
+**2. Stackable items (crystals, most ammo/materials - stackSize > 1) now restock as a full stack**
+(`auction_house.stack = 1`, price = per-unit price x the stack size), the way these are normally sold,
+instead of always as single units. Confirmed in a dry run: `jug_of_scarlet_sap x2 (stack of 12)`, etc.
+**Known consequence:** an item that already reached its target as OLD single-unit listings (from before
+this fix - mainly the first 40 materials from the very first run, crystals included, since `have` counts
+every row regardless of mode and the item looks "fully stocked" already) will not convert to stacks on
+its own; the bot only tops up when the count is below target. One-time cleanup, safe (only ever touches
+seller = the bot's own charid 90000001, never a real player's listing):
+```sql
+DELETE FROM auction_house WHERE seller = 90000001 AND sale = 0 AND stack = 0
+  AND itemid IN (SELECT itemid FROM item_basic WHERE stackSize > 1);
+```
+Run once, by hand, after updating the code; the next restock pass will then relist those as stacks.
+
+**3. `!ahprice <item name>` (new player command, everyone, read-only).** The retail "Latest Prices"
+Auction House screen only fills in once real sales have happened, and nothing has sold yet (the bot only
+lists; buyouts need real player listings to exist first) - so it is empty right now and would stay
+that way for a while. Built `!ahprice` instead: an instant lookup, using the bot's own reference price
+(the exact number it lists at and the most it will ever pay), so a player can check any item without
+browsing the whole AH by hand. Multi-word names work with or without underscores (`!ahprice fire crystal`).
+**Files:** `modules/custom/lua/ah_pricing.lua` (the same BaseSell/level-fallback formula as
+`tools/ah_bot/pricing.py`, duplicated by hand since Lua and that standalone Python script share no code
+- the two constants (`PRICE_MULTIPLIER`, `EQUIP_LEVEL_UNIT_PRICE`) must be kept in sync manually if either
+changes), `modules/custom/commands/ahprice.lua` (the command: `GetItemIDByName`/`GetItemByID`, both
+already exposed to Lua). `GetItemIDByName` returns 0 for no match, a real id for exactly one match, or a
+value just under 65535 (reserved for "gil") for more than one match - real items top out around 29,700,
+so >= 60000 is a safe "ambiguous, be more specific" signal. Stack size has no Lua getter on an item
+looked up this way, so the shown price is always per single unit; the message does not attempt to guess
+a stack multiplier.
+**Tested:** `ah_pricing.lua` pure logic, 7/7 offline (6 deliberate breaks caught: BaseSell fallback
+dropped, equip fallback dropped, negative BaseSell accepted, wrong multiplier, wrong equip unit price,
+BaseSell/equip-level preference swapped). `ahprice_engine.lua` (8 real-engine tests: exact match, a
+two-word search typed with spaces, the equipment level fallback, not-found, ambiguous match, an item
+whose AH category is none, the usage message, and that it changes nothing) is written but **NOT yet run**
+- two players were online through this whole round, so the servers were never stopped. Needs a restart
+window like the other pending engine tests this session.

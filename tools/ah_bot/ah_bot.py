@@ -48,9 +48,9 @@ NOT_NO_AUCTION = f'(b.flags & {NO_AUCTION_FLAG}) = 0'
 
 def restock_candidates(cur):
     """Everything eligible to be proactively stocked: itemid, name, base_sell, equip_level (None for
-    non-equipment). A non-equipment item needs a real BaseSell; equipment needs a real level - most
-    equipment has no BaseSell at all (see pricing.py). RESTOCK_AH_CATEGORIES, if set, narrows this to
-    specific categories; None (the default) means every real category."""
+    non-equipment), stack_size. A non-equipment item needs a real BaseSell; equipment needs a real
+    level - most equipment has no BaseSell at all (see pricing.py). RESTOCK_AH_CATEGORIES, if set,
+    narrows this to specific categories; None (the default) means every real category."""
     category_filter = ''
     params           = [RESTOCK_MIN_BASE_SELL, RESTOCK_MIN_EQUIPMENT_LEVEL]
 
@@ -60,7 +60,7 @@ def restock_candidates(cur):
         params          = list(RESTOCK_AH_CATEGORIES) + params
 
     cur.execute(f"""
-        SELECT b.itemid, b.name, b.BaseSell, e.level
+        SELECT b.itemid, b.name, b.BaseSell, e.level, b.stackSize
         FROM item_basic b
         LEFT JOIN item_equipment e ON e.itemid = b.itemid
         WHERE {AUCTIONABLE_AH} AND {NOT_NO_AUCTION}
@@ -85,7 +85,7 @@ def restock(cur, apply_changes):
     listed     = 0
     now        = int(time.time())
 
-    for itemid, name, base_sell, equip_level in candidates:
+    for itemid, name, base_sell, equip_level, stack_size in candidates:
         if listed >= MAX_RESTOCK_ITEMS_PER_RUN:
             break
 
@@ -96,13 +96,18 @@ def restock(cur, apply_changes):
         if missing <= 0:
             continue
 
-        price   = price_for(base_sell, equip_level)
-        missing = min(missing, MAX_RESTOCK_ITEMS_PER_RUN - listed)
+        # A stackable item (crystals, most ammo and materials - stackSize > 1) is listed as a full
+        # stack, priced accordingly, the way these are normally sold; equipment never stacks.
+        as_stack = 1 if stack_size and stack_size > 1 else 0
+        unit     = stack_size if as_stack else 1
+        price    = price_for(base_sell, equip_level) * unit
+        missing  = min(missing, MAX_RESTOCK_ITEMS_PER_RUN - listed)
 
-        print(f'restock: {name} (item {itemid}) x{missing} at {price} gil each (had {have})')
+        stack_note = f' (stack of {stack_size})' if as_stack else ''
+        print(f'restock: {name} (item {itemid}) x{missing}{stack_note} at {price} gil each (had {have})')
 
         if apply_changes:
-            rows = [(itemid, 0, BOT_CHARID, BOT_CHARNAME, now, price) for _ in range(missing)]
+            rows = [(itemid, as_stack, BOT_CHARID, BOT_CHARNAME, now, price) for _ in range(missing)]
             cur.executemany(
                 'INSERT INTO auction_house (itemid, stack, seller, seller_name, date, price) VALUES (%s, %s, %s, %s, %s, %s)',
                 rows,

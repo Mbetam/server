@@ -28,7 +28,7 @@ RESTOCK_AH_CATEGORIES = None
 # material, a weapon or armor piece is not used up by crafting, so keeping 5 identical copies of the
 # same piece listed at once would look strange. Both are per item, not per category.
 RESTOCK_TARGET_QUANTITY           = 5
-RESTOCK_EQUIPMENT_TARGET_QUANTITY = 1
+RESTOCK_EQUIPMENT_TARGET_QUANTITY = 3
 
 # The bot only restocks a non-equipment item whose BaseSell is at least this (skips near-worthless
 # junk so the AH does not fill up with 1-gil clutter). Equipment has its own price floor below instead,

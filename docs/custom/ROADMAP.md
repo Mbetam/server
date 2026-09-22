@@ -9,7 +9,7 @@
 - **Lottery NMs always pop** when their placeholder is killed, with no respawn timer
 - **Every monster drops gil** (at least 500)
 - **Starter kit:** 100,000 gil, all maps, all outpost warps, all Survival Guides
-- **Commands:** `!buff` (10 hours), `!home`, `!city`, `!tele` / `!telelist`, `!shop`, `!status` (stats of your target or yourself)
+- **Commands:** `!buff` (10 hours), `!home`, `!city`, `!tele` / `!telelist`, `!shop`, `!status` (stats of your target or yourself), `!ahprice` (what an item is worth on the AH)
 - Server open for small-group testing
 
 ## 🧪 Live, in testing
@@ -20,7 +20,7 @@
 - **Tuning the Augmenter:** prices and bonuses, based on your feedback
 - **`!ah`:** Auction House from anywhere (needs a small server change, being looked at)
 - **More quality-of-life commands** (ideas: `!mh`, `!escape`, `!signet`, `!gotoexp`)
-- **AH bot:** keeps common materials in stock and buys out unsold gear so selling always pays. Built and dry-run tested; not turned on yet.
+- **AH bot:** running now, stocking the whole Auction House and buying out unsold listings (gear included) so selling always pays. `!ahprice <item>` shows what it would pay/list at.
 
 ## 📋 Planned (rough order)
 1. **Daily hunts:** daily tasks paying EXP, gil and gear currency
