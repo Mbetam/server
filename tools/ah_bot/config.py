@@ -44,8 +44,8 @@ RESTOCK_MIN_EQUIPMENT_LEVEL = 10
 # price - a listing priced above what the bot would pay is left for a real buyer).
 BUYOUT_WAIT_HOURS = 1
 
-# The bot's own character, created once (see setup.sql). Never a real player's ID: see docs/custom/NOTES.md.
-BOT_CHARID = 90000001
+# The bot's own character (see setup.sql). Must stay below 20,000,000: xi_test deletes every character from there up.
+BOT_CHARID = 10000001
 BOT_CHARNAME = 'AHBot'
 
 # How many auction_house rows the bot will act on in a single run of each pass, so one run cannot take

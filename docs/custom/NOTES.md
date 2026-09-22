@@ -594,3 +594,46 @@ change are both live now.
 risk: each run's own queries are cheap for this table size, and once the catalog is fully stocked most
 runs are no-ops (nothing left to restock). Needs Eric to update and reload the already-installed live
 timer (sudo, see chat) - editing the example file alone does not affect the running one.
+
+## 2026-09-22 — Test/prod split: weekly patch workflow (`docs/custom/DEPLOY.md`)
+
+This box (`ffxi-test`) is now the test server, cloned from prod. All work is done here on `custom`. Prod only runs `patch-YYYY-MM-DD` tags. Full workflow: `docs/custom/DEPLOY.md`.
+
+- `tools/custom/release.sh notes|tag <tag>` (test): drafts a section in `docs/custom/RELEASES.md` (commits, `sql/` files, migrations, rebuild needed, changed `settings/default/`), then pushes `custom` plus an annotated tag whose message is those notes. Tag messages need `--cleanup=verbatim`, otherwise git drops the `##` headings as comments.
+- `tools/custom/deploy.sh [--dry-run] <tag>` / `--rollback` (prod): stop (SIGTERM) -> mysqldump -> checkout tag -> build -> `dbtool update` -> custom migrations -> restore zoneip -> start -> log check. Servers are stopped BEFORE the checkout because a running `xi_map` hot-reloads `scripts/`.
+- `tools/custom/migrate.py` + `tools/custom/migrations/NNNN_*.sql`: one-shot DB changes tracked in a new `custom_migrations` table. They are deliberately not under `sql/`: `dbtool update` imports every changed file under `sql/`, subfolders included (the git diff is recursive), so a migration there would run outside the tracking. mysql/mysqldump get the password from a mode-600 temp defaults file.
+- dbtool facts behind this: `update` re-imports `sql/` files changed since `db_ver` (`tools/config.yaml`, git-ignored, per server), never the `player_data` tables, and re-runs all module SQL (`modules/custom/sql/`) every time. `zone_settings` is NOT protected, so a patch that touches `sql/zone_settings.sql` resets `zoneip` to 127.0.0.1. `deploy.sh` saves the value and puts it back.
+- Migration `0001_ah_bot_account.sql` (the `tools/ah_bot/setup.sql` rows as `INSERT IGNORE`) was applied here. **The AH bot's account/char (90000001) were missing on this DB**, although 36k AH listings already used seller 90000001. Now they exist. On prod: `migrate.py status`, and `mark-applied` it if setup.sql was run there by hand (running it is harmless either way).
+- Git identity was not set on this new box (commits failed). Set repo-local `user.name`/`user.email` to match earlier commits.
+- Tested: release draft plus its refusals, deploy dry-run and refusals (temp worktree, local test tag since deleted), `migrate.py` apply twice (second run a no-op), backup (12 MB, 119 tables, "Dump completed" footer). **Not yet tested: a full real deploy** (stop/build/start). Rehearse it on test before the first prod deploy.
+
+## 2026-09-22 — `!ahprice cesti` said "matches more than one item"
+
+Cause: the command always searched `%name%` (the engine's `GetItemIDByName` is a SQL `LIKE`), so an exact name that is also part of other names could never be found: "cesti" hits 28 items (Lizard Cesti, Cesti +1, ...).
+Fix (`modules/custom/commands/ahprice.lua`): try the exact name first, and fall back to `%name%` only when nothing has exactly that name. The ambiguous message now gives the count ("matches 246 items").
+Tests: `scripts/tests/modules/ahprice_engine.lua` gained 3 (Cesti = 720 gil, "cesti +1" typed with a space, partial "grotesque" still works). Real engine, test servers stopped: 11/11 pass.
+
+## 2026-09-22 — AH prices x30 -> x2, gil +75%, EXP +30%, `!signet`; xi_test wipes the AH bot
+
+**AH bot pricing:** `PRICE_MULTIPLIER` 30 -> 2 in `tools/ah_bot/config.py` and its Lua mirror `modules/custom/lua/ah_pricing.lua` (tests updated: Fire Crystal 30, Cesti 48, lvl-99 gear 1980).
+The running bot timer picked up config.py immediately. Its existing unsold listings are repriced by migration `0002_ah_bot_reprice_x2.sql`, the same formula in SQL (checked: Hexed Bonnet 29,700 -> 1,980, Ice Cluster stack 144,000 -> 9,600).
+
+**Gil +75%** (taken as 75% more than the current values): `settings/map.lua` `MOB_GIL_MULTIPLIER` 2.0 -> 3.5, and the gil floor `mobGil.baseGil` 500 -> 875 (`modules/custom/lua/mob_gil.lua`, tracked). At x3.5 the stored floor is exactly 250, so a kill pays exactly 875. Quest gil (`GIL_RATE` 1.0) is unchanged.
+**EXP +30%:** 2.5 -> 3.25 for `settings/map.lua` `EXP_RATE` (kills) and `settings/main.lua` `EXP_RATE`, `BOOK_EXP_RATE`, `ROE_EXP_RATE`. `CAPACITY_RATE` (job points) is still 1.0. `!buff` is unchanged (its +200% EXP bonus stacks on top as before).
+Both settings files are git-ignored: **copy these to prod by hand** (list them in the patch notes).
+
+**`!signet`** (`modules/custom/commands/signet.lua`, new file, so it needs a restart): gives Signet / Sanction / Sigil / Ionis according to `player:getCurrentRegion()`, using the same region split as the engine's crystal-drop check (`mob_entity.cpp`), plus the four city regions for Signet.
+Durations are the NPCs': Signet (rank + nation rank + 3) h, Sanction 3 h, Sigil 3 h + 15 min per medal, Ionis 2.5 h. It gives the basic version (power 0, no paid Regen/Refresh extras), clears the other three first, and does not count toward the weekly RoE Signet objective. Tavnazia, Dynamis, Abyssea and similar areas: "none applies".
+Tests: `scripts/tests/modules/signet_command.lua` (7). Whole `./xi_test --file 'modules/'`: 295/295.
+
+**xi_test deletes the AH bot.** `src/test/test_char.cpp` `TestChar::clean()` deletes every account/char with id >= 20,000,000 (`MinTestCharId`) from `accounts`, `chars`, all `char_*` tables and `auction_house WHERE seller >= 20000000`. The bot is 90000001, so **every `xi_test` run wipes the bot's account, character and all its listings.** This is why its account was "missing" earlier. Players (ids < 20M) are not affected. After each test run: re-source `0001_ah_bot_account.sql` (done twice today); the listings come back by themselves (200 per 30 s run).
+Proper fix still to decide: move the bot below 20,000,000. Never run `xi_test` against prod's database.
+
+## 2026-09-22 — AH bot moved to id 10000001
+
+Migration `0003_ah_bot_move_to_10000001.sql` moves the bot's account, character, per-character rows (char_*), delivery box and **unsold** listings from 90000001 to 10000001. `tools/ah_bot/config.py` `BOT_CHARID = 10000001`.
+- Why this number: new accounts and characters get MAX(id) + 1, so the bot must be above every real id (new players now continue from 10,000,002) and below xi_test's 20,000,000 cleanup line.
+- Sold listings are deliberately NOT moved: the `auction_house_buy` trigger fires on any UPDATE of a row with `sale != 0` and mails the gil to the seller again (a gil dupe if it hit rows where players sold to the bot). Sold history stays under 90000001.
+- Also fixed `0001` (and `setup.sql`): `INSERT IGNORE INTO chars` still fails when the character exists, because the `char_insert` BEFORE INSERT trigger does plain INSERTs into char_equip etc. Both now use `INSERT ... SELECT ... WHERE NOT EXISTS`. Tested with the rows present: no-op. On test, 0001's tracking row was re-marked because its checksum changed.
+- Verified on test: after 0003 nothing is left under 90000001; the bot keeps restocking under 10000001; a `./xi_test` run afterwards leaves the bot's account, character and listings intact (it used to wipe them).
+- On prod the three migrations run in order: 0001 creates the bot at 90000001 if missing (no-op if setup.sql was run), 0002 reprices, 0003 moves it. If prod already has a real account or character at 10000001 (only possible if accounts were created above the old bot), 0003 stops at its first UPDATE with a duplicate-key error and the deploy says so.

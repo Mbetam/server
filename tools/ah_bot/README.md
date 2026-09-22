@@ -10,8 +10,9 @@ included) after a wait, so selling on the AH always pays even with a small popul
 mysql -u mbetam -p mbetam_xi < tools/ah_bot/setup.sql
 ```
 
-Creates the bot's account and character (charid 90000001, "AHBot"). Only needs doing once, ever, on
-this database.
+Creates the bot's account and character (charid 10000001, "AHBot"). Usually not needed by hand: the custom
+migrations create it (`tools/custom/migrate.py apply`, also run by `tools/custom/deploy.sh`). Safe to run twice.
+The id must stay below 20,000,000, because `xi_test` deletes every account and character from there up (see setup.sql).
 
 ## Running it
 
