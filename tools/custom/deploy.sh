@@ -5,8 +5,14 @@
 #   tools/custom/deploy.sh patch-2026-09-29             deploy it
 #   tools/custom/deploy.sh --rollback                   go back to the version before the last deploy
 #
-# Steps: fetch + checks (servers still up) -> stop the four xi_* -> DB backup -> checkout tag
-#        -> submodules -> build -> dbtool update -> custom migrations -> restore zone IP -> start -> log check
+# Run it from the repo root. The very first time, the script is not in this checkout yet; take it from the tag:
+#   git fetch origin --tags && git show patch-2026-09-29:tools/custom/deploy.sh > /tmp/deploy.sh
+#   bash /tmp/deploy.sh --dry-run patch-2026-09-29
+#
+# Steps: fetch + checks (servers still up) -> stop the four xi_* -> checkout tag -> submodules -> DB backup
+#        -> build -> dbtool update -> custom migrations -> restore zone IP -> start -> log check
+# The backup comes after the checkout (which does not touch the DB) so the tag's own migrate.py takes it.
+# The script always runs from a temporary copy of itself, so checking out a new version of this file is safe.
 #
 # Warn players BEFORE running it: stopping xi_map disconnects everyone.
 # If a step fails the servers stay STOPPED and the script says how to roll back.
@@ -14,8 +20,17 @@
 
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# The repo: the one this script sits in, or (when run from a copy outside it) the one the current directory is in.
+REPO="${DEPLOY_REPO:-$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || git rev-parse --show-toplevel 2>/dev/null || true)}"
+[[ -n "$REPO" && -f "$REPO/tools/dbtool.py" ]] || { echo "Run this from the server repo (no LandSandBoat checkout found)." >&2; exit 1; }
 cd "$REPO"
+
+# Re-run from a private copy: bash reads a script as it goes, and the checkout below may replace this very file.
+if [[ -z "${DEPLOY_RUNNING_COPY:-}" ]]; then
+    copy="$(mktemp --suffix=-deploy.sh)"
+    cp "${BASH_SOURCE[0]}" "$copy"
+    DEPLOY_RUNNING_COPY="$copy" DEPLOY_REPO="$REPO" exec bash "$copy" "$@"
+fi
 
 PY="${PYTHON:-$HOME/lsb-venv/bin/python3}"
 export PATH="$HOME/lsb-venv/bin:$PATH"
@@ -32,7 +47,7 @@ green() { printf '\e[32m%s\e[0m\n' "$*"; }
 step()  { printf '\n\e[1m== %s\e[0m\n' "$*"; CURRENT_STEP="$*"; }
 die()   { red "ERROR: $*"; exit 1; }
 
-usage() { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 # --- server process helpers -------------------------------------------------------------------
 
@@ -132,18 +147,26 @@ CURRENT_STEP="checks"
 declare -A LOG_START=()
 FROM_REF=""
 BACKUP_FILE=""
+STAGE="checks"  # checks -> stopped -> checked-out -> backed-up
 on_exit() {
     local rc=$?
+    rm -f "$DEPLOY_RUNNING_COPY"
     (( rc == 0 || rc == 2 )) && return
     red ""
-    red "DEPLOY FAILED during: $CURRENT_STEP"
-    if [[ -n "$BACKUP_FILE" ]]; then
-        red "The servers are STOPPED (unless the failure was at the final log check)."
-        red "Previous version: $FROM_REF    DB backup: $BACKUP_FILE"
-        red "Options: fix the problem and re-run the same deploy, or run: tools/custom/deploy.sh --rollback"
-    else
-        red "Nothing was changed; servers were not stopped."
-    fi
+    red "FAILED during: $CURRENT_STEP"
+    case "$STAGE" in
+        checks)
+            red "Nothing was changed." ;;
+        stopped)
+            red "The servers are STOPPED; code and DB are unchanged. Start them again, or fix the problem and re-run." ;;
+        checked-out)
+            red "The servers are STOPPED and the code is at the new tag; the DB is unchanged (no backup was taken)."
+            red "To go back: git checkout --detach $FROM_REF, then start the servers. Or fix the problem and re-run." ;;
+        backed-up)
+            red "The servers are STOPPED (unless the failure was at the final log check)."
+            red "Previous version: $FROM_REF    DB backup: $BACKUP_FILE"
+            red "Options: fix the problem and re-run the same deploy, or run: tools/custom/deploy.sh --rollback" ;;
+    esac
 }
 trap on_exit EXIT
 
@@ -165,7 +188,7 @@ do_rollback() {
     read -r -p "Type 'rollback' to continue: " answer
     [[ "$answer" == "rollback" ]] || die "aborted"
 
-    BACKUP_FILE="$backup"; FROM_REF="$to"
+    BACKUP_FILE="$backup"; FROM_REF="$to"; STAGE="backed-up"
     step "Stop servers";        stop_servers
     step "Safety backup of the current DB"
     backup_db "$BACKUP_DIR/$(date +%Y%m%d-%H%M%S)-before-rollback-from-$to.sql"
@@ -224,15 +247,19 @@ do_deploy() {
     flock -n 9 || die "another deploy is running"
 
     step "Stop servers";   stop_servers
-    step "Back up DB"
-    BACKUP_FILE="$BACKUP_DIR/$(date +%Y%m%d-%H%M%S)-pre-$tag.sql"
-    backup_db "$BACKUP_FILE"
-    local zoneips; zoneips="$("$PY" tools/custom/migrate.py zoneip)"
+    STAGE="stopped"
 
     step "Check out $tag"
     git checkout --quiet --detach "$tag"
     git submodule update --init --recursive
+    STAGE="checked-out"
+
+    step "Back up DB (still untouched: nothing has run against it yet)"
+    BACKUP_FILE="$BACKUP_DIR/$(date +%Y%m%d-%H%M%S)-pre-$tag.sql"
+    backup_db "$BACKUP_FILE"
+    local zoneips; zoneips="$("$PY" tools/custom/migrate.py zoneip)"
     echo "$(date -Is) $FROM_REF $tag $BACKUP_FILE" >> "$HISTORY"
+    STAGE="backed-up"
 
     step "Build";          build
     step "dbtool update";  (cd tools && "$PY" dbtool.py update)

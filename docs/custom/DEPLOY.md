@@ -50,8 +50,8 @@ tools/custom/deploy.sh patch-2026-09-29
 1. Fetch, check that the tag exists and that prod has no edits to tracked files. The servers are still up at this point.
 2. Ask for confirmation, then stop the four `xi_*` with SIGTERM (a clean shutdown that saves players) and wait for them to exit.
    The servers must be down before the checkout: a running `xi_map` hot-reloads `scripts/` the moment git writes them.
-3. `mysqldump` the whole DB to `sql/backups/<time>-pre-<tag>.sql`. The password is read from `settings/network.lua` and never goes on a command line.
-4. `git checkout --detach <tag>`, then submodules.
+3. `git checkout --detach <tag>`, then submodules.
+4. `mysqldump` the whole DB to `sql/backups/<time>-pre-<tag>.sql`. The checkout doesn't touch the DB, so this is still the pre-patch state; it runs after the checkout so the tag's own `migrate.py` takes it. The password is read from `settings/network.lua` and never goes on a command line.
 5. `cmake --build build`. With no C++ changes this does nothing; otherwise ccache keeps it short.
 6. `dbtool.py update`: re-imports the `sql/` files changed since the DB's version, re-runs module SQL, and runs LSB's own migrations.
 7. `migrate.py apply`: runs our custom migrations.
@@ -76,11 +76,21 @@ Then copy the settings listed in the notes into prod's `settings/*.lua` (the wat
 
 1. Prod must already build with the recipe in `CLAUDE.md` (a configured `build/`, `~/lsb-venv` with `tools/requirements.txt` and `mariadb`), and `settings/network.lua` must be in place.
 2. The deploy key or HTTPS access must allow `git fetch origin --tags`.
-3. Custom migrations already done by hand on prod: record them without running them, for example
-   `~/lsb-venv/bin/python3 tools/custom/migrate.py mark-applied 0001_ah_bot_account.sql`.
-   (0001 uses `INSERT IGNORE`, so running it is harmless too.) Check with `migrate.py status`.
-4. The first deploy switches prod from the `custom` branch to a detached tag. That is expected: `git describe --tags` shows which patch prod is on.
-5. Check that `tools/config.yaml` on prod has a `db_ver`. Without it, `dbtool update` does a full re-import of every non-player table (slower, still safe).
+3. Nothing to prepare for the migrations: 0001 skips the AH bot rows if `tools/ah_bot/setup.sql` was already run by hand, and 0003 moves the bot to id 10000001.
+   Check beforehand that no real account or character has id 10000001; if one does, 0003 stops with a duplicate-key error.
+   For a later migration that was already done by hand: `~/lsb-venv/bin/python3 tools/custom/migrate.py mark-applied NNNN_name.sql`.
+4. The first time, `deploy.sh` isn't in prod's checkout yet. Take it from the tag and run the copy from the repo root:
+   ```bash
+   cd ~/server && git fetch origin --tags
+   git show patch-2026-09-22:tools/custom/deploy.sh > /tmp/deploy.sh
+   bash /tmp/deploy.sh --dry-run patch-2026-09-22
+   bash /tmp/deploy.sh patch-2026-09-22
+   ```
+   After that, `tools/custom/deploy.sh` is in the checkout. It always runs from a temporary copy of itself, so it can check out a new version of its own file safely.
+5. The first deploy switches prod from the `custom` branch to a detached tag. That is expected: `git describe --tags` shows which patch prod is on.
+6. Check that `tools/config.yaml` on prod has a `db_ver`. Without it, `dbtool update` does a full re-import of every non-player table (slower, still safe).
+
+**Never run `xi_test` on prod.** It uses the server's own database and, when it finishes, deletes every account and character with an id of 20,000,000 or more (`src/test/test_char.cpp`).
 
 ## Checks before tagging (on test)
 
