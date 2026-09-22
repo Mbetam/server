@@ -5,6 +5,9 @@
 ## ✅ Done
 - **Level cap 99, subjob 99** (99/99)
 - **EXP x2.5**, **drops x2**, **gil drops x2**, **movement speed +50%**
+- **Skill-ups at the maximum rate** for every skill: combat, magic, crafting, fishing and digging
+- **Lottery NMs always pop** when their placeholder is killed, with no respawn timer
+- **Every monster drops gil** (at least 500)
 - **Starter kit:** 100,000 gil, all maps, all outpost warps, all Survival Guides
 - **Commands:** `!buff` (10 hours), `!home`, `!city`, `!tele` / `!telelist`, `!shop`, `!status` (stats of your target or yourself)
 - Server open for small-group testing

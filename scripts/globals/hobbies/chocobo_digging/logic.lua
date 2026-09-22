@@ -161,7 +161,7 @@ local function calculateSkillUp(player, text)
     -- make sure our skill isn't capped
     if realSkill < maxSkill then
         -- can we skill up?
-        if roll <= 15 then
+        if roll <= (xi.settings.main.DIG_SKILLUP_CHANCE or 15) then
             if (increment + realSkill) > maxSkill then
                 increment = maxSkill - realSkill
             end

@@ -3792,10 +3792,8 @@ void TrySkillUP(CCharEntity* PChar, xi::SkillType SkillID, uint8 lvl, bool force
 
         double random = xirand::GetRandomNumber(1.);
 
-        if (SkillUpChance > 0.5)
-        {
-            SkillUpChance = 0.5;
-        }
+        // Cap on the base chance: 0.5 by default. Skill-up bonuses below are applied after it, so raising the cap raises the ceiling.
+        SkillUpChance = std::min(SkillUpChance, settings::get<double>("map.SKILLUP_CHANCE_CAP"));
 
         // Check for skillup% bonus. https://www.bg-wiki.com/bg/Category:Skill_Up_Food
         // Assuming multiplicative even though rate is already a % because 0.5 + 0.8 would be > 1.

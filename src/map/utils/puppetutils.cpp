@@ -555,10 +555,8 @@ void TrySkillUP(CAutomatonEntity* PAutomaton, xi::SkillType SkillID, uint8 lvl)
 
         double random = xirand::GetRandomNumber(1.);
 
-        if (SkillUpChance > 0.5)
-        {
-            SkillUpChance = 0.5;
-        }
+        // Cap on the base chance: 0.5 by default. Skill-up bonuses below are applied after it, so raising the cap raises the ceiling.
+        SkillUpChance = std::min(SkillUpChance, settings::get<double>("map.SKILLUP_CHANCE_CAP"));
 
         SkillUpChance *= ((100.0f + PAutomaton->getMod(xi::Mod::COMBAT_SKILLUP_RATE)) / 100.0f);
 
