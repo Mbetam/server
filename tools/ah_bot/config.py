@@ -10,10 +10,10 @@ running game server to reach an external site like ffxiah.com. Tune the numbers 
 """
 
 # What a BaseSell (or, for equipment, a level) point is worth in gil, at multiplier 1.
-PRICE_MULTIPLIER = 30
+PRICE_MULTIPLIER = 2
 
 # A stand-in for BaseSell on equipment that has none: level * this, then multiplied like everything else.
-# A level 99 piece prices the same as an item with BaseSell 990 (990 * 30 = 29,700 gil).
+# A level 99 piece prices the same as an item with BaseSell 990 (990 * 2 = 1,980 gil).
 EQUIP_LEVEL_UNIT_PRICE = 10
 
 # Which Auction House categories get proactively stocked. None means every real category (owner's

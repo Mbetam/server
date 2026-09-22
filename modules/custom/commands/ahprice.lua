@@ -53,7 +53,14 @@ commandObj.onTrigger = function(player, ...)
     end
 
     local searched = table.concat(words, ' ')
-    local id       = GetItemIDByName('%' .. table.concat(words, '_') .. '%')
+    local key      = table.concat(words, '_')
+
+    -- The exact name first, so "cesti" finds Cesti instead of tripping over Lizard Cesti, Cesti +1 and
+    -- 25 others; only when nothing has exactly that name, fall back to a partial match.
+    local id = GetItemIDByName(key)
+    if id == 0 then
+        id = GetItemIDByName('%' .. key .. '%')
+    end
 
     if id == 0 then
         qol.say(player, 'No item matches "' .. searched .. '".')
@@ -62,7 +69,8 @@ commandObj.onTrigger = function(player, ...)
     end
 
     if id >= AMBIGUOUS_ID_FLOOR then
-        qol.say(player, '"' .. searched .. '" matches more than one item. Try a longer or more exact name.')
+        local count = 0xFFFF - id + 1
+        qol.say(player, string.format('"%s" matches %d items. Type the full item name, or a longer part of it.', searched, count))
 
         return
     end

@@ -62,7 +62,7 @@ class MayRestockTests(unittest.TestCase):
 
 class MayBuyOutTests(unittest.TestCase):
     def test_buys_a_listing_priced_at_or_under_its_own_value(self):
-        value = price_for(base_sell=100)  # 3000 at the default multiplier
+        value = price_for(base_sell=100)  # 200 at the default multiplier (x2)
         self.assertTrue(may_buy_out(listed_price=value, base_sell=100, equip_level=None))
         self.assertTrue(may_buy_out(listed_price=value - 1, base_sell=100, equip_level=None))
 

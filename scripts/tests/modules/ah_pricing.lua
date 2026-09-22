@@ -43,7 +43,7 @@ describe('!ahprice reference price', function()
     end)
 
     it('matches tools/ah_bot/pricing.py\'s own numbers exactly (the two must never drift apart)', function()
-        assert(pricing.PRICE_MULTIPLIER == 30, 'PRICE_MULTIPLIER here must match tools/ah_bot/config.py')
+        assert(pricing.PRICE_MULTIPLIER == 2, 'PRICE_MULTIPLIER here must match tools/ah_bot/config.py')
         assert(pricing.EQUIP_LEVEL_UNIT_PRICE == 10, 'EQUIP_LEVEL_UNIT_PRICE here must match tools/ah_bot/config.py')
     end)
 end)

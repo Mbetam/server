@@ -8,7 +8,7 @@
 
 local pricing = {}
 
-pricing.PRICE_MULTIPLIER        = 30
+pricing.PRICE_MULTIPLIER        = 2
 pricing.EQUIP_LEVEL_UNIT_PRICE  = 10
 
 -- The gil the bot considers this item worth, or nil if it has no opinion (baseSell 0-or-nil and no

@@ -44,22 +44,22 @@ describe('!ahprice in the engine', function()
     it('prices a material by its BaseSell, matching a single-word name', function()
         local text = run('fire_crystal')
 
-        -- Fire Crystal: BaseSell 15 x the 30 multiplier
+        -- Fire Crystal: BaseSell 15 x the 2 multiplier
         assert(string.find(text, 'Fire Crystal', 1, true), 'expected the pretty name in:\n' .. text)
-        assert(string.find(text, 'about 450 gil', 1, true), 'expected the BaseSell-based price in:\n' .. text)
+        assert(string.find(text, 'about 30 gil', 1, true), 'expected the BaseSell-based price in:\n' .. text)
     end)
 
     it('matches a multi-word search typed with spaces, not underscores', function()
         local text = run('fire', 'crystal')
 
-        assert(string.find(text, 'about 450 gil', 1, true), 'a two-word search should still find it:\n' .. text)
+        assert(string.find(text, 'about 30 gil', 1, true), 'a two-word search should still find it:\n' .. text)
     end)
 
     it('prices equipment by its level when it has no BaseSell', function()
         local text = run('jinxed_hakama')
 
-        -- level 99, no BaseSell: 99 * 10 * 30
-        assert(string.find(text, 'about 29700 gil', 1, true), 'expected the level-based price in:\n' .. text)
+        -- level 99, no BaseSell: 99 * 10 * 2
+        assert(string.find(text, 'about 1980 gil', 1, true), 'expected the level-based price in:\n' .. text)
     end)
 
     it('says so for an item with no name match', function()
@@ -71,7 +71,27 @@ describe('!ahprice in the engine', function()
     it('asks for a more specific name when several items match', function()
         local text = run('ore')
 
-        assert(string.find(text, 'matches more than one item', 1, true), 'expected an ambiguous-match message:\n' .. text)
+        assert(string.find(text, 'matches 246 items', 1, true), 'expected an ambiguous-match message with the count:\n' .. text)
+    end)
+
+    it('prefers an exact name over partial matches (Cesti, not the 27 other items containing "cesti")', function()
+        local text = run('Cesti')
+
+        -- Cesti (16385): BaseSell 24 x the 2 multiplier
+        assert(string.find(text, 'Cesti: about 48 gil', 1, true), 'expected the exact item Cesti:\n' .. text)
+    end)
+
+    it('finds an exact multi-word name with a +1 typed with spaces', function()
+        local text = run('cesti', '+1')
+
+        -- Cesti +1 (16690): BaseSell 32 x 2
+        assert(string.find(text, 'about 64 gil', 1, true), 'expected Cesti +1:\n' .. text)
+    end)
+
+    it('still finds an item by part of its name when no item has exactly that name', function()
+        local text = run('grotesque')
+
+        assert(string.find(text, 'Grotesque Cesti', 1, true), 'expected the partial match:\n' .. text)
     end)
 
     it('says an item cannot be sold on the AH when its category is none', function()
