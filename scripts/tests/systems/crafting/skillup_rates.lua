@@ -15,6 +15,7 @@ describe('SkillUpRates', function()
     -- Percent chance of a +0.1 through +0.5 skill up given one occurred, indexed by floor distance (recipe level - charSkill / 10).
     local function runSkillUps(p, skillTenths, crystal, ingredient, expected)
         xi.test.world:setSeed(1)
+        xi.test.world:setSetting('map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER', 1) -- pin: an operator's own setting must not change these retail-log percentages
 
         p:setSkillRank(xi.skill.WOODWORKING, 9)  -- rank cap 100.0 so the skill cap check never blocks
         p:setMod(xi.mod.SYNTH_SUCCESS_RATE, 300) -- clamps success to 99% so high distances still yield samples
@@ -109,6 +110,7 @@ describe('SkillUpRates', function()
             xi.test.world:setSeed(1)
             xi.test.world:setSetting('map.CRAFT_MODERN_SYSTEM', modernSystem)
             xi.test.world:setSetting('map.CRAFT_CHANCE_MULTIPLIER', 1.0)
+            xi.test.world:setSetting('map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER', 1) -- pin: an operator's own setting must not change this
 
             p:setSkillRank(xi.skill.LEATHERCRAFT, 9)
             p:setMod(xi.mod.SYNTH_SUCCESS_RATE_DESYNTHESIS, successRateMod)

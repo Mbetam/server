@@ -133,6 +133,9 @@ xi.settings.map =
 
     -- Multiplier for skillup amounts. Using anything above 1 will break the 0.5 cap, the cap will become 0.9 (For maximum, set to 5)
     SKILLUP_AMOUNT_MULTIPLIER = 1, -- This is for combat skills, not synthesis.
+    -- Same idea, for crafting (and desynthesis) skillup amounts. The base amount from the retail-log table (0.1 to 0.5) is
+    -- multiplied the same way; anything above 1 breaks its own 0.5 cap, up to 0.9 (For maximum, set to 5).
+    CRAFT_SKILLUP_AMOUNT_MULTIPLIER = 1,
 
     -- Gardening Factors. DO NOT change defaults without verifiable proof that your change IS how retail does it. Myths need to be optional.
     GARDEN_DAY_MATTERS       = false,

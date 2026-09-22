@@ -1054,6 +1054,17 @@ void doSynthSkillUp(CCharEntity* PChar)
             }
         }
 
+        // Do skill amount multiplier (Will only be applied if default setting is changed). Same idea as
+        // map.SKILLUP_AMOUNT_MULTIPLIER for combat skills, but for crafting (including desynthesis).
+        if (settings::get<uint8>("map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER") > 1)
+        {
+            skillUpAmount += static_cast<uint8>(skillUpAmount * settings::get<uint8>("map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER"));
+            if (skillUpAmount > 9)
+            {
+                skillUpAmount = 9;
+            }
+        }
+
         // Cap skill gain amount if character hits the current cap
         skillUpAmount = static_cast<uint8>(std::min<uint16>(skillUpAmount, maxSkill - charSkill));
 

@@ -1,11 +1,16 @@
 -----------------------------------
--- Skill-up rates: with this server's settings every eligible action raises the skill.
+-- Skill-up rates: with this server's settings every eligible action raises the skill, by the maximum amount (0.9) the
+-- game allows once its own 0.5 cap is lifted by a multiplier.
 -- Each test pins the settings it depends on, then checks the same thing with the game's own defaults as a control, so a
 -- passing test really shows the setting is what makes the difference (and that the default behaviour is unchanged).
---   combat, magic, automaton: SKILLUP_CHANCE_MULTIPLIER and SKILLUP_CHANCE_CAP (map)
---   crafting:                 CRAFT_CHANCE_MULTIPLIER (map)
---   digging:                  DIG_SKILLUP_CHANCE (main)
--- Fishing (FISHING_SKILL_MULTIPLIER) needs a whole fishing session and is not covered here.
+--   chance, combat/magic/automaton: SKILLUP_CHANCE_MULTIPLIER and SKILLUP_CHANCE_CAP (map)
+--   chance, crafting:               CRAFT_CHANCE_MULTIPLIER (map)
+--   chance, digging:                DIG_SKILLUP_CHANCE (main)
+--   amount, combat/magic/automaton: SKILLUP_AMOUNT_MULTIPLIER (map)
+--   amount, crafting:               CRAFT_SKILLUP_AMOUNT_MULTIPLIER (map)
+-- Fishing (FISHING_SKILL_MULTIPLIER) needs a whole fishing session and is not covered here. Digging and fishing have no
+-- amount setting: a dig or a normal fishing catch only ever raises the skill by a small, mostly fixed amount in the game
+-- itself, so there is nothing here to turn up.
 -----------------------------------
 
 describe('Skill-up rates', function()
@@ -15,14 +20,18 @@ describe('Skill-up rates', function()
     local function pinMaxRates()
         xi.test.world:setSetting('map.SKILLUP_CHANCE_MULTIPLIER', 100)
         xi.test.world:setSetting('map.SKILLUP_CHANCE_CAP', 1.0)
+        xi.test.world:setSetting('map.SKILLUP_AMOUNT_MULTIPLIER', 5)
         xi.test.world:setSetting('map.CRAFT_CHANCE_MULTIPLIER', 1000)
+        xi.test.world:setSetting('map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER', 5)
         xi.test.world:setSetting('main.DIG_SKILLUP_CHANCE', 100)
     end
 
     local function pinGameDefaults()
         xi.test.world:setSetting('map.SKILLUP_CHANCE_MULTIPLIER', 1.0)
         xi.test.world:setSetting('map.SKILLUP_CHANCE_CAP', 0.5)
+        xi.test.world:setSetting('map.SKILLUP_AMOUNT_MULTIPLIER', 1)
         xi.test.world:setSetting('map.CRAFT_CHANCE_MULTIPLIER', 1.0)
+        xi.test.world:setSetting('map.CRAFT_SKILLUP_AMOUNT_MULTIPLIER', 1)
         xi.test.world:setSetting('main.DIG_SKILLUP_CHANCE', 15)
     end
 
@@ -103,6 +112,43 @@ describe('Skill-up rates', function()
 
                 assert(player:getCharSkillLevel(xi.skill.GREAT_AXE) <= cap * 10, 'the skill went past its cap: ' .. player:getCharSkillLevel(xi.skill.GREAT_AXE))
             end)
+
+            describe('amount per skill-up', function()
+                -- The game rolls the base amount (0.1 to 0.5) itself, so which amount a single try lands on is not
+                -- deterministic; what the multiplier setting changes is the CEILING. Far below the cap (Diff large) the
+                -- base tier can reach 5, and once the base amount is 2 or more, x5 always clamps to the 0.9 ceiling.
+                -- Over many tries that ceiling is reached some of the time at the maximum setting, and never with the
+                -- game's own (no multiplier), which is what proves the setting is what matters.
+                local function maxGain(tenths, tries2)
+                    local highest = 0
+
+                    for _ = 1, tries2 do
+                        player:setSkillLevel(xi.skill.GREAT_AXE, tenths)
+                        player:trySkillUp(xi.skill.GREAT_AXE, 99)
+
+                        local gain = player:getCharSkillLevel(xi.skill.GREAT_AXE) - tenths
+
+                        assert(gain >= 0 and gain <= 9, 'an impossible gain of ' .. gain .. ' tenths')
+                        highest = math.max(highest, gain)
+                    end
+
+                    return highest
+                end
+
+                it('reaches the 0.9 ceiling at the maximum setting', function()
+                    pinMaxRates()
+
+                    assert(maxGain(0, 100) == 9, 'far below the cap, at least one of 100 tries should hit the 0.9 ceiling')
+                end)
+
+                it('never reaches 0.9 with the game\'s own amount setting, even with the chance maxed', function()
+                    xi.test.world:setSetting('map.SKILLUP_CHANCE_MULTIPLIER', 100)
+                    xi.test.world:setSetting('map.SKILLUP_CHANCE_CAP', 1.0)
+                    xi.test.world:setSetting('map.SKILLUP_AMOUNT_MULTIPLIER', 1)
+
+                    assert(maxGain(0, 100) <= 5, 'without raising the amount setting, 0.9 should not be reachable')
+                end)
+            end)
         end)
 
         describe('a magic skill', function()
@@ -179,6 +225,38 @@ describe('Skill-up rates', function()
             local ups = countCraftSkillUps()
 
             assert(ups < crafts, string.format('with the default rate woodworking should not rise on every synthesis, but it did %d of %d', ups, crafts))
+        end)
+
+        it('reaches the 0.9 ceiling on every skill-up at the maximum setting', function()
+            pinMaxRates()
+
+            -- Walnut Lumber (recipe level 19) against Woodworking 5.0: distance 14, where the retail-log table
+            -- (scripts/tests/systems/crafting/skillup_rates.lua) never rolls less than a base +0.2, so x5 always clamps to 0.9.
+            player:setSkillRank(xi.skill.WOODWORKING, 9)
+            player:setMod(xi.mod.SYNTH_SUCCESS_RATE, 300)
+            player:setMod(xi.mod.SYNTH_SPEED_WOODWORKING, 17000)
+
+            local gains = 0
+
+            for _ = 1, 15 do
+                player:setSkillLevel(xi.skill.WOODWORKING, 50)
+                player:addItem(xi.item.WIND_CRYSTAL)
+                player:addItem(xi.item.WALNUT_LOG)
+
+                player.actions:craft(xi.item.WIND_CRYSTAL, { xi.item.WALNUT_LOG })
+                xi.test.world:skipTime(15)
+
+                local gain = player:getCharSkillLevel(xi.skill.WOODWORKING) - 50
+
+                if gain > 0 then
+                    assert(gain == 9, 'with the amount multiplier at maximum, every skill-up here should be +0.9, got +0.' .. gain)
+                    gains = gains + 1
+                end
+
+                player:delContainerItems(xi.inv.INVENTORY)
+            end
+
+            assert(gains >= 5, 'not enough skill-ups happened to judge (' .. gains .. ')')
         end)
     end)
 
