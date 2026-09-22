@@ -3491,7 +3491,10 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rainemard',1035,33); -- Burning Bla
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rainemard',1035,34); -- Red Lotus Blade
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rainemard',1035,40); -- Vorpal Blade
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rainemard',1035,42); -- Savage Blade
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ingrid',1036,0);
+-- Ingrid: Seraph Strike, Judgment, Hexa Strike (BG Wiki BGWiki:Trusts, 2026-09-22)
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ingrid',1036,161); -- Seraph Strike
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ingrid',1036,167); -- Judgment
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ingrid',1036,168); -- Hexa Strike
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lehko_Habhoka',1037,3230); -- Inspirit
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lehko_Habhoka',1037,3231); -- Debonair Rush
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lehko_Habhoka',1037,3232); -- Iridal Pierce
@@ -3522,8 +3525,12 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_Karaha-Baruha',1051,183); -- Spirit
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Karaha-Baruha',1051,179); -- Starburst
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Karaha-Baruha',1051,180); -- Sunburst
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Karaha-Baruha',1051,3337); -- Lunar Bay,disable wrong animation
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Cid',1052,0);
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Gilgamesh',1053,0);
+-- Cid: True Strike, Hexa Strike (BG Wiki BGWiki:Trusts, 2026-09-22). His other two, Fiery Tailings (3323) and Critical Mass (3322), have no mob skill script yet.
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Cid',1052,166); -- True Strike
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Cid',1052,168); -- Hexa Strike
+-- Gilgamesh: Tachi: Goten, Tachi: Kasha (BG Wiki BGWiki:Trusts, 2026-09-22). His other two, Iainuki (3435) and Tachi: Kamai (3434), have no mob skill script yet.
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Gilgamesh',1053,146); -- Tachi: Goten
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Gilgamesh',1053,152); -- Tachi: Kasha
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Areuhat',1054,37); -- Seraph Blade
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Areuhat',1054,40); -- Vorpal Blade
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Areuhat',1054,42); -- Savage Blade
@@ -3560,7 +3567,11 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rughadjeen',1075,54);   -- Sickle M
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rughadjeen',1075,56);   -- Ground Strike
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rughadjeen',1075,3237); -- Victory Beacon
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Kukki-Chebukki',1076,0);
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Margret',1077,0);
+-- Margret: Sidewinder, Arching Arrow, Refulgent Arrow, Piercing Arrow (BG Wiki BGWiki:Trusts, 2026-09-22)
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Margret',1077,196); -- Sidewinder
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Margret',1077,198); -- Arching Arrow
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Margret',1077,201); -- Refulgent Arrow
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Margret',1077,193); -- Piercing Arrow
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Chacharoon',1078,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lhe_Lhangavo',1079,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Arciela',1080,0);
@@ -3581,7 +3592,10 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_Mildaurion',1086,3470); -- Great Wh
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Mildaurion',1086,3471); -- Light Blade
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Mildaurion',1086,3472); -- Vortex
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Mildaurion',1086,3473); -- Stellar Burst
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Halver',1087,0);
+-- Halver: Penta Thrust, Impulse Drive, Raiden Thrust (BG Wiki BGWiki:Trusts, 2026-09-22)
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Halver',1087,116); -- Penta Thrust
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Halver',1087,120); -- Impulse Drive
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Halver',1087,114); -- Raiden Thrust
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rongelouts',1088,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Leonoyne',1089,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Maximilian',1090,0);
@@ -3604,9 +3618,18 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_August',1099,3658); -- No Quarter
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Rosulatia',1100,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Teodor',1101,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ullegore',1102,0);
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Makki-Chebukki',1103,0);
+-- Makki-Chebukki: Sidewinder, Empyreal Arrow, Dulling Arrow, Flaming Arrow (BG Wiki BGWiki:Trusts, 2026-09-22)
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Makki-Chebukki',1103,196); -- Sidewinder
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Makki-Chebukki',1103,199); -- Empyreal Arrow
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Makki-Chebukki',1103,194); -- Dulling Arrow
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Makki-Chebukki',1103,192); -- Flaming Arrow
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_King_of_Hearts',1104,0);
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Morimar',1105,0);
+-- Morimar: three of his four weapon skills (BG Wiki BGWiki:Trusts, 2026-09-22). Vehement Resolution (3676) and 12 Blades of
+-- Remorse (3680, only after Vehement Resolution) are used by gambits in morimar.lua: trusts skip onMobSkillCheck, so a
+-- skill in this list could be picked at any time.
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Morimar',1105,3677); -- Camaraderie of the Crevasse
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Morimar',1105,3678); -- Into the Light
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Morimar',1105,3679); -- Arduous Decision
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Darrcuiln',1106,0);
 -- TODO: Verify these
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_AAHM',1107,3706); -- Cross Reaver
@@ -3648,7 +3671,9 @@ INSERT INTO `mob_skill_lists` VALUES ('TRUST_Prishe_II',1126,3234); -- Nullifyin
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Prishe_II',1126,3235); -- Auroral Uppercut
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Prishe_II',1126,3236); -- Knuckle Sandwich
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Nashmeira_II',1127,3243); -- Imperial Authority
--- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lilisette_II',1128,0);
+-- Lilisette II: Whirling Edge, Dancer's Fury (BG Wiki BGWiki:Trusts, 2026-09-22). Vivifying Waltz (3313) and Rousing Samba (3312) are used by gambits in lilisette_ii.lua.
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lilisette_II',1128,3311); -- Whirling Edge
+INSERT INTO `mob_skill_lists` VALUES ('TRUST_Lilisette_II',1128,3310); -- Dancer's Fury
 INSERT INTO `mob_skill_lists` VALUES ('TRUST_Tenzen_II',1129,3542); -- Oisoya
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Mumor_II',1130,0);
 -- INSERT INTO `mob_skill_lists` VALUES ('TRUST_Ingrid_II',1131,0);

@@ -3338,10 +3338,10 @@ INSERT INTO `mob_skills` VALUES (3306,302,'setting_the_stage',1,0.0,18.0,2000,10
 INSERT INTO `mob_skills` VALUES (3307,303,'last_laugh',1,0.0,18.0,2000,1000,4,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3308,1714,'thorned_dance',0,0.0,18.0,2000,1000,1,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3309,1715,'sensual_dance',1,0.0,18.0,2000,1000,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3310,1712,'dancers_fury',0,0.0,7.0,2000,1000,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3311,1713,'whirling_edge',0,0.0,7.0,2000,1000,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3312,1716,'rousing_samba',1,0.0,18.0,2000,1000,1,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3313,1717,'vivifying_waltz',1,0.0,18.0,2000,1000,1,0,0,0,0,0,0);
+INSERT INTO `mob_skills` VALUES (3310,1712,'dancers_fury',0,0.0,7.0,2000,1000,4,0,0,0,12,4,0); -- Lilisette II: Fragmentation/Scission (BG Wiki)
+INSERT INTO `mob_skills` VALUES (3311,1713,'whirling_edge',0,0.0,7.0,2000,1000,4,0,0,0,10,5,0); -- Lilisette II: Distortion/Reverberation (BG Wiki)
+INSERT INTO `mob_skills` VALUES (3312,1716,'rousing_samba',0,0.0,18.0,2000,1000,1,4,0,0,0,0,0); -- Lilisette II: self, no automatic TP cost (the script takes 350)
+INSERT INTO `mob_skills` VALUES (3313,1717,'vivifying_waltz',0,0.0,18.0,2000,1000,1,0,0,0,0,0,0); -- Lilisette II: self; the script heals the party itself
 INSERT INTO `mob_skills` VALUES (3314,2353,'true_strike',0,0.0,7.0,2000,1500,4,0,0,0,8,6,0);
 INSERT INTO `mob_skills` VALUES (3315,2354,'hexa_strike',0,0.0,7.0,2000,1500,4,0,0,0,11,0,0);
 -- INSERT INTO `mob_skills` VALUES (3316,3060,'glutinous_dart',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
@@ -3706,11 +3706,11 @@ INSERT INTO `mob_skills` VALUES (3666,395,'matriarchal_fiat',0,0.0,7.0,2000,1500
 INSERT INTO `mob_skills` VALUES (3673,284,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3674,285,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3675,286,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3676,287,'vehement_resolution',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3677,288,'camaraderie_of_the_crevasse',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3678,289,'into_the_light',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3679,290,'arduous_decision',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
-INSERT INTO `mob_skills` VALUES (3680,291,'12_blades_of_remorse',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
+INSERT INTO `mob_skills` VALUES (3676,287,'vehement_resolution',0,0.0,7.0,2000,1500,1,0,0,0,0,0,0); -- Morimar trust: self
+INSERT INTO `mob_skills` VALUES (3677,288,'camaraderie_of_the_crevasse',0,0.0,7.0,2000,1500,4,0,0,0,6,8,0); -- Morimar trust: Detonation/Impaction (BG Wiki)
+INSERT INTO `mob_skills` VALUES (3678,289,'into_the_light',0,0.0,7.0,2000,1500,4,0,0,0,11,8,0); -- Morimar trust: Fusion/Impaction (BG Wiki)
+INSERT INTO `mob_skills` VALUES (3679,290,'arduous_decision',0,0.0,7.0,2000,1500,4,0,0,0,12,2,0); -- Morimar trust: Fragmentation/Compression (BG Wiki)
+INSERT INTO `mob_skills` VALUES (3680,291,'12_blades_of_remorse',0,0.0,7.0,2000,1500,4,0,0,0,13,10,0); -- Morimar trust: Light/Distortion (BG Wiki). Single target: the skill page says so; the trust table says AoE
 INSERT INTO `mob_skills` VALUES (3681,272,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3682,273,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);
 INSERT INTO `mob_skills` VALUES (3683,274,'',0,0.0,7.0,2000,1500,4,0,0,0,0,0,0);

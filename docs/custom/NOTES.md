@@ -647,3 +647,62 @@ Found and fixed on the way (commits `1c3b252a88`, `9c885b355e`):
 - Rollback restored the DB but not dbtool's `db_ver` (kept in the git-ignored `tools/config.yaml`, not in the DB), so the next update would have skipped re-importing changed `sql/` files. Each deploy now saves `tools/config.yaml` next to its backup (`<backup>.dbtool-config.yaml`) and `--rollback` restores it. Verified: the rollback put `db_ver` back to `4ce9402`.
 - LSB's `040_verify_char_flags` migration prints "if this runs repeatedly, report it" once: the AH bot's character was created in SQL without a `char_flags` row. It adds the row and does not repeat. Prod will likely print it once too.
 - While the code is rolled back, the AH bot timer runs the OLD bot code (old id 90000001, x30 prices): 1,200 stray listings appeared under 90000001 and were deleted (`DELETE ... WHERE seller = 90000001 AND sale = 0`; no trigger on DELETE). On prod: stop `ah-bot.timer` before any rollback, as the script says.
+
+## 2026-09-22 — Trust audit (Tier 3): what is broken or not coded
+
+Tool: `tools/custom/trust_audit.py` (read-only; re-run after every trust fix). It checks every trust spell (122, ids 896-1019) for DB data, how players can get it, and how much of its AI is scripted. Static check only: nothing was summoned in game yet.
+
+How the engine works (read in `trustutils.cpp`, `gambits_container.cpp`), which decides what "broken" means:
+- A trust loads only with a `mob_pools` row at `poolid = spellid + 5000` and a matching `mob_resistances` row. **All 122 have both: every trust can be summoned.**
+- Weapon skills come from `mob_skill_lists` (ids <= 255 are player weapon skills). The engine uses them at random as soon as the trust has TP, even without any script. All listed skills have data and scripts.
+- Spells and job abilities are used **only** through gambits (`mob:addGambit` in `scripts/actions/spells/trust/<name>.lua`). A caster with no gambits never casts, whatever its spell list holds.
+
+Behaviour (by script and data):
+- **Scripted, no open TODOs: 40.** Has gambits; not verified against retail.
+- **Scripted with TODOs: 20.** Works but incomplete (e.g. Volker: no Warrior's Charge logic; BRD trusts "need a major overhaul"; Semih: no Stealth Shot; Adelheid: no weakness-based storms/helixes; UC trusts: no Unity-rank bonuses).
+- **Caster that never casts: 22.** Spell list present, zero gambits (Kukki-Chebukki BLM with 62 spells, Ingrid, Halver, Ovjang, Arciela, Ygnas, Mumor II, ...). They only melee.
+- **Auto-attack only: 35.** No gambits and no weapon skills (Cid, Gilgamesh, Lilisette, Klara, Romaa Mihgo, Maximilian, the UC melee trusts, ...).
+- **Melee + random weapon skills, no other AI: 4** (Nashmeira, Mildaurion, AAMR, AAGK). **Melee job with no weapon skills: 1** (Monberaux; he is a potion healer in retail, so possibly fine).
+
+How players get them (ciphers + `addSpell` in quests/missions/NPCs):
+- **Normal source: 45.** Quests, missions, RoE, Sparks shop, conquest/besieged/campaign/Unity NPCs.
+- **Event-only: 32.** Only from the Festive Moogle (needs Mog Pells, which almost nothing hands out), Extravaganza or login campaigns (both disabled in `settings/main.lua`).
+- **No source at all: 45.** E.g. all Unity (UC) trusts, all five Ark Angels, Iroha, Ygnas, Cornelia, Matsui-P, Arciela, King of Hearts, Selh'teus.
+- GM workaround exists: `!addalltrusts [player]` (permission 1).
+
+The ones testers can get today AND that are broken: casters that never cast = Ingrid, Kukki-Chebukki, Halver; auto-attack only = Cid, Gilgamesh, Margret, Makki-Chebukki, Morimar, Lilisette II; WS-only = Nashmeira.
+
+## 2026-09-22 — Trust fixes, round 1: 8 of the 10 obtainable-but-broken trusts
+
+Source for behaviour: BG Wiki `BGWiki:Trusts`, read as raw wikitext through the MediaWiki API (the WebFetch summary of that page mixed up rows: it made Nashmeira a DNC and Kukki-Chebukki a BLU). Every script header says what is retail and what is left out.
+- **Scripts (`scripts/actions/spells/trust/`):** Ingrid, Halver, Cid, Gilgamesh, Margret, Makki-Chebukki, Nashmeira, Kukki-Chebukki (was: spawn/despawn messages only). Kukki swaps his gambits to the day's element (`VanadielDayElement`), Sleepga on Darksday, nothing on Lightsday.
+- **Weapon skills (`sql/mob_skill_lists.sql`):** filled the empty lists with the retail player weapon skills. Ingrid 1036, Cid 1052, Gilgamesh 1053, Margret 1077, Halver 1087, Makki 1103. Imported on test by sourcing the file. On prod `dbtool update` re-imports it (changed `sql/` file); trust data loads at `xi_map` start.
+- **Left out:** trust-unique moves with no mob skill script (Cid: Fiery Tailings, Critical Mass; Gilgamesh: Iainuki, Tachi: Kamai), Stealth Shot, Treasure Hunter, Undead Killer, the Makki/Kukki/Cherukiki Meteor emote, and Kukki's -ga/-ja use (retail conditions undocumented).
+- **Not done: Morimar and Lilisette II.** Their whole retail kits are trust-unique moves (Morimar 3676-3680, Lilisette 3310-3313) that have `mob_skills` rows but no scripts. They need 8 new mob skill scripts with estimated numbers (upstream's own trust skills use placeholder fTPs too, e.g. `august_melee_sword.lua`). Waiting for Eric's decision.
+
+Engine facts found on the way (they matter for every future trust script):
+- **TP skills are tried before gambits on every tick** (`gambits_container.cpp` Tick). A gambit meant for "right before the weapon skill" must fire below the trust's weapon-skill threshold (Gilgamesh's Sekkanoki at 1000+, not 2000+).
+- **A gambit's retry delay starts even when the cast never started** (`executedAnyAction = true` right after `controller->Cast`, unchecked). With `, 60` Halver's first Flash attempt failed (likely still moving into range) and Flash was then locked out for a minute; 3/3 test runs each way. No retry on Flash or Kukki's debuff; their recast plus the NOT_STATUS check already prevent spam. Upstream scripts using `, 60` (Kupipi's Flash and Paralyze/Slow, Shantotto's nukes, ...) probably have the same problem.
+- **The `LOWEST` selector is not implemented for spells** (returns nothing, so the gambit silently never fires). Kukki uses the tier I spell by ID instead.
+- **A `TICK` listener that changes gambits crashes the server** when the trust despawns (the listener still fires, the controller is no longer a trust controller, and `addGambit`/`removeGambit` static_cast it). This crashed `xi_test` (SIGSEGV in `CAIContainer::Tick`). Use `COMBAT_TICK`, which only the trust controller fires, and remove the listener in `onMobDespawn`/`onMobDeath`.
+- **Tests:** trusts join a fight only after the master's melee swing in the last second (retail), which 2-second test ticks never match. Tests set the `TrustEngageType` charvar to 1 (the `!trustengage` option).
+
+Tests: `scripts/tests/modules/trust_fixes.lua` (11: each trust is summoned next to a real monster and what it actually uses is recorded through `MAGIC_USE`/`ABILITY_USE`/`WEAPONSKILL_USE`, plus a release-mid-fight crash guard). `./xi_test --file 'modules/' --file 'systems/trusts'`: 307/307. Test servers were stopped for the run (nobody online) and restarted: all four up, no error lines. Audit after: working 40 -> 48, casters that never cast 22 -> 19, auto-attack only 35 -> 31.
+
+## 2026-09-22 — Trust fixes, round 2: Morimar and Lilisette II (estimated skills)
+
+Eric chose estimated skill numbers over leaving them auto-attack only. BG Wiki's skill pages (read as raw wikitext) give the skillchain properties and "physical, great axe", but every fTP/stat modifier is `{{question}}`. So the damage numbers are estimates, marked `TODO: Capture fTPs (estimate)`, the same way upstream's own trust skills are (`august_melee_sword.lua`, `stellar_arrow.lua`).
+- **New mob skill scripts (`scripts/actions/mobskills/`):** `vehement_resolution` (full heal, removes erasable/waltzable debuffs, sets the glow), `camaraderie_of_the_crevasse` (fTP 2.25/2.75/3.25), `into_the_light` (2.5/3.0/3.5), `arduous_decision` (2.0/2.5/3.0 + Silence 60 s), `12_blades_of_remorse` (3.5/4.0/4.5, single target: the skill page says single, the trust table says AoE), `whirling_edge` (2 hits, 1.5/1.75/2.0), `dancers_fury` (3 hits, 1.0/1.25/1.5), `vivifying_waltz` (heals party members within 10' for 20/25/30% max HP), `rousing_samba` (350 TP, +65 critical hit rate for Lilisette herself; no status effect exists for the party's +10%, so that part is not done).
+  The same skill names are used by the mission-NPC Lilisette (list 484) and Morimar (list 491), who now get working versions of these moves too.
+- **`sql/mob_skills.sql`:** skillchain properties for 3310-3313 and 3676-3680; Vehement Resolution targets self; Rousing Samba has the no-TP-cost flag (0x004); Waltz and Samba are single target (their scripts handle the party, so nobody is affected twice).
+- **`sql/mob_skill_lists.sql`:** Morimar 1105 = 3677-3679; Lilisette II 1128 = 3311, 3310.
+- **Trust scripts:** `morimar.lua` (Vehement Resolution by gambit, 180 s retry = its cooldown; while glowing the TP threshold is 3001 so nothing from the list fires, and a gambit uses 12 Blades at 2000 TP; everything is reset when 12 Blades lands). `lilisette_ii.lua` (Samba gambit, removed after the first use; the Waltz gambit exists only while 3+ party members nearby are under 75% HP, updated in COMBAT_TICK).
+
+More engine facts (on top of round 1's):
+- **Trusts skip `onMobSkillCheck`.** Their TP skills and `ai.r.MS` gambits call `CMobController::MobSkill`, which goes straight to `Internal_MobSkill`; only `TryMobSkill` (regular mobs) runs the check. Conditions for a trust's mob skill must be enforced in the trust script (gambits added and removed as they apply), not in the skill's check. The checks are still in the skill scripts, for the NPCs.
+- **At 3000 TP a trust always uses a TP-list skill**, whatever `setTrustTPSkillSettings` says (`TryTrustSkill`: "Go, go, go!").
+- **Gambit IDs are `<gambit count>_<conditions>_<actions>`**, so they are not unique after removals. Only toggle one gambit at a time per trust.
+- **`ai.t.PARTY_MULTI` is declared but not implemented.**
+- **xi_test crash, NOT a server bug:** calling `stub()` twice on the same global within one test leaves a dangling stub after the test, and the next call to that global from any later test segfaults xi_test (5/5 crashes with a double stub, 0/5 with one stub function returning a variable). It first looked like "a trust finishing a cast after despawn". Real release mid-cast, zone-out mid-cast and logout mid-cast were each tested separately and do not crash. A trial null-zone guard in `CMagicState::Update` changed nothing and was reverted; core C++ is unchanged.
+
+Tests: `scripts/tests/modules/trust_fixes.lua` now 13 (Morimar: Vehement Resolution heals and glows, next weapon skill is 12 Blades, then normal skills again; Lilisette II: Samba once for 350 TP and +65 crit, no Waltz with 1 hurt, Waltz with 3 hurt, her weapon skills). The file passed 6/6 runs in a row, and `./xi_test --file 'modules/' --file 'systems/trusts'` 310/310. Test servers were stopped for the runs (nobody online), restarted: all four up, no error lines.
