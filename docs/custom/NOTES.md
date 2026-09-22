@@ -587,3 +587,10 @@ from the last entry passed on the first try: exact match, two-word search, equip
 not-found, ambiguous match, non-AH-category item, usage message, no side effects). Full `modules/`
 folder: 285/285. Servers restarted 04:42, all four up, no errors since. `!ahprice` and the Nexus Cape
 change are both live now.
+
+## 2026-09-22 — AH bot timer: every 30 seconds (owner's choice, was 15 minutes)
+
+`ah-bot.timer.example` updated (`OnUnitActiveSec=30sec`, `OnBootSec=5sec` to match). Not a functional
+risk: each run's own queries are cheap for this table size, and once the catalog is fully stocked most
+runs are no-ops (nothing left to restock). Needs Eric to update and reload the already-installed live
+timer (sudo, see chat) - editing the example file alone does not affect the running one.
