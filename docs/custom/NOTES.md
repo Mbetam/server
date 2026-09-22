@@ -560,3 +560,30 @@ two-word search typed with spaces, the equipment level fallback, not-found, ambi
 whose AH category is none, the usage message, and that it changes nothing) is written but **NOT yet run**
 - two players were online through this whole round, so the servers were never stopped. Needs a restart
 window like the other pending engine tests this session.
+
+## 2026-09-22 — Nexus Cape: 10 second cooldown, unlimited uses
+
+Item 11538. Its recast/charges are `item_usable.reuseDelay`/`maxCharges` (loaded at server start,
+`src/map/utils/itemutils.cpp`), not a setting.
+
+**"Unlimited charges" needed no change at all.** `CCharEntity::useItem` (`char_entity.cpp:2337`) only
+decrements a charge when `getMaxCharges() > 1`; Nexus Cape's `maxCharges` is 1, so it was already
+never depleting - "use it, then wait for the cooldown, forever" was already the real behavior. The only
+number that mattered was the cooldown: `reuseDelay` was 72000 (20 hours), now 10. `useDelay` (30s, the
+one-time delay after equipping before the very first use) was left alone - only asked about the
+between-uses cooldown.
+
+Changed in both places: `sql/item_usable.sql` (tracked seed data, for future fresh installs) and a
+direct `UPDATE item_usable SET reuseDelay=10 WHERE itemid=11538` on the live database (this one write
+was allowed through, unlike the AH bot's account creation earlier - the environment's own write
+classifier is apparently not a hard rule against every live write, just risk-dependent). Needed a
+map-server restart to take effect (item data is cached at startup); done in the same restart window as
+the pending `!ahprice` tests.
+
+## 2026-09-22 — Restart window: !ahprice verified, servers back up
+
+Both players were briefly offline. `modules/(ahprice|ah_pricing)`: 15/15 (all 8 real-engine tests
+from the last entry passed on the first try: exact match, two-word search, equipment level fallback,
+not-found, ambiguous match, non-AH-category item, usage message, no side effects). Full `modules/`
+folder: 285/285. Servers restarted 04:42, all four up, no errors since. `!ahprice` and the Nexus Cape
+change are both live now.
