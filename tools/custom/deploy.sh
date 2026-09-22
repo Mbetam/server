@@ -193,6 +193,12 @@ do_rollback() {
     step "Safety backup of the current DB"
     backup_db "$BACKUP_DIR/$(date +%Y%m%d-%H%M%S)-before-rollback-from-$to.sql"
     step "Restore DB from $backup"; "$PY" tools/custom/migrate.py restore "$backup"
+    if [[ -f "$backup.dbtool-config.yaml" ]]; then
+        cp "$backup.dbtool-config.yaml" tools/config.yaml
+        echo "Restored dbtool's db_ver: $(grep db_ver tools/config.yaml)"
+    else
+        red "No saved tools/config.yaml for this backup: check db_ver in tools/config.yaml by hand (it must match the restored DB)"
+    fi
     step "Check out $from";     git checkout --quiet --detach "$from"; git submodule update --init --recursive
     step "Build";               build
     step "Start servers";       start_servers
@@ -257,6 +263,8 @@ do_deploy() {
     step "Back up DB (still untouched: nothing has run against it yet)"
     BACKUP_FILE="$BACKUP_DIR/$(date +%Y%m%d-%H%M%S)-pre-$tag.sql"
     backup_db "$BACKUP_FILE"
+    # dbtool keeps the DB's version (db_ver) in this git-ignored file, not in the DB; a rollback must restore both together
+    if [[ -f tools/config.yaml ]]; then cp tools/config.yaml "$BACKUP_FILE.dbtool-config.yaml"; fi
     local zoneips; zoneips="$("$PY" tools/custom/migrate.py zoneip)"
     echo "$(date -Is) $FROM_REF $tag $BACKUP_FILE" >> "$HISTORY"
     STAGE="backed-up"
