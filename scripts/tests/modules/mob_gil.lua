@@ -30,27 +30,28 @@ describe('Mob gil floor', function()
     end
 
     it('stores the floor divided by the gil multiplier, so players receive the full amount', function()
-        assert(mobGil.baseGil == 500, 'the base drop should be 500 gil')
-        assert(mobGil.floorFor(2) == 250, 'with the x2 multiplier the floor is 250')
-        assert(mobGil.floorFor(1) == 500)
-        assert(mobGil.floorFor(4) == 125)
-        assert(mobGil.floorFor(0.5) == 1000)
+        assert(mobGil.baseGil == 875, 'the base drop should be 875 gil')
+        assert(mobGil.floorFor(3.5) == 250, 'with the x3.5 multiplier the floor is 250')
+        assert(mobGil.floorFor(2) == 438, 'with a x2 multiplier the floor rounds up to 438')
+        assert(mobGil.floorFor(1) == 875)
+        assert(mobGil.floorFor(4) == 219)
+        assert(mobGil.floorFor(0.5) == 1750)
     end)
 
     it('never delivers less than the base drop, even when the division is not exact', function()
         for _, multiplier in ipairs({ 0.3, 1, 1.5, 2, 2.5, 3, 7 }) do
-            assert(mobGil.floorFor(multiplier) * multiplier >= mobGil.baseGil, 'a multiplier of ' .. multiplier .. ' would deliver less than 500')
+            assert(mobGil.floorFor(multiplier) * multiplier >= mobGil.baseGil, 'a multiplier of ' .. multiplier .. ' would deliver less than 875')
         end
     end)
 
     it('treats a missing or zero multiplier as 1', function()
-        assert(mobGil.floorFor(nil) == 500 and mobGil.floorFor(0) == 500 and mobGil.floorFor(-3) == 500)
+        assert(mobGil.floorFor(nil) == 875 and mobGil.floorFor(0) == 875 and mobGil.floorFor(-3) == 875)
     end)
 
     it('gives a mob that dropped nothing the floor', function()
         local mob = makeMob()
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 250, 'a mob with no gil should get exactly the floor')
     end)
@@ -58,7 +59,7 @@ describe('Mob gil floor', function()
     it('raises a small natural drop to the floor', function()
         local mob = makeMob({ min = 10, max = 20 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 250, 'a 10-20 gil drop should become the floor')
     end)
@@ -66,7 +67,7 @@ describe('Mob gil floor', function()
     it('keeps a range that is only partly below the floor', function()
         local mob = makeMob({ min = 0, max = 800 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 800, 'the top of the range should be kept')
     end)
@@ -74,7 +75,7 @@ describe('Mob gil floor', function()
     it('never lowers a bigger natural drop', function()
         local mob = makeMob({ min = 3000, max = 9000 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 3000 and mob.mods.max == 9000 and mob.changes == 0, 'a drop above the floor must be left exactly as it is')
     end)
@@ -82,7 +83,7 @@ describe('Mob gil floor', function()
     it('gives a mob the game marks as never dropping gil the floor too', function()
         local mob = makeMob({ max = -1 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 250, 'a negative maximum ("never drops gil") should become the floor: ' .. mob.mods.min .. '-' .. mob.mods.max)
     end)
@@ -91,7 +92,7 @@ describe('Mob gil floor', function()
         for _, max in ipairs({ -1, -5, -32000 }) do
             local mob = makeMob({ max = max })
 
-            mobGil.apply(mob, 2)
+            mobGil.apply(mob, 3.5)
 
             assert(mob.mods.min == 250 and mob.mods.max == 250, 'a maximum of ' .. max .. ' should become the floor')
         end
@@ -100,7 +101,7 @@ describe('Mob gil floor', function()
     it('keeps a minimum above the floor on a never-drop mob', function()
         local mob = makeMob({ min = 900, max = -1 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 900 and mob.mods.max == 900, 'a bigger minimum must not be lowered: ' .. mob.mods.min .. '-' .. mob.mods.max)
     end)
@@ -108,7 +109,7 @@ describe('Mob gil floor', function()
     it('gives a mob that uses a gil bonus a minimum that still delivers the floor after the bonus', function()
         local mob = makeMob({ bonus = 50 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == mobGil.minForBonus(250, 50), 'the minimum should be stored divided by the bonus: ' .. mob.mods.min)
         assert(mob.mods.max == 0, 'a bonus mob keeps no maximum, or the game would ignore its bonus')
@@ -136,7 +137,7 @@ describe('Mob gil floor', function()
     it('does not lower a bonus mob whose natural minimum is already higher', function()
         local mob = makeMob({ min = 5000, bonus = 50 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 5000 and mob.changes == 0, 'a bigger minimum must be left exactly as it is')
     end)
@@ -144,7 +145,7 @@ describe('Mob gil floor', function()
     it('takes the "never drops gil" mark off a mob that also has a bonus', function()
         local mob = makeMob({ max = -1, bonus = 50 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.max == 0 and mob.mods.min == mobGil.minForBonus(250, 50), 'the mob should have a minimum and no negative maximum: ' .. mob.mods.min .. '-' .. mob.mods.max)
     end)
@@ -152,7 +153,7 @@ describe('Mob gil floor', function()
     it('leaves a mob with both a maximum and a bonus alone, since a floor could lower it', function()
         local mob = makeMob({ max = 300, bonus = 500 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.changes == 0, 'a maximum together with a bonus is rolled in a way the floor could make smaller')
     end)
@@ -160,7 +161,7 @@ describe('Mob gil floor', function()
     it('treats a negative bonus (the game\'s way of saying "no gil") like no bonus', function()
         local mob = makeMob({ bonus = -100 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 250, 'a negative bonus mob should get the plain floor')
     end)
@@ -169,7 +170,7 @@ describe('Mob gil floor', function()
         -- 10-251 raised to the 250 floor would become 250-251, a range one wide
         local mob = makeMob({ min = 10, max = 251 })
 
-        mobGil.apply(mob, 2)
+        mobGil.apply(mob, 3.5)
 
         assert(mob.mods.min == 250 and mob.mods.max == 250, 'the range should be made exact instead of one wide: ' .. mob.mods.min .. '-' .. mob.mods.max)
     end)

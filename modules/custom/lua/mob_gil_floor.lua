@@ -1,5 +1,5 @@
 -----------------------------------
--- Every mob drops gil: at least 500 (see mob_gil.lua for the number and the rules).
+-- Every mob drops gil: at least 875 (see mob_gil.lua for the number and the rules).
 -- The game calls xi.mob.onMobDeathEx for every kill BEFORE it decides how much gil to hand out, so raising the mob's gil
 -- there is enough. It is called once per alliance member, which is fine: raising to a floor can be done any number of times.
 -----------------------------------

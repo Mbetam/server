@@ -15,7 +15,7 @@
 local mobGil = {}
 
 -- The gil every mob should drop at least, as the player receives it (after MOB_GIL_MULTIPLIER, before party splitting).
-mobGil.baseGil = 500
+mobGil.baseGil = 875
 
 -- What to store in the mob's gil mods so that, after the multiplier, the player receives at least `baseGil`.
 mobGil.floorFor = function(multiplier)
