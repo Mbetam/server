@@ -1,0 +1,13 @@
+# Example systemd timer for the AH bot: runs it every 15 minutes. That is frequent enough to buy out
+# a stale listing within about BUYOUT_WAIT_HOURS of it going stale (see config.py), without hammering
+# the database. Install as /etc/systemd/system/ah-bot.timer, alongside ah-bot.service.
+
+[Unit]
+Description=Run the FFXI Auction House bot every 15 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,15 @@
+# Example systemd unit for the AH bot. Not installed automatically - copy the two files below into
+# place and enable the timer yourself (see docs/custom/NOTES.md for the exact commands, all of which
+# need sudo, so Claude cannot run them; run them yourself with the `!` prefix).
+#
+# Install as /etc/systemd/system/ah-bot.service
+
+[Unit]
+Description=FFXI Auction House bot (one run)
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=mbetam
+WorkingDirectory=/home/mbetam/server/tools/ah_bot
+ExecStart=/home/mbetam/lsb-venv/bin/python3 /home/mbetam/server/tools/ah_bot/ah_bot.py --apply

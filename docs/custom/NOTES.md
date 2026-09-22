@@ -426,3 +426,69 @@ Never lowers a drop. Tests: 21 pure (9 deliberate breaks caught) and real-engine
 ### Lottery NMs always pop, no timer (settings only)
 `xi.mob.phOnDespawn` (`scripts/globals/mobs.lua`, used by ~375 placeholder scripts) already reads two settings. Local `main.lua`: `NM_LOTTERY_CHANCE = -1` (always 100%) and `NM_LOTTERY_COOLDOWN = 0` (no timer). Killing the placeholder now always brings out its NM at the placeholder's normal repop time (a few minutes; `params.immediate` scripts pop at once), and the NM can pop again right after it dies. Day-only / night-only NMs still wait for their time of day, and a placeholder cannot spawn a second NM while one is up. **Not covered (about 40 scripts with their own custom code):** weather NMs with 9 to 12 hour random timers (Kreutzet, Bayawak, Elel...), the Leshys (they grow over time), alternating pairs such as Argus / Leech King (50/50 between two NMs), Fafnir, Snow Maiden / Father Frost / Morozko, the Orcish Overlord line. Each would need its own change.
 Tests (`nm_lottery.lua`, 4): Carrion Crow / Nunyenunc in West Sarutabaruta pops 8 times in a row with a wait of 57 minutes between (under the game's 1 hour cooldown); with the game's own 10% chance it does not pop every time; with the chance at always but the cooldown left at 1.0 it waits the hour and then pops. The zone keeps its state between tests, so the test puts the pair back before and after each test.
+
+## 2026-09-22 — AH bot: built, dry-run tested, NOT turned on yet (needs a one-time SQL step)
+
+Keeps the Auction House stocked with common materials, and buys out unsold player listings (gear
+included) after a wait, per the design baseline ("Stocked AH with a bot that buys unwanted gear...").
+Entirely outside the game engine: `tools/ah_bot/` is a standalone Python script run on a schedule
+(systemd timer, examples included), not a Lua module. Why: the AH is just a database table
+(`auction_house`), a "bot" is only an ordinary character id acting as seller or buyer, and when a real
+player buys a bot listing the seller is paid automatically by an existing DB trigger
+(`auction_house_buy` in `sql/triggers.sql`, delivers gil to the seller's mailbox) — none of that needs
+new game-server code. Lua modules have no SQL access, so a periodic Lua job was not an option; the
+standalone script also means testing and tuning it never needs a server restart.
+
+**Owner decisions (asked before building):** pricing = BaseSell x multiplier everywhere; buyout
+budget = unlimited; a listing is bought out once it has sat unsold for **1 hour**.
+
+**Files:** `tools/ah_bot/config.py` (every tunable number, with why), `pricing.py` (pure price/eligibility
+logic, no DB), `db.py` (reads `settings/network.lua` the same way `dbtool.py` does), `ah_bot.py` (the
+two passes), `setup.sql` (one-time account/character creation), `test_pricing.py` (15 tests, offline),
+`ah-bot.service.example` / `ah-bot.timer.example` (systemd, 15-minute cadence), `README.md`.
+
+**Pricing:** BaseSell x 30. Most equipment has **no BaseSell at all** (0 for about 60% of AH-eligible
+items — the retail client cannot sell gear to an NPC, so it was never given one), so equipment falls
+back to its level x 10 x 30. An item with neither (mostly quest/key items, which are usually also
+flagged un-auctionable anyway) is never stocked and never bought.
+
+**Restocking is category-limited, and this was found the hard way:** the first version had no category
+filter, and the first dry run immediately queued up Mog House furniture — a `royal_bed` at 561,000 gil,
+a `millionaire_desk` at 735,000 gil — because furniture is a real, separate Auction House category
+(`FURNISHINGS`, see `docs/Auction Categories.txt`) with its own BaseSell values, and nothing in my
+first pass excluded it. Fixed with `RESTOCK_AH_CATEGORIES` in `config.py`: only Crystals, the seven
+crafting-material categories, Medicines and the nine Food categories are proactively stocked. Buying
+out PLAYER listings is not category-limited — a player can sell weapons, armor, furniture, anything
+AH-eligible, to the bot; the category limit only stops the bot from inventing its own furniture
+listings out of thin air.
+
+**Buy-out never overpays:** it only buys a listing at or under its own computed price for that item; a
+seller who asks for more than that is left listed for a real buyer, exactly as intended ("buys
+unwanted gear at [reference] prices", not "buys anything at any price"). A full-stack listing is valued
+at stackSize x the per-unit price, not the per-unit price alone (a stack of 99 crystals is worth 99x
+one).
+
+**Tested:** `test_pricing.py`, 15/15, offline, no database (7 deliberate breaks caught: base-sell
+fallback dropped, equipment fallback dropped, negative base-sell accepted, restock allowed on
+equipment, restock ignored its minimum, buyout allowed overpaying, buyout bought an unpriced item).
+The real queries were dry-run against the live database (`python3 ah_bot.py`, no `--apply`, rolls back)
+and the restock output now looks sane (leather, flour, spices, ore, ingots at reasonable prices) after
+the category fix.
+
+**NOT tested: writing to the database.** I could not run the one-time account setup
+(`INSERT INTO accounts` / `INSERT INTO chars`) myself — the environment's own safety check refused it
+as a live-database write. Nor has `--apply` (the actual INSERT/UPDATE path) been run for real. The SQL
+in `ah_bot.py` and `setup.sql` has been reviewed carefully against the schema but is unverified in
+practice. Before trusting this: run `mysql -u mbetam -p mbetam_xi < tools/ah_bot/setup.sql` yourself
+(creates charid/accid 90000001, "AHBot" — reserved, documented, far above any real account id so it can
+never collide with a real player), then `python3 ah_bot.py --apply` once by hand and check the AH in a
+real client before turning on the timer.
+
+**Reserved id 90000001:** real accounts are allocated sequentially from the current highest id (1001
+today). This is far out of range on purpose. If account creation is ever reopened, new real accounts
+just continue from 90000002 — harmless, a one-time permanent jump in the numbering, documented here so
+nobody reuses 90000001 by hand later.
+
+**Not covered / left for later:** the bot's own delivery-box mail (gil from real players buying its
+stock) will accumulate forever since "AHBot" never logs in to collect it — harmless, but worth a
+periodic sweep eventually. Bought-out player items are simply removed, not recycled into new stock.

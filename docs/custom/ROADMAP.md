@@ -20,6 +20,7 @@
 - **Tuning the Augmenter:** prices and bonuses, based on your feedback
 - **`!ah`:** Auction House from anywhere (needs a small server change, being looked at)
 - **More quality-of-life commands** (ideas: `!mh`, `!escape`, `!signet`, `!gotoexp`)
+- **AH bot:** keeps common materials in stock and buys out unsold gear so selling always pays. Built and dry-run tested; not turned on yet.
 
 ## 📋 Planned (rough order)
 1. **Daily hunts:** daily tasks paying EXP, gil and gear currency
@@ -30,7 +31,6 @@
 6. **Synergy crafting:** custom recipes
 
 ## 💭 Ideas (no promises)
-- A stocked Auction House
 - Seasonal events and a monthly bonus day
 - Custom relic / empyrean progression
 
