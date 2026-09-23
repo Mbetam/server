@@ -1,5 +1,5 @@
 -----------------------------------
--- The !buff command (modules/custom/commands/buff.lua): EXP +200%, Regen +50, Refresh +50, Regain +50 for ten hours
+-- The !buff command (modules/custom/commands/buff.lua): EXP +100%, Regen +50, Refresh +50, Regain +50 for ten hours
 -----------------------------------
 
 describe('!buff command', function()
@@ -53,7 +53,7 @@ describe('!buff command', function()
         assert(player:getMod(xi.mod.REGAIN) == regainBefore + 50, 'Regain should have risen by 50')
     end)
 
-    it('gives an EXP bonus of +200%', function()
+    it('gives an EXP bonus of +100%', function()
         local mob = player.entities:get('Volcanic_Bomb')
         local baseExp = 100
 
@@ -61,7 +61,7 @@ describe('!buff command', function()
 
         xi.commands.buff.onTrigger(player)
 
-        assert(killExp(mob, baseExp) == baseExp * 3, 'a +200% bonus should pay three times the base EXP')
+        assert(killExp(mob, baseExp) == baseExp * 2, 'a +100% bonus should pay twice the base EXP')
     end)
 
     it('keeps the EXP pool small enough for the database to save', function()
@@ -112,7 +112,7 @@ describe('!buff command', function()
 
         assert(player:getMod(xi.mod.REGEN) == regenBefore + 50, 'using the command twice stacked Regen')
         assert(player:getMod(xi.mod.REGAIN) == regainBefore + 50, 'using the command twice stacked Regain')
-        assert(player:getStatusEffect(xi.effect.DEDICATION):getPower() == 200, 'using the command twice changed the EXP bonus')
+        assert(player:getStatusEffect(xi.effect.DEDICATION):getPower() == require('modules/custom/lua/buff_config').expPercent, 'using the command twice changed the EXP bonus')
     end)
 
     it('does nothing for a KO\'d player', function()

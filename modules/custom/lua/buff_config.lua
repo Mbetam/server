@@ -8,7 +8,7 @@ return
     duration = 36000, -- seconds (10 hours)
 
     -- EXP is Dedication: power is the percentage bonus on kill EXP, applied before the server's EXP_RATE (see xi.experiencePoints.calculate).
-    expPercent = 200,
+    expPercent = 100,
 
     -- Dedication pays its bonus out of a pool (subPower) and ends when it is empty. The pool is saved to char_effects.subpower,
     -- which is a SIGNED smallint (max 32767): anything bigger makes the whole effects save fail. So the pool is kept under the

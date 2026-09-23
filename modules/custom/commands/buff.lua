@@ -1,6 +1,6 @@
 -----------------------------------
 -- func: buff
--- desc: Grants the server buff bundle for ten hours: EXP +200%, Regen +50, Refresh +50 and Regain +50.
+-- desc: Grants the server buff bundle for ten hours: EXP +100%, Regen +50, Refresh +50 and Regain +50.
 --       Running it again replaces the buff and restarts the timer; it never stacks.
 -----------------------------------
 require('modules/module_utils')
