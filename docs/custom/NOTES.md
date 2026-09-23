@@ -966,3 +966,76 @@ and the three local settings for the next patch notes.
 - **Rhapsodies of Vana'diel:** LSB matches retail (BG Wiki key item pages). White, Umber, Azure, Crimson, Emerald and Mauve each give +30% EXP (`handleRoVBonus` in `scripts/globals/experience_points.lua`, up to +180%, added with other EXP bonuses after the per-monster cap). Fuchsia, Puce and Ochre each give +30% capacity points (`charutils.cpp`, `capacityBonusKeyItems`). White, Crimson and Fuchsia also raise skill-ups (`skillupIncreaseKeyItems`). The engine calls `xi.experiencePoints.calculate` for every kill (`luautils.cpp`).
   The bonus only applies to EXP from kills, not quests, FoV/GoV pages or RoE. BG Wiki says "experience and limit points gains" without saying which sources; not changed.
 - Test: `scripts/tests/modules/rhapsody_exp.lua` (3: +30% for one, +30% each up to +180% for all six, none from the capacity Rhapsodies), calling the real function with a real player and monster. There is no Lua getter for a player's current EXP, so a kill-based test was not written.
+
+<!-- The two entries below were written on the prod server and relayed to test by Eric (prod no longer edits tracked files). -->
+
+## 2026-09-23 (prod) — xi_map restarted 05:12:15: combined augments, Refresh/Regen retune and NM respawn caps are live
+
+Checked afterwards (13:39): ready after 42.3 s, no `[error]`/`[critical]` since the restart. The only warnings were
+client-side ones (a player's position packets while zoning or logging out, one target 50.7y away), plus one
+`GetMobByID Mob doesn't exist (16887851)` at startup (known, upstream data). xi_world, xi_search and xi_connect stayed up.
+Refresh/Regen recheck, done after the restart: scanned the augments on every row of `char_inventory` and
+`delivery_box` for ids 137/138. 0 hits, so no item has an orphaned +1..+4 augment.
+
+## 2026-09-23 (prod) — patch-2026-09-23 deployed on prod
+
+deploy.sh: expected "not a descendant" note (prod was on its local prod-fix commit), no C++ rebuild needed (prod
+already ran the respawn-cap code), dbtool re-imported abilities, mob_skill_lists, mob_skills, pet_skills; no custom migrations.
+dbtool also ran its char_flags row-count migration: the AH bot's character had no `char_flags` row (custom migration
+0001 never creates one; 0003 only renames it). Fixed by dbtool. No change needed: LSB's `040_verify_char_flags` runs on
+every `dbtool update` and adds any missing row, so fresh installs get it the same way.
+EXP set to x1.8 (map.lua EXP_RATE; main.lua EXP_RATE, BOOK_EXP_RATE, ROE_EXP_RATE); NM/HNM caps kept at 120/3600.
+Servers restarted (now started detached like deploy.sh does, not in the old tmux session, whose windows no longer run
+the servers): all four up, no errors, !dummy / !allmissions / !allkeyitems registered.
+Prod's dropped local test edits (augment tests reading live prices) are kept outside the repo in
+`~/prod-local-edits-2026-09-23.patch`; superseded by `scripts/tests/modules/augment_test_tuning.lua`.
+
+## 2026-09-23 — !buff EXP +200% -> +100% (Eric's choice)
+
+With EXP at x1.8, +200% made a buffed kill x5.4 retail; +100% makes it x3.6. Only `expPercent` in `modules/custom/lua/buff_config.lua` changed (plus the command's description). Regen/Refresh/Regain +50 and the 10 hours are unchanged.
+- The pool top-up (`buff_pool.lua`, a module override loaded at startup) recognises !buff's Dedication by its power, so it needs a server restart to see the new value. Done on test.
+- Players who already have the old +200% buff keep it until it ends or its EXP pool (32,000) runs out: the top-up no longer matches its power. Running `!buff` again replaces it with +100%.
+- Tests: `buff_command.lua` now expects double EXP; its "does not stack" check reads the value from `buff_config.lua` instead of a hardcoded 200. 8/8.
+
+## 2026-09-23 — Trust check, round 3: Apururu (UC), Yoran-Oran (UC), Monberaux, Koru-Moru
+
+Compared against BG Wiki, then summoned in the real engine (`scripts/tests/modules/trust_healers.lua`, 12 tests; they record
+every spell/JA/mob skill and its target). Before the fixes, 5 of the 12 retail behaviours tested did not happen.
+
+**Engine bug (all trusts), `src/map/ai/helpers/gambits_container.cpp`, same in upstream:** the gambit loop never stopped after
+a gambit acted. Every later matching gambit in the same tick also "fired". Its spell/JA/skill was refused because the trust
+was already busy, yet its retry delay still started. For Monberaux that burnt the 60 s timers of Life Water, Samson's Strength,
+Dragon Shield and Dark Potion on every Guard Drink, so he never used them. It is also the cause of the "Flash locked for a
+minute" problem from round 1. Fix: a gambit counts only if the trust is now actually casting / using an ability / skill / ranged
+attack; then it gets its retry delay and the tick ends. A refused gambit leaves its retry alone and the next one gets its turn.
+Animation-only gambits keep the old behaviour. Side effect: one action per gambit tick (2-3 s); before, several instant JAs
+could chain in one tick. Two round-1 tests had windows tuned to that and were lengthened (Halver tank mode, Gilgamesh TP hold).
+
+- **Apururu (UC)**: already had cures, -na, Erase, Protectra/Shellra, Stoneskin, Nott. Added: Curaga when 3+ party members are
+  under 75% HP or asleep; Martyr (her MP <10%, on the most hurt member within 10.6'); Devotion on a member under 20% MP (never on
+  jobs without MP); Convert at <10% MP (was 25%); Haste on the master and herself (was melee jobs only). Curaga/Martyr/Devotion
+  depend on the whole party, so they run from a `COMBAT_TICK` listener that queues the action (runs as soon as her current cast
+  ends). Martyr/Devotion use a 10-minute timer like a player. `getMerit` is 0 for trusts: Martyr heals 195%, Devotion gives 20%.
+  Not done: NIN excluded from Haste, Ajido-Marujido synergy, Unity-rank bonuses.
+- **Yoran-Oran (UC)**: Nott was never used (TODO in the script): added, same rule as Apururu. Stoneskin was in his gambits but
+  not in his spell list (393): added to `sql/mob_spell_lists.sql` and the test DB. Not done: Fast Cast/Conserve MP values unknown.
+- **Monberaux**: single-target Holy Water used the AoE skill id (4242); now 4250. Everything else worked once the engine bug
+  was fixed. Not done: Cover, Insomniant (disabled upstream for a wrong animation; he has sleep resistance instead).
+- **Koru-Moru**: no script change needed. Haste II on melee, Refresh on casters (not on a WAR), Phalanx II, Dispel, Dia/Slow/
+  Distract, Protect/Shell, Cure <50% all seen.
+- Noticed, not changed: 61 trusts have subjob 0 in `mob_pools` (e.g. Yoran-Oran should be WHM/BLM, Koru-Moru RDM/WHM), so they
+  miss subjob stats and traits. Upstream data gap; changing it strengthens trusts, so ask Eric first.
+- Tests: trust_healers 12/12, trust_fixes 13/13, systems/party/alliance 2/2, systems/trusts/release 1/1.
+- Full `xi_test` run after the engine change: 1335/1341. The 6 failures are unrelated. Gilfinder and Treasure Hunter fail
+  because of our drop/gil rates (upstream tests expect retail). NM respawn caps (3) and one BST jug pet fail only inside the full
+  run; alone they pass (6/6, 99/99), so it's an ordering/random effect.
+- Rebuilt; all four servers restarted with the new `xi_map` (logs clean).
+
+## 2026-09-23 — Retail subjobs for 38 trusts (Eric's request)
+
+`mob_pools.sJob` was 0 for 61 trusts. Set from the BG Wiki main/sub for the 38 that have a different subjob in retail
+(`sql/mob_pools.sql` + test DB), e.g. Yoran-Oran (UC) WHM/BLM, Koru-Moru RDM/WHM, Gilgamesh SAM/WAR, Cid WAR/RNG, Qultada COR/RNG.
+They now get subjob HP/MP/stats and traits. The other 23 are listed as "X / X" (single job) on the wiki and stay at 0.
+Morimar: the wiki says WAR/BST, the DB has main BST (his round-2 moves rely on it), so he became BST/WAR.
+Checked: all 38 summon with the right main/sub job; trust tests 29/29 (new subjob test in `trust_healers.lua`).
+Goes to prod through `dbtool.py update` (sql/mob_pools.sql changed).
