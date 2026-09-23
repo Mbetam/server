@@ -8,6 +8,25 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23-5
+
+### For players
+- **Bags and wardrobes are now 80 slots**: Inventory, Mog Satchel, Mog Sack, Mog Case and Mog Wardrobes 1-8. Log out and back in once to get them.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: none. One new module in `modules/init.txt` (comes with the tag): `custom/lua/bags_to_80.lua`; it loads at the restart `deploy.sh` does. This is the first deploy with the fixed `deploy.sh`: no manual server stop needed.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23-4
+- Bags and wardrobes raised to 80 for every character (e2894687cd)
+
 ## patch-2026-09-23-4
 
 ### For players
