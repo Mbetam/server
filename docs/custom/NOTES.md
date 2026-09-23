@@ -1170,3 +1170,27 @@ left at 30. New module `modules/custom/lua/bags_to_80.lua` (in `modules/init.txt
 Inventory, Satchel, Sack, Case and Wardrobes 1-8 to 80 if smaller, never shrinks. Covers existing characters. Mog Safe,
 Storage and Locker are not touched. Test `scripts/tests/modules/bags_to_80.lua` 1/1. Needs a restart to load (done on
 test). Not yet checked in game whether the client shows Wardrobes 3-8 from the size alone.
+
+## 2026-09-23 (prod) — patch-2026-09-23-5 deployed on prod (19:36, 0 players online)
+
+First deploy with the fixed deploy.sh: no manual stop, no "another deploy is running" (deploy.sh stopped the servers
+itself). Fast-forward from patch-2026-09-23-4, no C++ compiled (relink only), dbtool up to date, no custom migrations.
+Pre-deploy DB backup in `sql/backups/` (20260923-193611). All four xi_* up, xi_map ready in 40 s, no error/critical;
+bags_to_80 loaded. Lock free while the servers run: **the deploy.sh fd 9 fix is confirmed on prod.**
+
+## 2026-09-23 — NM placeholders marked "PH <name>" (testing whether the client shows it)
+
+`modules/custom/lua/mark_nm_placeholders.lua` (in `modules/init.txt`): the first time a player enters a zone, every
+monster in an NM's `entity.phList` (LSB's own placeholder data, 374 NM scripts) is renamed "PH <name>" with
+`renameEntity` (renamed entities re-send their name in every update, so it survives respawns). Names are capped at 15
+characters by the packet (`PacketNameLength` 16), so " (PH)" as a suffix would not fit: the prefix "PH " is used and
+long names lose their last letters. The NM itself and non-placeholder monsters are untouched. Test
+`mark_nm_placeholders.lua` 1/1. **Checked in game by Eric:** the client shows "PH Forest Hare", and killing it made
+Jaggedy-Eared Jack appear in G-9 (as BG Wiki says). It is the right placeholder: in `data/zones/west_ronfaure/mobs.yaml`
+the group is Forest Hare x3, Jack, Carrion Worm (wiki: "3rd Forest Hare in the bottom group, above a Carrion Worm").
+Note for later: monster data now lives in `data/zones/<zone>/mobs.yaml` (templates, spawns with a region, slots), not in
+the `mob_groups`/`mob_spawn_points` tables, which only hold a leftover subset. A monster spawns anywhere in its region,
+so a placeholder can stand away from the NM's own spawn points. The NM appears after the placeholder's respawn time
+(Forest Hare: 180 s) plus the 30 s respawn waves, not at once.
+- Test settings: added prod's NM caps to `settings/map.lua` (git-ignored): NM_RESPAWN_CAP 120, HNM_RESPAWN_CAP 3600,
+  HNM_RESPAWN_THRESHOLD 64800. Live on save; timers already running keep their length.
