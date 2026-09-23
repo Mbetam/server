@@ -8,6 +8,31 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23-4
+
+### For players
+- **New: Leveling Guide** in Norg (the floating book). A free teleport to one good leveling spot per level range: 10-24 Valkurm Dunes, 25-50 Oldton Movalpolos, 50-70 Bhaflau Thickets, 70-80 Kuftal Tunnel, 80-90 Mount Zhayolm, 90-99 Yahse Hunting Grounds. Not usable in battle.
+- **The Augmenter and the Trust Vendor moved to Norg**, next to each other (they're no longer in Lower Jeuno).
+- **Trust Vendor:** shorter menus, 5 trusts per page with Next / Prev. Before, long pages were cut off and some trusts didn't show.
+- **Geomancer:** Collimated Fervor (level 40) now works.
+- **Rune Fencer:** Odyllic Subterfuge (level 96) now works: it lowers the target's magic accuracy for 30 seconds (more magic attack down with job points). Tell us how it feels.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: **stop the four servers before this deploy, one last time** (SIGTERM). The servers now running were started by the old `deploy.sh` and still hold `sql/backups/.deploy.lock`; this patch fixes `start_servers()` so later deploys don't need it. One new module in `modules/init.txt` (comes with the tag): `custom/lua/leveling_guide_npc.lua`; it loads at the restart `deploy.sh` does.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23-3
+- deploy.sh: don't let the started servers inherit the deploy lock (523e0c0ff0)
+- Job audit tool; GEO Collimated Fervor and RUN Odyllic Subterfuge (9d5fc5955f)
+- Leveling Guide NPC; Augmenter and Trust Vendor moved to Norg; menus fit the 150-byte limit (8e944e219f)
+
 ## patch-2026-09-23-3
 
 ### For players
