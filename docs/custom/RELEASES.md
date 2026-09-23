@@ -8,6 +8,35 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23-2
+
+### For players
+- **`!buff` EXP bonus is now +100%** (was +200%). Regen, Refresh, Regain +50 and the 10 hours are unchanged. If you still have the old buff it keeps working until it runs out; using `!buff` again gives the new one.
+- **Healer and support trusts fixed:**
+  - Apururu (UC) now casts Curaga when 3 or more of you are hurt, and uses Martyr, Devotion and Convert when she is low on MP.
+  - Yoran-Oran (UC) now uses Nott to get MP back and keeps Stoneskin up.
+  - Monberaux now uses Life Water (party Regen), Samson's Strength, Dragon Shield and his other mixes. Before, he stopped after Guard Drink.
+  - Koru-Moru was checked: he already buffs, debuffs and dispels like in retail.
+- **Trusts act more reliably:** fixed a bug that made trusts skip abilities they were supposed to use (it locked them out for up to a minute). They now take one action at a time, as in retail.
+- **38 trusts now have their retail subjob** (for example Yoran-Oran WHM/BLM, Koru-Moru RDM/WHM, Gilgamesh SAM/WAR). This gives them the subjob's extra HP/MP, stats and traits, so many trusts are a bit sturdier.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none (EXP x1.8 is already set on prod).
+- Other manual steps: none. The `!buff` change reaches the EXP pool top-up only after a restart, which `deploy.sh` does anyway.
+- Rebuild: yes (C++ changed: `src/map/ai/helpers/gambits_container.cpp`, the trust gambit fix)
+- `sql/` files that `dbtool update` will re-import:
+  - sql/mob_pools.sql (trust subjobs)
+  - sql/mob_spell_lists.sql (Stoneskin for Yoran-Oran (UC))
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23
+- !buff: EXP bonus +200% -> +100% (6fd0c6590a)
+- Trusts round 3: Apururu (UC), Yoran-Oran (UC), Monberaux; gambit retry fix (core) (8889ac22f4)
+- Trusts: retail subjobs for 38 trusts; engine test for healer/support trusts; notes (9a5e3d38cd)
+
 ## patch-2026-09-23
 
 ### For players
