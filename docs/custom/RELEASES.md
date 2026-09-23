@@ -8,6 +8,43 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23
+
+### For players
+- **EXP x1.8** from everything: kills, quests, FoV/GoV pages and Records of Eminence (it was retail x1.0). `!buff` still stacks on top.
+- **10 trusts now fight properly:** Cid, Gilgamesh, Halver, Ingrid, Kukki-Chebukki, Lilisette II, Makki-Chebukki, Margret, Morimar and Nashmeira use their retail job abilities, spells and weapon skills (before, they only auto-attacked or never cast). Morimar's and Lilisette II's moves have estimated damage: tell us if they feel off.
+- **Beastmaster:** every jug pet's Ready moves now work (22 pets had none that worked, mostly the level 99 ones).
+- Rhapsody key items were checked: each gives its retail +30% EXP or capacity points.
+- Already live on this server before this patch, now part of it: NMs on a timer respawn within 2 minutes (HNMs within 1 hour), the Augmenter's combined Acc/Atk, Rng.Acc/Rng.Atk and Mag.Acc/MAB stats and new prices.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua` (then restart the servers):
+  - `settings/map.lua`: `EXP_RATE = 1.8`
+  - `settings/main.lua`: `EXP_RATE = 1.800`, `BOOK_EXP_RATE = 1.800`, `ROE_EXP_RATE = 1.800`
+  - Keep prod's own `NM_RESPAWN_CAP = 120` / `HNM_RESPAWN_CAP = 3600` (the new `settings/default/map.lua` keys default to 0 = off).
+- Other manual steps: none.
+- Expected during the deploy: prod is on its local branch `prod-fix/2026-09-23` (commit 5844be0936). That commit reached `custom` squashed and scrubbed (fe016bee15), so `deploy.sh` will say this tag "is not a descendant of the current version". That is expected. The branch no longer exists on GitHub.
+- New GM commands: `!dummy` (training dummy), `!allmissions`, `!allkeyitems` (GM level 1+).
+- Rebuild: yes (C++ changed: the respawn cap, already built on prod from its own commit; same code)
+- `sql/` files that `dbtool update` will re-import:
+  - sql/abilities.sql
+  - sql/mob_skill_lists.sql
+  - sql/mob_skills.sql
+  - sql/pet_skills.sql
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - settings/default/map.lua
+
+### Commits since patch-2026-09-22
+- Add tools/custom/trust_audit.py: what is broken or not coded per trust (25a079f7ab)
+- Trusts: retail AI and weapon skills for the 10 obtainable-but-broken trusts (6a1451a467)
+- Add tools/custom/bst_jug_audit.py: can each jug pet be called, do its Ready moves work (716e90538d)
+- BST: every jug pet's Ready moves work (73 -> 98 of 98 jugs) (98b2cc9b9c)
+- Add !dummy: a training dummy for combat testing (GM only); notes for the BST round (aed48ff132)
+- Bring in prod's fixes (prod-fix/2026-09-23), scrubbed of player details (fe016bee15)
+- Rhapsody key items: test that they give their retail EXP bonus; notes for EXP x1.8 (1c6a113f92)
+
 ## patch-2026-09-22
 
 ### For players
