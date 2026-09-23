@@ -8,6 +8,33 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23-3
+
+### For players
+- **Trust Vendor** in Lower Jeuno, beside the Augmenter. It sells 69 trusts you can't get anywhere else here, for 100,000 gil each. They come in three groups:
+  - **Event and campaign (46):** trusts from login campaigns, Mog Pells and seasonal events, such as Zeid, Lion, Moogle, the Ark Angels and Shantotto II.
+  - **Story (12):** trusts whose quest isn't in the game yet, such as Lilisette, Romaa Mihgo, Selh'teus and Iroha.
+  - **Unity (11):** Apururu (UC), Yoran-Oran (UC) and the other UC trusts.
+
+  You need a Trust permit (any nation's Trust quest), and the vendor only lists trusts you don't know yet.
+- **8 trusts now come from their quests, as in retail:** Gessho (Passing Glory), Gadalar (Embers of His Past), Zazarg (Fist of the People), Klara (Bonds of Mythril), Excenmille [S] (Face of the Future) and Arciela (The Light Within). Cornelia and Matsui-P come free with a Trust permit. If you already finished one of these, you learn the trust the next time you zone.
+- **`!shop`** now sells Holy Water (5,000 gil), Prism Powder and Silent Oil (2,500 gil each).
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: none. Two new modules are listed in `modules/init.txt` (tracked, comes with the tag): `custom/lua/trust_quest_grants_login.lua` and `custom/lua/trust_vendor_npc.lua`. New modules load only at a restart, which `deploy.sh` does.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23-2
+- Trust acquisition: quest grants for 8 trusts, Trust Vendor for 69 (c5098c4a52)
+- !shop: Holy Water 5,000 gil, Prism Powder and Silent Oil 2,500 gil each (92abb690fc)
+
 ## patch-2026-09-23-2
 
 ### For players
