@@ -119,7 +119,7 @@ describe('Trust fixes', function()
         assert(not used.ability[xi.jobAbility.SENTINEL], 'tank mode before anyone was hurt. ' .. dump())
 
         player:setHP(math.floor(player:getMaxHP() * 0.3))
-        fight(20)
+        fight(40) -- one action per gambit tick: Provoke, Sentinel and a Cure take a few ticks
 
         assert(used.ability[xi.jobAbility.PROVOKE], 'no Provoke in tank mode. ' .. dump())
         assert(used.ability[xi.jobAbility.SENTINEL], 'no Sentinel in tank mode. ' .. dump())
@@ -147,8 +147,12 @@ describe('Trust fixes', function()
     it('Gilgamesh uses Hasso, Sekkanoki, Hagakure and his tachi weapon skills', function()
         summon(xi.magic.spell.GILGAMESH)
         fight(6)
-        trust:setTP(1200) -- holding TP: Sekkanoki and Hagakure
-        fight(10)
+        -- Holding TP: Sekkanoki and Hagakure. Kept at 1200, or Meditate would take him to a weapon skill first.
+        for _ = 1, 10 do
+            trust:setTP(1200)
+            fight(2)
+        end
+
         trust:setTP(3000)
         fight(14)
 

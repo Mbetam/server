@@ -1005,9 +1005,29 @@ auto CGambitsContainer::Tick(timer::time_point tick) -> Task<void>
         }
 
         // If we executed any action and the gambit has a retry_delay, set last_used
-        if (executedAnyAction && gambit.retry_delay != 0)
+        // Custom: executedAnyAction is also set when the spell/ability/skill was refused (recast, range, busy).
+        // A gambit counts as used only if the trust really started acting: then it gets its retry delay and ends the
+        // tick. A refused one leaves its retry alone and lets the next gambit try. Without this, every later matching
+        // gambit in the same tick "fired", failed, and still started its retry (e.g. Monberaux's 60 s mixes).
+        const bool startedAction = executedAnyAction &&
+                                   (POwner->PAI->IsCurrentState<CAbilityState>() || POwner->PAI->IsCurrentState<CRangeState>() ||
+                                    POwner->PAI->IsCurrentState<CMagicState>() || POwner->PAI->IsCurrentState<CWeaponSkillState>() ||
+                                    POwner->PAI->IsCurrentState<CMobSkillState>() || POwner->PAI->IsCurrentState<CPetSkillState>());
+        const bool changesState  = std::ranges::any_of(gambit.actions, [](const Action_t& action)
+                                                       {
+                                                          return action.reaction == G_REACTION::MA || action.reaction == G_REACTION::JA ||
+                                                                 action.reaction == G_REACTION::WS || action.reaction == G_REACTION::MS ||
+                                                                 action.reaction == G_REACTION::RATTACK;
+                                                      });
+
+        if (gambit.retry_delay != 0 && (startedAction || (executedAnyAction && !changesState)))
         {
             gambit.last_used = tick;
+        }
+
+        if (startedAction)
+        {
+            co_return;
         }
     }
 }

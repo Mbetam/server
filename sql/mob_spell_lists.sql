@@ -3949,6 +3949,7 @@ INSERT INTO `mob_spell_lists` VALUES ('TRUST_Yoran-Oran_UC',393,132,57,255); -- 
 INSERT INTO `mob_spell_lists` VALUES ('TRUST_Yoran-Oran_UC',393,133,68,255); -- shellra_iv (68~255)
 INSERT INTO `mob_spell_lists` VALUES ('TRUST_Yoran-Oran_UC',393,134,75,255); -- shellra_v (75~255)
 INSERT INTO `mob_spell_lists` VALUES ('TRUST_Yoran-Oran_UC',393,143,32,255); -- erase (32~255)
+INSERT INTO `mob_spell_lists` VALUES ('TRUST_Yoran-Oran_UC',393,54,28,255);  -- stoneskin (28~255)
 
 -- TRUST_Sylvie_UC (394)
 INSERT INTO `mob_spell_lists` VALUES ('TRUST_Sylvie_UC',394,1,2,255);    -- cure (2~255)

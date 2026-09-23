@@ -71,7 +71,7 @@ spellObject.onMobSpawn = function(mob)
         mob:addGambit(ai.t.PARTY, { ai.c.STATUS,      xi.effect.PETRIFICATION   }, { ai.r.MS, ai.s.SPECIFIC, 4252 }, healingMoveCooldown) -- Mix: Gold Needle
         mob:addGambit(ai.t.PARTY, {
             ai.l.OR({ ai.c.STATUS, xi.effect.CURSE_I }, { ai.c.STATUS, xi.effect.CURSE_II }, { ai.c.STATUS, xi.effect.BANE }, { ai.c.STATUS, xi.effect.DOOM })
-        }, { ai.r.MS, ai.s.SPECIFIC, 4242 }, healingMoveCooldown) -- Holy Water
+        }, { ai.r.MS, ai.s.SPECIFIC, 4250 }, healingMoveCooldown) -- Holy Water (4250 is the single-target one, 4242 the AoE)
 
     -- Mix I AoE
     else
