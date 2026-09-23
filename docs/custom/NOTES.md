@@ -1039,3 +1039,38 @@ They now get subjob HP/MP/stats and traits. The other 23 are listed as "X / X" (
 Morimar: the wiki says WAR/BST, the DB has main BST (his round-2 moves rely on it), so he became BST/WAR.
 Checked: all 38 summon with the right main/sub job; trust tests 29/29 (new subjob test in `trust_healers.lua`).
 Goes to prod through `dbtool.py update` (sql/mob_pools.sql changed).
+
+## 2026-09-23 (prod) — patch-2026-09-23-2 deployed on prod (15:53, 0 players online)
+
+Clean fast-forward from patch-2026-09-23. Rebuild: only gambits_container.cpp recompiled. dbtool re-imported
+mob_pools.sql and mob_spell_lists.sql; no dbtool or custom migrations ran. Pre-deploy DB backup in `sql/backups/`
+(20260923-155246). All four xi_* up, xi_map ready in 44 s, no error/critical, !buff registered. DB checked: trust
+subjobs (yoran-oran_uc 4, koru-moru 3, gilgamesh 1), spell list 393 has Stoneskin (54). Prod settings unchanged:
+EXP x1.8, NM/HNM caps 120/3600.
+
+## 2026-09-23 — Trust acquisition: quest grants and the Trust Vendor
+
+Checked every trust against its retail source (BG Wiki "Acquisition"). 45 are obtainable in normal play here (a quest
+or cipher source exists in the scripts; checked statically, not each in game). The other 77:
+
+- **8 fixed by quest (`modules/custom/lua/trust_quest_grants.lua` + `trust_quest_grants_login.lua`):** the quest or
+  mission exists in LSB but never taught the trust. Now taught at the next login/zone change once it is done (needs a
+  Trust permit, like retail): Gessho (ToAU Passing Glory), Gadalar (Embers of His Past), Zazarg (Fist of the People),
+  Klara (WotG Bonds of Mythril), Excenmille [S] (WotG Face of the Future), Arciela (SoA The Light Within), and Cornelia
+  and Matsui-P (retail gives them at login to anyone with a Trust quest done). The Light Within is never completed in
+  LSB (it stays current with Status 0 after the ring reward), so that is what the rule checks. No retail cutscenes
+  (their ids are unknown); a system message says "You learned Trust: X!".
+- **69 sold by the Trust Vendor, 100,000 gil each (Eric's choice):** `trust_vendor_config.lua` (list, price, spots),
+  `trust_vendor_flow.lua` (menus), `trust_vendor_npc.lua` (module). Groups: 46 event/campaign trusts (login campaigns,
+  Mog Pells, seasonal events: switched off here), 12 story trusts whose quest/mission is not in LSB (Romaa Mihgo:
+  WotG Windurst line stops at 3 of 12; Chacharoon; Lilisette; RoV chapter 3+: Selh'teus, Balamor, Arciela II, Iroha,
+  Iroha II; Ygnas; August, Rosulatia, Ingrid II), 11 Unity trusts (Unity works, its accolade evaluation does not).
+  Needs a Trust permit. Only unknown trusts are listed. Stands in Lower Jeuno (x 4.40, z 7.50, 3 yalms beside the Augmenter; Eric's !pos was 1 yalm from it) and in GM Home for testing.
+- Tests: `trust_quest_grants.lua` 5/5, `trust_vendor.lua` 9/9 (includes: no trust is both granted and sold).
+- `modules/init.txt`: added `custom/lua/trust_quest_grants_login.lua` and `custom/lua/trust_vendor_npc.lua`.
+
+## 2026-09-23 — !shop sells Holy Water (5,000 gil), Prism Powder and Silent Oil (2,500 gil each); Eric's prices
+
+`modules/custom/commands/shop.lua`: added `FLASK_OF_HOLY_WATER` (4154), `PINCH_OF_PRISM_POWDER` (4164) and `POT_OF_SILENT_OIL` (4165) after Echo Drops. Live on test without a restart
+(log: `RE-RUNNING MODULE FILE modules/custom/commands/shop.lua`). Note: a `sed -i` edit was not noticed by the file
+watcher; rewriting the file normally was.

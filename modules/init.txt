@@ -44,3 +44,5 @@ custom/lua/buff_pool.lua
 custom/lua/starter_survival_guides.lua
 custom/lua/augmenter_npc.lua
 custom/lua/mob_gil_floor.lua
+custom/lua/trust_quest_grants_login.lua
+custom/lua/trust_vendor_npc.lua
