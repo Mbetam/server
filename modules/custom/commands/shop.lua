@@ -16,6 +16,9 @@ local stock =
     { xi.item.REMEDY,             3360 },
     { xi.item.ANTIDOTE,            316 },
     { xi.item.FLASK_OF_ECHO_DROPS, 800 },
+    { xi.item.FLASK_OF_HOLY_WATER, 5000 }, -- price set by Eric
+    { xi.item.PINCH_OF_PRISM_POWDER, 2500 }, -- price set by Eric
+    { xi.item.POT_OF_SILENT_OIL,     2500 }, -- price set by Eric
     { xi.item.PICKAXE,             200 },
     { xi.item.HATCHET,             500 },
     { xi.item.SICKLE,              300 },
