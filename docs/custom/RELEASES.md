@@ -8,6 +8,25 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-23-6
+
+### For players
+- **NM placeholders are now marked:** a monster that can turn into an NM shows **"PH"** in front of its name, e.g. "PH Forest Hare" for Jaggedy-Eared Jack. Kill it and the NM takes its place a few minutes later. Very long names lose their last letters (15-character limit).
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: none. One new module in `modules/init.txt` (comes with the tag): `custom/lua/mark_nm_placeholders.lua`; it loads at the restart `deploy.sh` does.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23-5
+- Mark NM placeholders with a "PH " name prefix (ea2ca40760)
+
 ## patch-2026-09-23-5
 
 ### For players
