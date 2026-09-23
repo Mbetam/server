@@ -959,3 +959,10 @@ script): syntax-checked only. **Run it on test, never here.**
 **Waiting for the restart** together with: the combined augment stats, and Eric's Refresh/Regen retune.
 **Carry to test:** `respawn_cap.h`, the `lua_base_entity.cpp` hunk, `settings/default/map.lua` block, the engine test,
 and the three local settings for the next patch notes.
+
+## 2026-09-23 — EXP x1.8 on test; Rhapsody key items checked
+
+- **EXP:** Eric found retail EXP (x1.0, what prod runs now) too low and 3.25 too high: test is now **x1.8** for `settings/map.lua` `EXP_RATE` (kills) and `settings/main.lua` `EXP_RATE`, `BOOK_EXP_RATE`, `ROE_EXP_RATE`. Git-ignored: copy to prod by hand (list it in the next patch notes). `sed -i` edits were not picked up by the file watcher (no reload logged), so the servers were restarted.
+- **Rhapsodies of Vana'diel:** LSB matches retail (BG Wiki key item pages). White, Umber, Azure, Crimson, Emerald and Mauve each give +30% EXP (`handleRoVBonus` in `scripts/globals/experience_points.lua`, up to +180%, added with other EXP bonuses after the per-monster cap). Fuchsia, Puce and Ochre each give +30% capacity points (`charutils.cpp`, `capacityBonusKeyItems`). White, Crimson and Fuchsia also raise skill-ups (`skillupIncreaseKeyItems`). The engine calls `xi.experiencePoints.calculate` for every kill (`luautils.cpp`).
+  The bonus only applies to EXP from kills, not quests, FoV/GoV pages or RoE. BG Wiki says "experience and limit points gains" without saying which sources; not changed.
+- Test: `scripts/tests/modules/rhapsody_exp.lua` (3: +30% for one, +30% each up to +180% for all six, none from the capacity Rhapsodies), calling the real function with a real player and monster. There is no Lua getter for a player's current EXP, so a kill-based test was not written.
