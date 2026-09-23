@@ -706,3 +706,28 @@ More engine facts (on top of round 1's):
 - **xi_test crash, NOT a server bug:** calling `stub()` twice on the same global within one test leaves a dangling stub after the test, and the next call to that global from any later test segfaults xi_test (5/5 crashes with a double stub, 0/5 with one stub function returning a variable). It first looked like "a trust finishing a cast after despawn". Real release mid-cast, zone-out mid-cast and logout mid-cast were each tested separately and do not crash. A trial null-zone guard in `CMagicState::Update` changed nothing and was reverted; core C++ is unchanged.
 
 Tests: `scripts/tests/modules/trust_fixes.lua` now 13 (Morimar: Vehement Resolution heals and glows, next weapon skill is 12 Blades, then normal skills again; Lilisette II: Samba once for 350 TP and +65 crit, no Waltz with 1 hurt, Waltz with 3 hurt, her weapon skills). The file passed 6/6 runs in a row, and `./xi_test --file 'modules/' --file 'systems/trusts'` 310/310. Test servers were stopped for the runs (nobody online), restarted: all four up, no error lines.
+
+## 2026-09-23 — Test server zone IP set to its LAN address
+
+Every `zone_settings.zoneip` on the test DB still held prod's public IP (the DB was copied from prod), so a client logging in to test would have been sent to prod's map server. Set all 300 rows to the test VM's LAN address `192.168.0.105` (`tools/custom/migrate.py set-zoneip 192.168.0.105`) and restarted all four servers (nobody online): all up, no error lines, ports 54001/54002/54230/54231 listening, UDP 54230 open. `deploy.sh` preserves this value across deploys. Re-run the same command if the VM's address changes.
+- 2026-09-23 (test server): character Mbetam (charid 3, account Mbetam) set to GM level 5 with `UPDATE chars SET gmlevel = 5 WHERE charid = 3;` while online. It applies on the next zone change or relog. Tester (charid 1) stays at 4.
+
+## 2026-09-23 — BST jug pets: audit, 44 Ready moves fixed, and !dummy
+
+Tool: `tools/custom/bst_jug_audit.py` (read-only). The chain a Ready move needs: jug item (ammo, `item_weapon.skill = 0`, `subskill` = pet id) -> `pet_list` -> `mob_pools.skill_list_id` -> `mob_skill_lists` rows holding **ability ids** -> `abilities` row -> `pet_skills` row (animation, area, targets, skillchain props) -> `scripts/actions/abilities/pets/<name>.lua`, which hands off to `scripts/actions/mobskills/<name>.lua`.
+
+Before: 73 of 98 jugs fully wired; 22 pets had no working Ready move at all. After: **96 of 98**.
+- 7 moves only lacked the pet-ability wrapper (Acid Spray, Digest, Fluid Spread, Fluid Toss, Pecking Flurry, Sickle Slash, Spider Web).
+- 4 had a placeholder wrapper that always refused (`TODO implement this ability`: Crossthrash, Choke Breath, Fantod, Rhinowrecker); their mob skill already existed.
+- 20 new mob skill scripts plus wrappers: Sensilla Blades, Tegmina Buffet, Pentapeck, Swooping Frenzy, Molting Plumage, Sweeping Gouge, Zealous Snort, Stink Bomb, Nepenthic Plunge, Nectarous Deluge, Tickling Tendrils, Foul Waters, Pestilent Plume, Infected Leech, Gloom Spray, Disembowel, Extirpating Salvo, Venom Shower, Mega Scissors, Predatory Glare. Effects and types come from BG Wiki family pages (raw wikitext via the API; the per-move pages mostly don't exist). Retail numbers are used where published (Molting Plumage fTP 4.0, Nectarous Deluge 3.0 + poison 80/tick, Foul Waters 2.25, Sweeping Gouge DEF-16%/90 s, Venom Shower poison 40/tick + DEF-25%, Stink Bomb Blind -50, Pestilent Plume Blind -50/MDEF -25). Everything else is an estimate, marked in each file. Mega Scissors does a strong hit instead of the monster version's 50% max HP. Disembowel has no published data at all (plain hit).
+- Data: `abilities` 740/741 (Acid Mist, TP Drainkiss) job 10 -> 9. `pet_skills`: Zealous Snort is a self-buff (targets 1, message 238, like Rhino Guard); Extirpating Salvo primary skillchain Fusion.
+- Slippery Silas and Brave Hero Glenn (frogs) have no Ready moves, and that is correct: Eric confirmed in game that they have none in retail. The audit treats them as fine (`NO_READY_MOVES_IN_RETAIL`), so all 98 jugs are now wired.
+
+Test: `scripts/tests/modules/bst_jug_pets.lua` summons all 98 jug pets and fires all 374 wired Ready moves in the real engine (plus Call Beast with a real jug). The pet list inside is generated from the audit's `--json`. Lessons from writing it:
+- Ready has a short range from the Beastmaster: the test player stands next to the pet.
+- `mob:respawn()` puts a mob back at its spawn point, which can be far away: move the player to it again.
+- The audit originally counted placeholder scripts as fine. The engine test caught it, so the audit now flags them.
+
+**`!dummy`** (`modules/custom/commands/dummy.lua`, GM level 1+): `!dummy [level] [hp]` spawns a "Training Dummy" 3' in front of you (a dynamic mob based on mob group 11374/zone 86, with level/HP/skills/spells/drops overridden). It doesn't attack, cast, use TP moves or move, is unkillable, heals to full at 10%, disappears after 60 min, and `!dummy clear` removes it (a new one replaces the old). Tests: `scripts/tests/modules/dummy_command.lua` (4). A despawned dynamic mob is deleted, so tests look it up by id again instead of keeping a reference.
+
+Full run: `./xi_test --file 'modules/' --file 'systems/trusts' --file 'packets/s2c/0x028_battle2/beastmaster'` 412/412. Test servers restarted: all four up, no error lines, `!dummy` registered.
