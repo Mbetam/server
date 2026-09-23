@@ -4,6 +4,9 @@
 -----------------------------------
 local core = require('modules/custom/lua/augment_core')
 local flow = require('modules/custom/lua/augmenter_flow')
+
+-- The prices and amounts these tests were written against (see augment_test_tuning.lua)
+require('scripts/tests/modules/augment_test_tuning').apply(core.config)
 -----------------------------------
 
 describe('Augmenter NPC', function()

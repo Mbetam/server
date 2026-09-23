@@ -4,6 +4,9 @@
 -----------------------------------
 local core   = require('modules/custom/lua/augment_core')
 local config = core.config
+
+-- The prices and amounts these tests were written against (see augment_test_tuning.lua)
+require('scripts/tests/modules/augment_test_tuning').apply(core.config)
 -----------------------------------
 
 describe('Augments in the engine', function()
@@ -36,16 +39,23 @@ describe('Augments in the engine', function()
                 spawn()
 
                 local id, value, amount = core.encode(stat.key, tier)
-                local mod               = xi.mod[stat.mod]
-                local before            = player:getMod(mod)
+                local mods              = type(stat.mod) == 'table' and stat.mod or { stat.mod }
+                local before            = {}
+
+                for _, name in ipairs(mods) do
+                    before[name] = player:getMod(xi.mod[name])
+                end
 
                 wearRing({ { id = id, value = value } })
 
-                local gained   = player:getMod(mod) - before
-                local expected = amount * stat.modPerPoint
+                -- a combined augment gives the full bonus to each of its stats
+                for _, name in ipairs(mods) do
+                    local gained   = player:getMod(xi.mod[name]) - before[name]
+                    local expected = amount * stat.modPerPoint
 
-                assert(gained == expected, string.format('%s tier %d (augment %d, value %d) should change %s by %d but changed it by %d',
-                    stat.key, tier, id, value, stat.mod, expected, gained))
+                    assert(gained == expected, string.format('%s tier %d (augment %d, value %d) should change %s by %d but changed it by %d',
+                        stat.key, tier, id, value, name, expected, gained))
+                end
             end
         end
     end)

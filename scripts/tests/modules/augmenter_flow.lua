@@ -6,6 +6,9 @@
 local core   = require('modules/custom/lua/augment_core')
 local flow   = require('modules/custom/lua/augmenter_flow')
 local config = core.config
+
+-- The prices and amounts these tests were written against (see augment_test_tuning.lua)
+require('scripts/tests/modules/augment_test_tuning').apply(core.config)
 -----------------------------------
 
 local ringId = 13454
@@ -343,7 +346,11 @@ describe('Augmenter: choosing a stat and a bonus', function()
         end
 
         for _, stat in ipairs(config.stats) do
-            assert(seen[stat.name], stat.name .. ' cannot be reached from the menus')
+            if stat.retired then
+                assert(not seen[stat.name], stat.name .. ' is retired but is still offered')
+            else
+                assert(seen[stat.name], stat.name .. ' cannot be reached from the menus')
+            end
         end
     end)
 

@@ -26,39 +26,48 @@ return
     -- If two tiers give the same bonus for a stat, the LOWER tier's level and price apply.
     tiers =
     {
-        { minLevel =  1, price =    10000 },
-        { minLevel = 30, price =    50000 },
-        { minLevel = 60, price =   250000 },
-        { minLevel = 90, price =  1000000 },
+        { minLevel =  1, price =    1000 },
+        { minLevel = 30, price =    5000 },
+        { minLevel = 60, price =   25000 },
+        { minLevel = 90, price =  100000 },
     },
 
     -- Removing an augment costs this much times the tier it belongs to.
-    removalPricePerTier = 5000,
+    removalPricePerTier = 100,
 
     -- key:          short name used in code
     -- name:         what players see
     -- unit:         shown after the number ('%' or '')
-    -- mod:          the xi.mod the augment changes (used by the engine tests)
+    -- mod:          the xi.mod the augment changes (used by the tests), or a list of them for an augment id that
+    --               grants two stats at once (e.g. Accuracy and Attack): each of them gets the full bonus
     -- modPerPoint:  how many mod units one displayed point is (gear Haste is stored in hundredths of a percent)
     -- amounts:      the bonus at tier 1, 2, 3 and 4
     -- ranges:       { id = retail augment id, base = bonus given by a stored value of 0 }
+    -- retired:      true = no longer offered, but still recognised so augments already on players' gear can be
+    --               shown and removed at the NPC (an item with an unrecognised augment is refused entirely)
     stats =
     {
         { key = 'dual_wield',     name = 'Dual Wield',          unit = '',  mod = 'DUAL_WIELD',    modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 146, base = 1 } } },
         { key = 'double_attack',  name = 'Double Attack',       unit = '%', mod = 'DOUBLE_ATTACK', modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 143, base = 1 } } },
-        { key = 'triple_attack',  name = 'Triple Attack',       unit = '%', mod = 'TRIPLE_ATTACK', modPerPoint = 1,   amounts = {  1,  1,  2,  2 }, ranges = { { id = 144, base = 1 } } },
+        { key = 'triple_attack',  name = 'Triple Attack',       unit = '%', mod = 'TRIPLE_ATTACK', modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 144, base = 1 } } },
         { key = 'crit_rate',      name = 'Critical Hit Rate',   unit = '%', mod = 'CRITHITRATE',   modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id =  41, base = 1 } } },
         { key = 'store_tp',       name = 'Store TP',            unit = '',  mod = 'STORETP',       modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 142, base = 1 } } },
-        { key = 'gear_haste',     name = 'Haste (gear)',        unit = '%', mod = 'HASTE_GEAR',    modPerPoint = 100, amounts = {  1,  1,  2,  2 }, ranges = { { id =  49, base = 1 } } },
+        { key = 'gear_haste',     name = 'Haste (gear)',        unit = '%', mod = 'HASTE_GEAR',    modPerPoint = 100, amounts = {  1,  2,  3,  4 }, ranges = { { id =  49, base = 1 } } },
         { key = 'fast_cast',      name = 'Fast Cast',           unit = '%', mod = 'FASTCAST',      modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 140, base = 1 } } },
-        { key = 'accuracy',       name = 'Accuracy',            unit = '',  mod = 'ACC',           modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  23, base = 1 } } },
-        { key = 'attack',         name = 'Attack',              unit = '',  mod = 'ATT',           modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  25, base = 1 } } },
-        { key = 'magic_accuracy', name = 'Magic Accuracy',      unit = '',  mod = 'MACC',          modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  35, base = 1 } } },
-        { key = 'magic_attack',   name = 'Magic Attack Bonus',  unit = '',  mod = 'MATT',          modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 133, base = 1 } } },
-        { key = 'hp',             name = 'HP',                  unit = '',  mod = 'HP',            modPerPoint = 1,   amounts = { 20, 40, 60, 80 }, ranges = { { id = 1, base = 1 }, { id = 2, base = 33 }, { id = 3, base = 65 }, { id = 4, base = 97 } } },
+        { key = 'acc_att',        name = 'Accuracy & Attack',   unit = '',  mod = { 'ACC', 'ATT' },   modPerPoint = 1, amounts = {  5, 10, 15, 20 }, ranges = { { id =  68, base = 1 } } },
+        { key = 'racc_ratt',      name = 'Rng.Acc. & Rng.Atk.', unit = '',  mod = { 'RACC', 'RATT' }, modPerPoint = 1, amounts = {  5, 10, 15, 20 }, ranges = { { id =  69, base = 1 } } },
+        { key = 'macc_matt',      name = 'Mag.Acc. & Mag.Atk.Bns', unit = '', mod = { 'MACC', 'MATT' }, modPerPoint = 1, amounts = {  5, 10, 15, 20 }, ranges = { { id = 131, base = 1 }, { id = 70, base = 33 } } },
+        { key = 'hp',            name = 'HP',                  unit = '',  mod = 'HP',            modPerPoint = 1,   amounts = { 20, 40, 60, 80 }, ranges = { { id = 1, base = 1 }, { id = 2, base = 33 }, { id = 3, base = 65 }, { id = 4, base = 97 } } },
         { key = 'mp',             name = 'MP',                  unit = '',  mod = 'MP',            modPerPoint = 1,   amounts = { 20, 40, 60, 80 }, ranges = { { id = 9, base = 1 }, { id = 10, base = 33 }, { id = 11, base = 65 }, { id = 12, base = 97 } } },
-        { key = 'refresh',        name = 'Refresh (MP/tick)',   unit = '',  mod = 'REFRESH',       modPerPoint = 1,   amounts = {  1,  1,  2,  2 }, ranges = { { id = 138, base = 1 } } },
-        { key = 'regen',          name = 'Regen (HP/tick)',     unit = '',  mod = 'REGEN',         modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 137, base = 1 } } },
+        { key = 'refresh',        name = 'Refresh (MP/tick)',   unit = '',  mod = 'REFRESH',       modPerPoint = 1,   amounts = {  5,  10,  15,  20 }, ranges = { { id = 138, base = 1 } } },
+        { key = 'regen',          name = 'Regen (HP/tick)',     unit = '',  mod = 'REGEN',         modPerPoint = 1,   amounts = {  5,  10,  15,  20 }, ranges = { { id = 137, base = 1 } } },
         { key = 'cure_potency',   name = 'Cure Potency',        unit = '%', mod = 'CURE_POTENCY',  modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 329, base = 1 } } },
+
+        -- Retired 2026-09-23 (replaced by the combined stats above). Kept, unchanged, so augments already on gear still
+        -- show by name and can be removed. Do not change their ids or amounts while any such augment may still exist.
+        { key = 'accuracy',       name = 'Accuracy',            unit = '',  mod = 'ACC',           modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  23, base = 1 } }, retired = true },
+        { key = 'attack',         name = 'Attack',              unit = '',  mod = 'ATT',           modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  25, base = 1 } }, retired = true },
+        { key = 'magic_accuracy', name = 'Magic Accuracy',      unit = '',  mod = 'MACC',          modPerPoint = 1,   amounts = {  5, 10, 15, 20 }, ranges = { { id =  35, base = 1 } }, retired = true },
+        { key = 'magic_attack',   name = 'Magic Attack Bonus',  unit = '',  mod = 'MATT',          modPerPoint = 1,   amounts = {  1,  2,  3,  4 }, ranges = { { id = 133, base = 1 } }, retired = true },
     },
 }

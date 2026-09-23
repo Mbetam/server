@@ -165,6 +165,7 @@
 #include "utils/mountutils.h"
 #include "utils/petutils.h"
 #include "utils/puppetutils.h"
+#include "utils/respawn_cap.h"
 #include "utils/trustutils.h"
 #include "utils/zoneutils.h"
 
@@ -18249,13 +18250,20 @@ void CLuaBaseEntity::setRespawnTime(const uint32 seconds) const
         return;
     }
 
-    PMob->m_RespawnTime  = std::chrono::seconds(seconds);
+    // Custom: shorter NM/HNM timers (utils/respawn_cap.h; off unless set in map.lua)
+    const bool   isNM    = (PMob->m_Type & xi::MobType::Notorious) != xi::MobType::Normal;
+    const uint32 respawn = respawncap::cappedRespawn(seconds, isNM,
+                                                     settings::get<uint32>("map.NM_RESPAWN_CAP"),
+                                                     settings::get<uint32>("map.HNM_RESPAWN_CAP"),
+                                                     settings::get<uint32>("map.HNM_RESPAWN_THRESHOLD"));
+
+    PMob->m_RespawnTime  = std::chrono::seconds(respawn);
     PMob->m_AllowRespawn = true;
 
     // If mob is not currently spawned, update its pending respawn time in SpawnHandler
     if (!PMob->PAI->IsSpawned() && PMob->loc.zone != nullptr)
     {
-        PMob->loc.zone->spawnHandler().registerForRespawn(PMob, std::chrono::seconds(seconds));
+        PMob->loc.zone->spawnHandler().registerForRespawn(PMob, std::chrono::seconds(respawn));
     }
 }
 

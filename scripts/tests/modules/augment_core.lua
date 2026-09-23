@@ -4,6 +4,9 @@
 -----------------------------------
 local core   = require('modules/custom/lua/augment_core')
 local config = core.config
+
+-- The prices and amounts these tests were written against (see augment_test_tuning.lua)
+require('scripts/tests/modules/augment_test_tuning').apply(core.config)
 -----------------------------------
 
 describe('Augment catalog', function()
@@ -92,14 +95,26 @@ describe('Augment catalog against the game\'s own augment table', function()
         file:close()
     end)
 
-    it('uses ids that grant exactly one stat, the one the catalog names', function()
+    it('uses ids that grant exactly the stats the catalog names (one, or both of a combined pair)', function()
         for _, stat in ipairs(config.stats) do
+            local mods = type(stat.mod) == 'table' and stat.mod or { stat.mod }
+
             for _, range in ipairs(stat.ranges) do
                 local found = rows[range.id]
 
                 assert(found ~= nil, string.format('%s: augment id %d is not in sql/augments.sql', stat.key, range.id))
-                assert(#found == 1, string.format('%s: augment id %d grants %d stats, not one', stat.key, range.id, #found))
-                assert(found[1].modId == xi.mod[stat.mod], string.format('%s: augment id %d changes mod %d, not %s (%d)', stat.key, range.id, found[1].modId, stat.mod, xi.mod[stat.mod] or -1))
+                assert(#found == #mods, string.format('%s: augment id %d grants %d stats, the catalog names %d', stat.key, range.id, #found, #mods))
+
+                for _, name in ipairs(mods) do
+                    assert(xi.mod[name] ~= nil, string.format('%s: %s is not a real mod', stat.key, name))
+
+                    local present = false
+                    for _, row in ipairs(found) do
+                        present = present or row.modId == xi.mod[name]
+                    end
+
+                    assert(present, string.format('%s: augment id %d does not change %s (%d)', stat.key, range.id, name, xi.mod[name]))
+                end
             end
         end
     end)
@@ -109,10 +124,11 @@ describe('Augment catalog against the game\'s own augment table', function()
             local expectedMultiplier = stat.modPerPoint > 1 and stat.modPerPoint or 0
 
             for _, range in ipairs(stat.ranges) do
-                local found = rows[range.id][1]
-
-                assert(found.value == range.base, string.format('%s: augment id %d has base %d in the game but the catalog says %d', stat.key, range.id, found.value, range.base))
-                assert(found.multiplier == expectedMultiplier, string.format('%s: augment id %d has multiplier %d in the game but the catalog expects %d', stat.key, range.id, found.multiplier, expectedMultiplier))
+                -- every row: a combined augment must give its full base to both of its stats
+                for _, found in ipairs(rows[range.id]) do
+                    assert(found.value == range.base, string.format('%s: augment id %d has base %d in the game but the catalog says %d', stat.key, range.id, found.value, range.base))
+                    assert(found.multiplier == expectedMultiplier, string.format('%s: augment id %d has multiplier %d in the game but the catalog expects %d', stat.key, range.id, found.multiplier, expectedMultiplier))
+                end
             end
         end
     end)
@@ -456,5 +472,81 @@ describe('Augmenter NPC look', function()
 
         assert(name ~= nil, 'model ' .. config.npcModel .. ' is not in docs/model_ids.txt')
         assert(name ~= '*', 'model ' .. config.npcModel .. ' is a blank placeholder, so the NPC would be invisible')
+    end)
+end)
+
+describe('Combined and retired stats (2026-09-23)', function()
+    local function fakeItem(list)
+        local exdata =
+        {
+            augmentKind    = xi.augment.kind.HAS_AUGMENTS,
+            augmentSubKind = xi.augment.subKind.STANDARD,
+            augments       = {},
+            signature      = '',
+        }
+
+        for slot = 1, 5 do
+            exdata.augments[slot] = list[slot] or { id = 0, value = 0 }
+        end
+
+        return {
+            isType    = function(_, itemType) return itemType == xi.itemType.ARMOR or itemType == xi.itemType.WEAPON end,
+            getExData = function() return exdata end,
+        }
+    end
+
+    it('stores each combined stat under its retail two-stat augment id', function()
+        local cases = { acc_att = 68, racc_ratt = 69, macc_matt = 131 }
+
+        for key, expectedId in pairs(cases) do
+            for tier = 1, #config.tiers do
+                local id, value, amount = core.encode(key, tier)
+
+                assert(id == expectedId, string.format('%s tier %d should use augment %d, got %s', key, tier, expectedId, tostring(id)))
+                assert(amount == core.stat(key).amounts[tier] and value == amount - 1)
+
+                local decodedKey, decodedAmount, decodedTier = core.decode(id, value)
+                assert(decodedKey == key and decodedAmount == amount and decodedTier == tier, key .. ' does not decode back to itself')
+            end
+        end
+    end)
+
+    it('uses the +33 id for a combined magic bonus above 32', function()
+        assert(core.stat('macc_matt').ranges[2].id == 70 and core.stat('macc_matt').ranges[2].base == 33)
+    end)
+
+    it('never lets a retired stat be added', function()
+        for _, key in ipairs({ 'accuracy', 'attack', 'magic_accuracy', 'magic_attack' }) do
+            assert(core.stat(key) ~= nil and core.stat(key).retired, key .. ' should still be in the catalog, marked retired')
+
+            local ok, reason = core.checkAdd({ level = 99, gil = 10000000, augments = {}, key = key, tier = 1 })
+            assert(not ok and reason == 'That stat is not available.', key .. ' could still be added')
+        end
+    end)
+
+    it('still reads, names and removes augments of a retired stat already on gear', function()
+        -- A real item on prod at the time: Attack +10, Accuracy +10, Attack +10, Accuracy +10 (all four slots)
+        local list = core.readItem(fakeItem({ { id = 25, value = 9 }, { id = 23, value = 9 }, { id = 25, value = 9 }, { id = 23, value = 9 } }))
+
+        assert(list ~= nil and #list == 4, 'an item carrying retired augments must still be accepted by the NPC')
+
+        local lines = core.describe(list)
+        assert(lines[1].name == 'Attack' and lines[1].amount == 10, 'a retired augment should still show by name: ' .. tostring(lines[1].name))
+        assert(lines[2].name == 'Accuracy' and lines[2].amount == 10)
+
+        local ok, plan = core.checkRemove({ gil = 10000000, augments = list, slot = 1 })
+        assert(ok and plan.key == 'attack' and plan.tier == 2, 'a retired augment must still be removable')
+    end)
+
+    it('offers the three combined stats and none of the retired ones', function()
+        local offered = {}
+        for _, stat in ipairs(config.stats) do
+            if not stat.retired then
+                offered[stat.key] = true
+            end
+        end
+
+        assert(offered.acc_att and offered.racc_ratt and offered.macc_matt)
+        assert(not offered.accuracy and not offered.attack and not offered.magic_accuracy and not offered.magic_attack)
     end)
 end)

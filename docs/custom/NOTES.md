@@ -84,17 +84,17 @@ Tooling gotcha: a background task's "exit 0" notification is only the wrapper's 
 ## 2026-09-21 — Tier 2 progress (LAN client, GM, 99/99)
 
 - Network: VM is `192.168.0.104` (ens33), PC `192.168.0.10`, same /24. Client: Ashita (may switch to Windower).
-- An earlier client login was refused by xi_connect: `incorrect client version: got 302602xx_x, expected 302609xx_x` (`VER_LOCK = 2`). Client was then patched and account `Mbetam` (id 1000) / character `Tester` (charid 1) were created.
+- An earlier client login was refused by xi_connect: `incorrect client version: got 302602xx_x, expected 302609xx_x` (`VER_LOCK = 2`). Client was then patched and an account and a GM test character were created.
 - **Zone IPs:** every row of `zone_settings.zoneip` was `127.0.0.1`, so xi_connect told the client to reach the map server at `127.0.0.1:54230` (= the PC itself). Set to the VM address with the
   same statement dbtool's "Set zone IP addresses" runs: `UPDATE zone_settings SET zoneip = '192.168.0.104';` (300 rows). Re-run this if the VM's IP ever changes.
 - **Firewall:** `ufw.service` is "active" but `/etc/ufw/ufw.conf` has `ENABLED=no`, so the VM filters nothing. The PC already reached TCP 54001/54230/54231/54002.
   Router port forwarding is only needed for players from OUTSIDE the LAN. UDP 54230 (xi_map) is the one port not proven until a client enters the world.
-- **GM:** `UPDATE chars SET gmlevel = 4 WHERE charid = 1;` (Post-Install-Guide default). Level 4 adds `exec`, `reloadglobal`, `breaklinkshell`, `setbattlefieldtime`.
+- **GM:** `UPDATE chars SET gmlevel = 4 WHERE charid = <id>;` (Post-Install-Guide default). Level 4 adds `exec`, `reloadglobal`, `breaklinkshell`, `setbattlefieldtime`.
   Level 5 adds the hot-reload commands (`reloadquest`, `reloadinteraction`, `reloadrecipes`, `reloadnavmesh`, ...), `rebuildnavmesh`, and `crash` (crashes xi_map).
-  Bump later with `UPDATE chars SET gmlevel = 5 WHERE charid = 1;` (takes effect on next zone) — worth doing for Tier 4 module work.
+  Bump later with `UPDATE chars SET gmlevel = 5 WHERE charid = <id>;` (takes effect on next zone) — worth doing for Tier 4 module work.
 - **99/99 (settings are git-ignored):** `settings/main.lua` `INITIAL_LEVEL_CAP = 99` (was 50); `settings/map.lua` `SUBJOB_RATIO = 3` (equal sub level: 99/99; default 1 = 99/49).
-  `INITIAL_LEVEL_CAP` only applies to characters created AFTER the change; the per-character cap lives in `char_jobs.genkai`, so Tester was raised with
-  `UPDATE char_jobs SET genkai = 99 WHERE charid = 1;` done while the servers were stopped (a running xi_map would overwrite it on save).
+  `INITIAL_LEVEL_CAP` only applies to characters created AFTER the change; the per-character cap lives in `char_jobs.genkai`, so the test character was raised with
+  `UPDATE char_jobs SET genkai = 99 WHERE charid = <id>;` done while the servers were stopped (a running xi_map would overwrite it on save).
   Note: I stopped the servers with a bad `pgrep` wait loop once and one process was still exiting; re-verified `genkai` afterwards — safe.
 - Not touched yet: EXP_RATE (two knobs: `settings/main.lua` for script EXP, `settings/map.lua` for combat EXP), drop rates, `SUBJOB_QUEST_LEVEL`/`ADVANCED_JOB_LEVEL` (NocSouls: advanced jobs from 15), `START_INVENTORY`.
 - Servers restarted with these settings: all four up, `xi_map` ready in ~47 s, no erro/crit lines.
@@ -199,9 +199,9 @@ Tests: `scripts/tests/modules/qol_commands.lua` (21 tests, all pass; the whole `
 Test-writing notes: chat text is read from 0x017 packets at byte 23 (same as `test_npcs_in_gm_home.lua`); the shop path is exercised end to end with `player.actions:shopBuy`.
 
 **`!ah` findings (NOT built):**
-- `scripts/commands/ah.lua` already exists upstream as a GM-only (`permission = 1`) command that calls `player:sendMenu(xi.menuType.AUCTION)`; GM 4 characters (Tester) can already use it.
+- `scripts/commands/ah.lua` already exists upstream as a GM-only (`permission = 1`) command that calls `player:sendMenu(xi.menuType.AUCTION)`; GM 4 characters can already use it.
 - The AH packet handler (`src/map/packets/c2s/0x04e_auc.cpp:32`) requires `hasZoneMiscFlag(ZoneMisc::AuctionHouse)`, so the server only lets AH actions happen in zones flagged for it: 21 city zones, authored in `data/zones/*/zone.yaml` (`misc: [..., auction_house, ...]`) and compiled at build time. A module or SQL cannot change that.
-- Options: (A) leave the GM `!ah` as is (works in the 21 AH zones); (B) remove the zone check in that one C++ line (small core diff + rebuild; note it in the commit); (C) add `auction_house` to the misc list of every zone yaml (300 files, painful upstream merges). Not yet known whether the client itself opens the AH window outside a city; a quick test is `!ah` as Tester in a field zone.
+- Options: (A) leave the GM `!ah` as is (works in the 21 AH zones); (B) remove the zone check in that one C++ line (small core diff + rebuild; note it in the commit); (C) add `auction_house` to the misc list of every zone yaml (300 files, painful upstream merges). Not yet known whether the client itself opens the AH window outside a city; a quick test is `!ah` on a GM character in a field zone.
 - Also existing: `!homepoint` (GM, sends a target to their home point), unrelated to `!home`.
 
 **Not verified:** anything client-side (the shop window, the chat text, how a teleport looks). Tests exercise the server side only.
@@ -710,7 +710,7 @@ Tests: `scripts/tests/modules/trust_fixes.lua` now 13 (Morimar: Vehement Resolut
 ## 2026-09-23 — Test server zone IP set to its LAN address
 
 Every `zone_settings.zoneip` on the test DB still held prod's public IP (the DB was copied from prod), so a client logging in to test would have been sent to prod's map server. Set all 300 rows to the test VM's LAN address `192.168.0.105` (`tools/custom/migrate.py set-zoneip 192.168.0.105`) and restarted all four servers (nobody online): all up, no error lines, ports 54001/54002/54230/54231 listening, UDP 54230 open. `deploy.sh` preserves this value across deploys. Re-run the same command if the VM's address changes.
-- 2026-09-23 (test server): character Mbetam (charid 3, account Mbetam) set to GM level 5 with `UPDATE chars SET gmlevel = 5 WHERE charid = 3;` while online. It applies on the next zone change or relog. Tester (charid 1) stays at 4.
+- 2026-09-23 (test server): Eric's main character set to GM level 5 with `UPDATE chars SET gmlevel = 5 WHERE charid = <id>;` while online. It applies on the next zone change or relog. The GM test character stays at 4.
 
 ## 2026-09-23 — BST jug pets: audit, 44 Ready moves fixed, and !dummy
 
@@ -731,3 +731,231 @@ Test: `scripts/tests/modules/bst_jug_pets.lua` summons all 98 jug pets and fires
 **`!dummy`** (`modules/custom/commands/dummy.lua`, GM level 1+): `!dummy [level] [hp]` spawns a "Training Dummy" 3' in front of you (a dynamic mob based on mob group 11374/zone 86, with level/HP/skills/spells/drops overridden). It doesn't attack, cast, use TP moves or move, is unkillable, heals to full at 10%, disappears after 60 min, and `!dummy clear` removes it (a new one replaces the old). Tests: `scripts/tests/modules/dummy_command.lua` (4). A despawned dynamic mob is deleted, so tests look it up by id again instead of keeping a reference.
 
 Full run: `./xi_test --file 'modules/' --file 'systems/trusts' --file 'packets/s2c/0x028_battle2/beastmaster'` 412/412. Test servers restarted: all four up, no error lines, `!dummy` registered.
+
+<!-- The entries below were written on the prod server (merged from branch prod-fix/2026-09-23, 2026-09-23). -->
+
+## 2026-09-22 — Entries written on prod before patch-2026-09-22 (carried over by hand)
+
+These were uncommitted on prod when the first patch arrived and are re-added below the patch's own entries
+unchanged, as history. **Superseded where noted:** the AH x3 pricing (patch-2026-09-22 set x2, and migration
+0002 repriced every bot listing to x2). The !allmissions/!allkeyitems commands and the augment_config retune are
+still live on prod but NOT yet on test, see the deploy entry that follows.
+
+## 2026-09-22 — xi_map watchdog crash right after a VM reboot (one-off, restarted)
+
+After the VM rebooted (~19:34), Eric started the four servers in the `ffxi` tmux session at 20:06-20:07.
+xi_map reached "ready to work" and then died 2 s later: `!!! INACTIVITY WATCHDOG HAS TRIGGERED !!!`
+(the first main tick took >= 2000 ms), deliberate SIGSEGV, tombstone `dmp/tombstone_1815_20260922_200738.log`.
+Main thread was in `CZoneEntities::ZoneServer -> rebuildSpatialGrid -> SpatialGrid::add` (the first
+tick's spatial-grid build for all 300 zones), which is trivial code, so it was just slow and not stuck. Most likely a cold page
+cache right after boot. Not related to any custom module. Restarted `./xi_map` in tmux window 1 at
+20:09:25: ready in 39.9 s, all four processes up, no new errors or tombstones.
+**If it happens again on a cold start:** just start xi_map again. If it repeats on warm starts, set
+`DISABLE_INACTIVITY_WATCHDOG = true` in `settings/main.lua` for startup only, or look into the first
+tick. Don't raise the period in core code without evidence.
+Also checked: the one-time stack-listing cleanup from AH bot round 3 is done (0 single-unit stackable
+bot listings left; 24,561 single + 11,688 stack listings live).
+
+## 2026-09-22 — GM level 4 on Eric's main character
+
+`UPDATE chars SET gmlevel = 4 WHERE charid = <id>;` (the GM test character was already 4). Same level as the test character. Change it to 5 the same way if the level-5-only commands are needed.
+
+## 2026-09-22 — AH bot prices cut to one tenth (PRICE_MULTIPLIER 30 -> 3, owner's choice)
+
+Eric: "everything is way too expensive". Considered raising kill gil instead, but rejected it: that
+inflates every gil price in the game, not just the AH. Changed `PRICE_MULTIPLIER` to 3 in
+`tools/ah_bot/config.py` and `modules/custom/lua/ah_pricing.lua`, and updated the test expectations
+(`ah_pricing.lua` sync assert; `ahprice_engine.lua`: Fire Crystal 450 -> 45, Jinxed Hakama
+29700 -> 2970). `test_pricing.py` 15/15. Engine tests not rerun (players online).
+**Existing listings repriced** once by hand (the bot never reprices, it only tops up): a script that
+used the bot's own `price_for` x stack size, limited to `seller = 90000001 AND sale = 0`. Dry run first,
+then applied: 36,249 rows, 0 left at an old price. Examples: Fire Crystal stack 5,400 -> 540,
+Hi-Potion 7,500 -> 750, Haubergeon 290,400 -> 29,040. What's left over 100k is almost all 99-stacks
+of high-BaseSell items (Heroism Aggregate x99 = 2,286,900), plus 94 single items.
+Side effect: the bot's buyout ceiling for players' gear is also one tenth of what it was.
+**Hot-reload gotcha:** `sed -i` replaces the file (a rename), and the watcher ignores renames. The
+change only registered after rewriting the file in place. Even then, re-running a `modules/` helper
+does not update the table another module already `require`d, so **`!ahprice` shows the old x30 prices
+until xi_map restarts.** The bot's real listings are already correct.
+
+## 2026-09-22 — Augment config retuned by Eric; xi_map restarted (20:58)
+
+Eric edited `modules/custom/lua/augment_config.lua`: tier prices 1k/5k/25k/100k (were 10k/50k/250k/1M),
+`removalPricePerTier` 100 (was 5,000); Triple Attack, Haste and Refresh are now `{1,2,3,4}`. A first
+draft had Refresh `{1,2,3,2}`, which I flagged and he fixed. **Config edits need an xi_map restart:**
+`augment_core.lua` and `augmenter_npc.lua` `require` it, so the watcher's re-run does not reach them
+(same as `ah_pricing.lua`). Restarted xi_map in tmux window 1 (Ctrl-C, `./xi_map`): ready in 43.6 s,
+all four up, no errors or tombstones. That restart also made `!ahprice` pick up the x3 multiplier.
+**Pending:** `augmenter_flow.lua` / `augment_core.lua` tests still expect the old prices (10000, 250000,
+"costs 10000", removal 5000/15000). Update them before the next `xi_test` run.
+**Adding a stat:** ids come from `sql/augments.sql` (the `augments` table: `augmentId, multiplier, modId,
+value`, with the retail text as a trailing comment). The core applies the bonus from that table
+(`modId`, base `value` + stored 0-31), so pick an id whose row has a real `modId` (id 60, "Latent
+effect: Refresh", has modId 0 and would do nothing), and set `base` to that row's `value`.
+
+## 2026-09-22 — New GM commands: !allmissions and !allkeyitems
+
+Asked for by Eric, for a GM test character. Files: `modules/custom/lua/gm_unlocks.lua` (the logic),
+`modules/custom/commands/allmissions.lua`, `modules/custom/commands/allkeyitems.lua`. Both commands are
+GM level 1+ and take an optional player name (default: yourself).
+- **!allmissions:** in every log, in id order, `addMission` then `completeMission` each mission. The core
+  only completes the CURRENT mission, which is why each one is added first. Then each non-nation log
+  gets its last mission back as current, and nation rank is set to 10. Why the last-mission step: the
+  core stores "completed" two ways (`hasCompletedMission`). Nation logs, and ids < 64, use a flag per
+  mission. CoP, and ids >= 64 (SoA, RoV), count a mission as done when it is below the current one, and
+  `completeMission` resets current to 0, so without that step CoP/SoA/RoV would read as not done at all.
+  The final state matches a player who finished normally (e.g. CoP current = The Last Verse; like real
+  players, that last mission itself is not "completed"). 523 missions across 13 logs.
+  Does NOT set mission variables, titles or cutscene flags (same as the built-in `!completemission`).
+- **!allkeyitems:** every non-zero `xi.keyItem` value (3,2xx ids, max 3381, capacity 8 x 512), skipping
+  ones already owned. Some quest NPCs react to key items, so it's for test characters only.
+- **Batched on purpose:** every add/complete/addKeyItem saves to the DB immediately. All at once is
+  ~1,100 mission saves + ~3,200 key item saves in one tick, which risks the 2 s inactivity watchdog
+  (the same crash as this morning) and would kill xi_map for everyone. Same approach as the built-in
+  `!addallspells`: 20 mission steps or 100 key items per batch, 500 ms apart, target re-looked-up by
+  name each batch (stops with a message if they log out or zone; safe to rerun).
+- **Tests:** `scripts/tests/modules/gm_unlocks.lua`, 8 pure tests against the real mission/key item
+  tables, including a stand-in player that copies the core's add/complete/hasCompleted rules and checks
+  every mission counts as completed. 8/8 offline under lupa **LuaJIT 2.1** (`from lupa.luajit21 import
+  LuaRuntime`, not the default lupa runtime, which is Lua 5.5 here). 9 deliberate breaks, all caught.
+  Not yet run in the real engine (needs `xi_test` with the servers stopped).
+- New command files need an xi_map restart to register.
+
+## 2026-09-22 — Deployed patch-2026-09-22 on prod (first patch through the test -> prod workflow)
+
+**Before:** prod was at `e77cadf8a5` on branch `custom`, with 6 modified tracked files (today's prod-only work).
+`deploy.sh` (and even `--dry-run`) refuses a dirty tree, so: backed up everything to
+`~/prod-local-changes-2026-09-22/` (full diff, verified to reverse cleanly; `augment_config.diff`; copies of
+`augment_config.lua` and `NOTES.md`), then Eric discarded the tracked changes (the auto-mode classifier blocked
+me from running `git checkout --`). The four pricing files took the patch's x2 (owner's choice, over prod's x3).
+**AH bot timer stopped for the deploy** (`sudo systemctl stop ah-bot.timer`, Eric, in a real terminal: `!` has no
+TTY for the sudo password). Reason: the bot counts stock by `seller = BOT_CHARID`. After the checkout (id
+10000001) and before migration 0003 (moves listings from 90000001), a run would see zero stock and relist the
+whole AH (~36k), then 0003 would move the old 36,249 too, doubling the stock. At a 30 s timer and a multi-minute
+deploy this was near certain. **Carry to test:** add "stop ah-bot.timer before deploying" to DEPLOY.md's
+prod steps, or make the bot skip a run while a deploy lock exists.
+**Pre-checks:** build/ configured, venv `mariadb` 1.1.14, settings/network.lua present, `db_ver: 4ce9402`.
+Id 10000001 free in accounts and chars (the highest real ids were small). Account/char 90000001 did
+NOT exist on prod: `tools/ah_bot/setup.sql` had never been run, so its 36,249 listings had no seller character.
+0001 created it, 0003 moved it.
+**Deploy:** `git show patch-2026-09-22:tools/custom/deploy.sh > /tmp/deploy.sh`, `--dry-run` (8 commits, no C++,
+no sql/ since e77cadf8a5, migrations 0001-0003), then `bash /tmp/deploy.sh patch-2026-09-22`. Clean first try:
+servers stopped in 6 s; DB backup `sql/backups/20260922-220308-pre-patch-2026-09-22.sql` (12M); build no-op;
+dbtool update "No migrations required"; 0001-0003 applied; zone IP unchanged; xi_map ready in ~42 s; no error lines.
+**After:**
+- Re-applied Eric's augment retune: `git apply ~/prod-local-changes-2026-09-22/augment_config.diff` (the patch
+  doesn't touch that file; result identical to the saved copy). **This is a tracked edit on prod again: the next
+  `deploy.sh` will refuse to run until test ships it.**
+- Settings from the patch notes: `settings/map.lua` `EXP_RATE` 2.5 -> 3.25, `MOB_GIL_MULTIPLIER` 2.0 -> 3.5;
+  `settings/main.lua` `EXP_RATE`, `BOOK_EXP_RATE`, `ROE_EXP_RATE` 2.500 -> 3.250. Rewritten in place, syntax-checked.
+  `settings/default/` unchanged since e77cadf8a5.
+- Restart: SIGTERM to the four detached processes the deploy started (stopped in ~8 s), then started again in
+  tmux `ffxi` windows 0-3 (connect, map, search, world). xi_map ready in 42.9 s, all four up, no new error lines,
+  no new tombstones.
+- `migrate.py status`: 0001-0003 done, 0 pending. Bot: account/char 10000001 `AHBot`; 36,249 unsold listings under
+  10000001 at x2 (Fire Crystal stack 360, Hi-Potion 500, Haubergeon 19,360); 6 sold rows stay under 90000001.
+- Commands registered: `!signet` (new), and `!allmissions`/`!allkeyitems` (untracked prod-only files, live now).
+**Not the same as test:** the bot has no `char_flags` row. `040_verify_char_flags` runs inside `dbtool update`,
+which ran BEFORE 0001 created the bot, so it had nothing to fix. Harmless (only read on login; the bot never
+logs in). The next `dbtool update` adds it and prints the one-time "report it" message. Not fixed by hand (prod rule).
+**Carry back to test:** `augment_config.lua` retune; the `!allmissions`/`!allkeyitems` files + `gm_unlocks` test
+(untracked, live on prod); the timer-stop step above; the char_flags ordering (e.g. have 0001 insert the bot's
+`char_flags` row, or run `migrate.py apply` before `dbtool update`); `settings/network.lua` is mode 664
+(world-readable, holds the DB password): consider `chmod 600` on both servers.
+**AH bot timer back on (22:09).** Eric's first `sudo systemctl start` didn't register (journal showed no start
+after the 22:02:19 stop); the second did. Live runs at 22:09:20 and 22:09:51: `restock: 0`, `buy out: 0`, no
+errors. All 36,249 unsold bot listings are under 10000001, none under 90000001 and no other new listings, so no
+duplicate stock. A new listing under 10000001 will only appear once something sells (the AH is fully stocked).
+
+## 2026-09-23 — Augmenter: combined Acc/Atk, Rng.Acc/Rng.Atk, Mag.Acc/MAB replace the four single stats
+
+Eric's request, made on prod (the workflow says test; flagged). **Not live until an xi_map restart** (config,
+core and flow are `require`d; the Edit tool's saves didn't even trigger the watcher).
+- New catalog entries (`augment_config.lua`), retail two-stat ids from `sql/augments.sql`, both stats get the full
+  bonus: `acc_att` id 68 (ACC+ATT), `racc_ratt` id 69 (RACC+RATT), `macc_matt` id 131 (MACC+MATT, base 1) plus id
+  70 (base 33) for anything above +32. All three `{5, 10, 15, 20}`. **Chosen by me, flagged:** MAB used to be
+  `{1,2,3,4}`, so Mag.Atk.Bns is now 5x higher per tier; tune `amounts` if too strong.
+- The four old stats (`accuracy` 23, `attack` 25, `magic_accuracy` 35, `magic_attack` 133) are kept as
+  `retired = true`: never offered (`augmenter_flow.availableStats`), refused by `core.checkAdd`, but still
+  decoded so existing augments show by name and can be removed. Deleting them outright would have locked items:
+  `core.readItem` refuses an item with ANY unrecognised augment. Found by scanning `char_inventory.extra`
+  (standard exdata: 5 x {Id:11, Value:5} from byte 2): two players' items: one with Accuracy +5, one with
+  Attack +10 x2 and Accuracy +10 x2 (all 4 slots). Keep the retired rows until no such augment
+  is left.
+- `mod` may now be a list; truth check (`augment_core.lua`) and `augment_engine.lua` check every mod/row.
+  New pure tests: combined encode/decode at every tier, +33 id, retired not addable, retired still
+  read/named/removable (a real item's exact augments), menu offers combined and not retired; the flow paging test now also
+  forbids retired stats.
+- **Tests (offline, lupa LuaJIT 2.1, prod: no xi_test):** new ones all pass. Remaining failures (augment_core 8,
+  augmenter_flow 21) are identical before and after this change (compared against the pre-change code): they are
+  all the stale price/amount expectations from Eric's 2026-09-22 retune (10,000 / 15,000 / 5,000 gil, Triple
+  Attack `{1,1,2,2}`), still to be updated. 6 deliberate breaks, all caught. `augment_engine.lua` syntax-checked
+  only: run it on test.
+- **Carry to test:** all of this (`augment_config.lua`, `augment_core.lua`, `augmenter_flow.lua`, the three test
+  files) plus the stale-price test fixes.
+
+## 2026-09-23 — Account creation reopened (Eric's request)
+
+`settings/login.lua` `ACCOUNT_CREATION` false -> true (git-ignored settings, written in place, syntax-checked).
+xi_connect reads it from settings loaded at startup (`auth_session.cpp:343`) and has no file watcher, so restarted
+only xi_connect in tmux window 0 (Ctrl-C, `./xi_connect`): ready in 0.08 s, listening on its 3 ports, no errors.
+In-game players were not affected (a player stayed online). **New accounts now get ids from 10,000,002 up** (the
+AH bot sits at 10000001, see the patch-2026-09-22 notes). Close it again the same way when the new testers are in.
+
+## 2026-09-23 — Eric retuned Refresh and Regen augments to {5, 10, 15, 20} (were {1, 2, 3, 4})
+
+Edited by hand in `augment_config.lua` (prod; carry to test). Waiting for the same xi_map restart as the combined
+stats. Checked: no item in `char_inventory`/`delivery_box` carries a Refresh (138) or Regen (137) augment, so no
+existing augment falls out of the new amounts (one that did would make `core.readItem` refuse the whole item).
+**Recheck right before the restart:** until then the running server still offers the OLD +1..+4, so anything
+added meanwhile would be orphaned. Both fit one id (base 1 + 31 max). Note: 4 slots x +20 = Refresh +80/tick
+on one item (maxPerStat 4). Owner's call, flagged only.
+
+## 2026-09-23 — EXP back to retail (Eric's request), live without a restart
+
+`settings/map.lua` `EXP_RATE` 3.25 -> 1.0; `settings/main.lua` `EXP_RATE`, `BOOK_EXP_RATE`, `ROE_EXP_RATE`
+3.250 -> 1.000. All are read at the moment EXP is given (`charutils.cpp` for kills/capacity points; scripts for
+quests, FoV/GoV pages, RoE), and the watcher's settings reload calls `settings::init()`, so the C++ side updates
+too: reloaded 04:49:12, no errors. Replaces the patch-2026-09-22 values (x3.25). **Carry to test** (and the next
+patch's settings list). Still stacking on top: `!buff`'s EXP bonus (Dedication), unchanged.
+
+## 2026-09-23 — Checked: NMs WITHOUT a placeholder are NOT on a 2-minute timer (not built yet)
+
+Only lottery NMs were changed on 2026-09-22 (`NM_LOTTERY_CHANCE = -1`, `NM_LOTTERY_COOLDOWN = 0`). Timed NMs keep
+retail timers: 205 mob scripts (+12 Zone.lua) call `mob:setRespawnTime(<seconds>)` in `onMobInitialize` and
+`onMobDespawn` (e.g. Metal Shears 3600-4200 s), HNMs included (King Arthro, Simurgh, ...).
+`modules/custom/lua/custom_hnm_system.lua` is LSB's disabled Land King sample and is not in `modules/init.txt`.
+Proposed, pending Eric's answers (scope: HNMs included or not): one setting capping NM respawn at 120 s,
+applied in `CLuaBaseEntity::setRespawnTime` for NOTORIOUS mobs. Small C++ edit, so rebuild + xi_map restart,
+ideally built on test first.
+
+## 2026-09-23 — Timed NMs respawn within 2 minutes, HNMs within 1 hour (core edit; built, NOT live until restart)
+
+Eric: NMs that need no placeholder always on a 2-minute timer; HNMs "up to 1 hour".
+**Where:** every timed NM sets its own timer from script via `mob:setRespawnTime` (onMobInitialize + onMobDespawn;
+~217 scripts). Checked the other paths: every NOTORIOUS mob with a respawn in the zone data (`data/zones/*/mobs.yaml`)
+has spawn type `scripted` (151) or `lottery` (17), and neither auto-respawns (`zoneutils.cpp` ~823), so
+`CLuaBaseEntity::setRespawnTime` is the single place. The Land Kings (Fafnir, Nidhogg, Behemoth, ...) are NOT timed
+here at all (retail ??? pops; `custom_hnm_system.lua` is disabled and not loaded), so this doesn't touch them.
+**Defining "HNM":** no HNM flag exists (`MobType`: Normal, Notorious, Fished, Called, Battlefield, Event). The
+script timers split cleanly: <= 12 h for ordinary NMs, then nothing until 18 h, then 44 NMs at 18 h+ (21-24 h
+Serket, Beastmen kings, Castle Zvahl dukes...; days: Ash Dragon, Cactrot Rapido, Lamie No.9). So a timer
+>= `HNM_RESPAWN_THRESHOLD` (64800 s = 18 h) counts as an HNM, for ANY mob: King Arthro's 21-24 h timer is set on
+its Knight Crabs, which are not NMs.
+**Change:** `src/map/utils/respawn_cap.h` (new, header-only `respawncap::cappedRespawn`) + 10 lines in
+`setRespawnTime`. Settings in `settings/default/map.lua` (tracked, default 0 = off, so upstream behaviour is
+unchanged) and prod's `settings/map.lua`: `NM_RESPAWN_CAP = 120`, `HNM_RESPAWN_CAP = 3600`,
+`HNM_RESPAWN_THRESHOLD = 64800`. Only shortens; 0 (never respawn) untouched; lottery NMs unaffected (they don't
+time themselves). Also covers the first spawn after a restart (onMobInitialize timers), so timed NMs appear within
+2 minutes of startup and HNMs within 1 hour.
+**Build:** `cmake --build build -j16`, 4m46s, only the known downgraded sol `-Warray-bounds` warnings. Only xi_map and
+xi_test relinked; the running xi_map (pid 8971) is untouched (the linker wrote a new file: new inode). The new binary
+contains the three setting names.
+**Tests:** standalone C++ test of the rule (g++-15, C++23, -Werror): 17/17, 5 of 6 deliberate breaks caught (the 6th,
+removing the `requested == 0` guard, is behaviour-neutral: 0 can never exceed a cap). Engine test
+`scripts/tests/modules/nm_respawn_cap.lua` (Simurgh 90 min -> 120 s, Serket 24 h -> 3600 s, Knight Crab 21 h ->
+3600 s, ordinary/short timers untouched, caps off = game's timers, Simurgh really back 2 min after its own despawn
+script): syntax-checked only. **Run it on test, never here.**
+**Waiting for the restart** together with: the combined augment stats, and Eric's Refresh/Regen retune.
+**Carry to test:** `respawn_cap.h`, the `lua_base_entity.cpp` hunk, `settings/default/map.lua` block, the engine test,
+and the three local settings for the next patch notes.

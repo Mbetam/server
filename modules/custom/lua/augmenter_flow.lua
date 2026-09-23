@@ -230,12 +230,13 @@ local function tierMenu(player, key)
     send(player, menuFor(string.format('%s: choose a bonus', stat.name), options))
 end
 
--- The stats this item can still take, in the catalog's order: every stat that has not reached the per-item limit
+-- The stats this item can still take, in the catalog's order: every offered (not retired) stat that has not reached
+-- the per-item limit
 local function availableStats(session)
     local list = {}
 
     for _, stat in ipairs(config.stats) do
-        if core.countOf(session.augments, stat.key) < config.maxPerStat then
+        if not stat.retired and core.countOf(session.augments, stat.key) < config.maxPerStat then
             table.insert(list, stat)
         end
     end

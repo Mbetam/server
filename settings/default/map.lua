@@ -227,6 +227,14 @@ xi.settings.map =
     -- Maximum total bonus gil that can be dropped. Default 9999 gil.
     MAX_GIL_BONUS = 9999,
 
+    -- Custom: shorter respawn timers for monsters that respawn on a timer (mob:setRespawnTime in their scripts).
+    -- 0 = off (the game's own timers). Only ever SHORTENS a timer; lottery NMs (placeholder pops) are not timed this way.
+    -- HNM_RESPAWN_THRESHOLD: a timer at least this long (seconds) counts as an HNM (retail 18 h+: the 21-24 h and
+    -- multi-day NMs, and King Arthro's Knight Crabs) and is capped at HNM_RESPAWN_CAP. Any other NM is capped at NM_RESPAWN_CAP.
+    NM_RESPAWN_CAP        = 0,
+    HNM_RESPAWN_CAP       = 0,
+    HNM_RESPAWN_THRESHOLD = 64800,
+
     -- Allow mobs to walk back home instead of despawning
     MOB_NO_DESPAWN = false,
 

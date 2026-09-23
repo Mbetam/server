@@ -154,7 +154,8 @@ end
 -- ctx = { level, gil, augments, key, tier }
 -- Returns true and { price, tier, id, value, amount }, or false and a message for the player.
 core.checkAdd = function(ctx)
-    if statsByKey[ctx.key] == nil then
+    -- A retired stat is only recognised so existing augments can be shown and removed, never added again
+    if statsByKey[ctx.key] == nil or statsByKey[ctx.key].retired then
         return false, 'That stat is not available.'
     end
 
