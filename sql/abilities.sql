@@ -592,8 +592,8 @@ INSERT INTO `abilities` VALUES (735,'wild_carrot',9,25,257,2,102,0,0,0,2000,0,6,
 INSERT INTO `abilities` VALUES (736,'sudden_lunge',9,25,257,1,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (737,'spiral_spin',9,25,257,1,102,0,0,0,2000,0,6,3,0,12,1,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (738,'noisome_powder',9,25,257,2,102,0,0,0,2000,0,6,3,0,10,1,60,0,0,NULL);
-INSERT INTO `abilities` VALUES (740,'acid_mist',10,25,257,2,102,0,0,0,2000,0,6,3,0,10,1,60,0,0,NULL);
-INSERT INTO `abilities` VALUES (741,'tp_drainkiss',10,25,257,3,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
+INSERT INTO `abilities` VALUES (740,'acid_mist',9,25,257,2,102,0,0,0,2000,0,6,3,0,10,1,60,0,0,NULL);
+INSERT INTO `abilities` VALUES (741,'tp_drainkiss',9,25,257,3,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (743,'scythe_tail',9,26,257,1,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (744,'ripper_fang',9,26,257,1,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
 INSERT INTO `abilities` VALUES (745,'chomp_rush',9,25,257,3,102,0,0,0,2000,0,6,3,0,0,1,60,0,0,NULL);
