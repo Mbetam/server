@@ -67,6 +67,32 @@ describe('Trust Vendor', function()
         flow.setMenuSender(nil)
     end)
 
+    it('keeps every menu within the 150-byte chat message the client gets', function()
+        local longest = 0
+
+        -- Every menu the vendor can send: the group menu and every page of every group
+        local function measure(sent)
+            local size = #sent.title + 3
+
+            for _, option in ipairs(sent.options) do
+                size = size + #option[1] + 3
+            end
+
+            longest = math.max(longest, size)
+        end
+
+        flow.setMenuSender(function(_, sent) measure(sent) end)
+        flow.showGroups(player)
+
+        for groupIndex, group in ipairs(config.groups) do
+            for page = 1, math.ceil(#group.trusts / 5) do
+                flow.showGroup(player, groupIndex, page)
+            end
+        end
+
+        assert(longest <= 140, 'the longest menu is ' .. longest .. ' bytes; the client cuts it off at 150')
+    end)
+
     it('sells 69 different trusts at 100,000 gil, none of them obtainable another way here', function()
         local seen  = {}
         local count = 0
@@ -90,16 +116,14 @@ describe('Trust Vendor', function()
         assert(player.entities:get('DE_Trust_Vendor') ~= nil, 'the Trust Vendor should be in GM Home')
     end)
 
-    it('stands in Lower Jeuno, 3 yalms from the Augmenter', function()
-        local jeuno     = xi.test.world:spawnPlayer({ zone = xi.zone.LOWER_JEUNO })
-        local vendor    = jeuno.entities:get('DE_Trust_Vendor')
-        local augmenter = jeuno.entities:get('DE_Augmenter')
+    it('stands in Norg next to the Augmenter, and no longer in Lower Jeuno', function()
+        local norg  = xi.test.world:spawnPlayer({ zone = xi.zone.NORG })
+        local jeuno = xi.test.world:spawnPlayer({ zone = xi.zone.LOWER_JEUNO })
 
-        assert(vendor ~= nil, 'the Trust Vendor should be in Lower Jeuno')
-        assert(augmenter ~= nil, 'the Augmenter should be in Lower Jeuno')
-
-        local distance = vendor:checkDistance(augmenter)
-        assert(distance > 2.5 and distance < 3.5, string.format('the two NPCs are %.2f yalms apart', distance))
+        assert(norg.entities:get('DE_Trust_Vendor') ~= nil, 'the Trust Vendor should be in Norg')
+        assert(norg.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in Norg')
+        -- entities:get raises an error when the entity is not in the zone
+        assert(not pcall(function() return jeuno.entities:get('DE_Trust_Vendor') end), 'the Trust Vendor should have left Lower Jeuno')
     end)
 
     it('sells a trust through the menus: takes 100,000 gil and teaches it', function()
@@ -125,13 +149,13 @@ describe('Trust Vendor', function()
 
     it('pages through a long list', function()
         flow.onTrigger(player)
-        pick('Event and campaign trusts (46)')
-        assert(menu.title == 'Event and campaign trusts (page 1 of 8)', 'unexpected title: ' .. menu.title)
+        pick('Event trusts (46)')
+        assert(menu.title == 'Event trusts 1/10', 'unexpected title: ' .. menu.title)
 
-        pick('Next page')
-        assert(menu.title == 'Event and campaign trusts (page 2 of 8)', 'unexpected title: ' .. menu.title)
+        pick('Next')
+        assert(menu.title == 'Event trusts 2/10', 'unexpected title: ' .. menu.title)
 
-        pick('Previous page')
+        pick('Prev')
         pick('Back')
         assert(#menu.options == 3, 'the first menu should offer the three groups')
     end)

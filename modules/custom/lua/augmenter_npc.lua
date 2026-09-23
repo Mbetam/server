@@ -4,7 +4,7 @@
 -- augments; the conversation and the item swap live in augmenter_flow.lua and the numbers in augment_config.lua.
 -----------------------------------
 require('modules/module_utils')
-require('scripts/zones/Lower_Jeuno/Zone')
+require('scripts/zones/Norg/Zone')
 require('scripts/zones/GM_Home/Zone')
 local flow   = require('modules/custom/lua/augmenter_flow')
 local config = require('modules/custom/lua/augment_config')
@@ -14,8 +14,8 @@ local config = require('modules/custom/lua/augment_config')
 -- Rotation is 0-255 (0 = east).
 local placements =
 {
-    -- Lower Jeuno, in the middle of the zone (about 8 yalms from the Moogle at 0, 1.5). Chosen by Eric with !pos.
-    { zone = 'Lower_Jeuno', x = 7.03, y = 0.0, z = 6.05, rotation = 84 },
+    -- Norg, near the Trust Vendor. Chosen by Eric with !pos (2026-09-23; was Lower Jeuno, then -24.73, -34.12).
+    { zone = 'Norg', x = -22.3777, y = 1.0977, z = -32.0073, rotation = 24 },
 
     -- GM Home, for testing
     { zone = 'GM_Home', x = 8.0, y = 0.0, z = 3.0, rotation = 128 },

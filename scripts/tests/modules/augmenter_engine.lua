@@ -67,10 +67,10 @@ describe('Augmenter NPC', function()
         assert(player.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in GM Home')
     end)
 
-    it('stands in Lower Jeuno', function()
-        local jeuno = xi.test.world:spawnPlayer({ zone = xi.zone.LOWER_JEUNO })
+    it('stands in Norg', function()
+        local norg = xi.test.world:spawnPlayer({ zone = xi.zone.NORG })
 
-        assert(jeuno.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in Lower Jeuno')
+        assert(norg.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in Norg')
     end)
 
     it('only starts a conversation when an item is traded', function()

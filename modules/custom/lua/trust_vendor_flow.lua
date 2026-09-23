@@ -9,7 +9,7 @@ local config = require('modules/custom/lua/trust_vendor_config')
 local flow = {}
 
 local npcName      = 'Trust Vendor'
-local trustsPerPage = 6
+local trustsPerPage = 5 -- 6 long names overflow the 150-byte menu message (see trust_vendor_config.lua)
 
 local function formatGil(amount)
     local text = tostring(math.floor(amount))
@@ -147,16 +147,16 @@ flow.showGroup = function(player, groupIndex, page)
     end
 
     if page < pages then
-        table.insert(options, { 'Next page', function(playerArg) flow.showGroup(playerArg, groupIndex, page + 1) end })
+        table.insert(options, { 'Next', function(playerArg) flow.showGroup(playerArg, groupIndex, page + 1) end })
     end
 
     if page > 1 then
-        table.insert(options, { 'Previous page', function(playerArg) flow.showGroup(playerArg, groupIndex, page - 1) end })
+        table.insert(options, { 'Prev', function(playerArg) flow.showGroup(playerArg, groupIndex, page - 1) end })
     end
 
     table.insert(options, { 'Back', function(playerArg) flow.showGroups(playerArg) end })
 
-    sendMenu(player, menuFor(string.format('%s (page %d of %d)', group.title, page, pages), options))
+    sendMenu(player, menuFor(string.format('%s %d/%d', group.title, page, pages), options))
 end
 
 flow.showGroups = function(player)
@@ -176,7 +176,7 @@ flow.showGroups = function(player)
         return
     end
 
-    sendMenu(player, menuFor(string.format('Every trust costs %s gil. Which kind?', formatGil(config.price)), options))
+    sendMenu(player, menuFor(string.format('Trusts: %s gil each', formatGil(config.price)), options))
 end
 
 flow.onTrigger = function(player, npc)

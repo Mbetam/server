@@ -1065,7 +1065,7 @@ or cipher source exists in the scripts; checked statically, not each in game). T
   Mog Pells, seasonal events: switched off here), 12 story trusts whose quest/mission is not in LSB (Romaa Mihgo:
   WotG Windurst line stops at 3 of 12; Chacharoon; Lilisette; RoV chapter 3+: Selh'teus, Balamor, Arciela II, Iroha,
   Iroha II; Ygnas; August, Rosulatia, Ingrid II), 11 Unity trusts (Unity works, its accolade evaluation does not).
-  Needs a Trust permit. Only unknown trusts are listed. Stands in Lower Jeuno (x 4.40, z 7.50, 3 yalms beside the Augmenter; Eric's !pos was 1 yalm from it) and in GM Home for testing.
+  Needs a Trust permit. Only unknown trusts are listed. Stands in Norg next to the Augmenter (moved from Lower Jeuno 2026-09-23, both at Eric's !pos) and in GM Home for testing.
 - Tests: `trust_quest_grants.lua` 5/5, `trust_vendor.lua` 9/9 (includes: no trust is both granted and sold).
 - `modules/init.txt`: added `custom/lua/trust_quest_grants_login.lua` and `custom/lua/trust_vendor_npc.lua`.
 
@@ -1087,3 +1087,67 @@ for as long as they ran. Prod stopped the servers (SIGTERM) and deployed. Fix (t
 now starts each server with `9>&-`. Reproduced with a small script: without it the next lock attempt is blocked, with it
 the lock is free. **The servers now running on prod were started by the old script and still hold the lock**, so the
 next prod deploy needs the servers stopped first, one last time; deploys after that don't.
+
+## 2026-09-23 — Known issue: no visible bubble around aura trusts (Cornelia, Sakura, Moogle, ...)
+
+Eric saw Cornelia's stats apply (Haste 20%, Acc/R.Acc/M.Acc +1..+30 with level, from level 1) but no bubble around her.
+The effect works; only the visual is missing. Players get the Geomancer bubble through `Flags5.GeoIndi*` in the player
+update packet (`src/map/packets/char_update.cpp`). Trusts are sent with the NPC/mob packet (`entity_update.cpp`, 0x00E),
+whose flag layout LSB has not decoded (its own TODO), so nothing sets a bubble for them. Same for every aura trust:
+Cornelia, Sakura, Moogle, Star Sibyl, Kupofried, Brygid, Kuyin Hathdenna, Sylvie (UC). Not fixed: needs a retail
+packet capture (or an upstream fix) showing the bubble bit in 0x00E; guessing risks breaking how trusts display.
+
+## 2026-09-23 — Job audit (Tier 3): what is broken or not coded, per job
+
+`tools/custom/job_audit.py` (read-only): for every job, each job ability, pet ability, spell and weapon skill in the DB,
+and whether the script the engine runs for it exists, is empty, or carries TODO notes; plus job_utils TODOs and whether
+upstream has tests for the job. Static only: "has a working-looking script" is not proof it matches retail. Upstream
+LSB (base, fetched 2026-09-23) has none of the missing scripts below either.
+
+Missing (players can learn or reach them, but they do nothing / fail):
+- SMN: 18 Blood Pacts with no script. Fenrir: Lunar Bay 78, Heavenward Howl 96, Impact 99. Ifrit: Inferno Howl 88,
+  Conflag Strike 99. Titan: Earthen Armor 82, Crag Throw 99. Garuda: Fleet Wind 86, Hastega II 99. Shiva: Diamond
+  Storm 90, Crystal Blessing 99. Ramuh: Shock Squall 92, Volt Strike 99. Diabolos: Ruinous Omen 1, Ultimate Terror 37,
+  Night Terror 80, Pavor Nocturnus 98. Carbuncle: Pacifying Ruby 99. Also 51 BP scripts with "capture exact value"
+  notes (8 say "should not consume TP").
+- BLU: 29 spells (levels 77-99) with no script: Acrid Stream, Blazing Bound, Demoralizing Roar, Leafstorm, Final
+  Sting, Vanity Dive, Magic Barrier, Benthic Typhoon, Osmosis, Fantod, Winds of Promy., Everyone's Grudge, Reaving Wind,
+  Barrier Tusk, Mortal Ray, Water Bomb, Dark Orb, Vapor Spray, Thunder Breath, Orcish Counterstance, Barbed Crescent,
+  Thunderbolt, Harden Shell, Absolute Terror, Gates of Hades, Tourbillion, Pyric Bulwark, Bilgestorm, Bloodrake.
+- BRD: the 8 Carol II songs (81-99).
+- GEO: Collimated Fervor (JA, 40). RUN: Odyllic Subterfuge (JA, 96). DRK: Endark II (99).
+- SCH: Animus Augeo, Animus Minuo (85), Adloquium (88); Libra (76) is an empty script.
+- Stubs that exist but do nothing: RNG Hover Shot (also has no abilities row), PUP Amplifier's magic-burst behaviour,
+  THF Aura Steal's second-aura augment (commented out as broken).
+Not a problem (checked): the "missing" rows pet_commands, ready, phantom_roll, quick_draw, sambas, waltzes, steps,
+flourishes, jigs, stratagems, ward, effusion, rune_enchantment, blood_pact_rage/ward are client menu headers; Provoke's
+empty script is on purpose (the engine applies its enmity). Flashy Shot, Stealth Shot, Tenuto: their effects are read
+by the engine / song code, so they work. Most other TODOs are "verify the exact number" (weapon skill accuracy
+curves, BP crit rates, attachment values): tuning, not broken.
+Upstream has job tests only for COR, DNC, GEO, MNK, PUP, RUN, SMN, THF, WAR.
+
+## 2026-09-23 — GEO Collimated Fervor and RUN Odyllic Subterfuge coded; Leveling Guide NPC (not loaded yet)
+
+- **Collimated Fervor** (GEO 40): `scripts/actions/abilities/collimated_fervor.lua` calls the existing
+  `xi.job_utils.geomancer.collimatedFervor` (60 s effect; `damage_spell.lua` already applies x1.5 Cardinal Chant). Like
+  upstream's Theurgic Focus, it is not removed by the next spell: it lasts the full 60 s.
+- **Odyllic Subterfuge** (RUN 96): new ability script + `scripts/effects/odyllic_subterfuge.lua`. Target: Magic Acc
+  -40 for 30 s (ESTIMATE: BG Wiki only says "greatly"), plus Magic Attack -2 per job point rank (BG Wiki). Recast 1 h,
+  range 10, VE 318 come from the abilities row (match BG Wiki).
+- Both went live without a restart: new script files are only seen after the file watcher reloads them, so they were
+  re-saved (log: `[FileWatcher] scripts/actions/abilities/...`). Not engine-tested (Eric was in game): test in game.
+- **Leveling Guide NPC** (`modules/custom/lua/leveling_guide_npc.lua`, in `modules/init.txt`): free teleport, no level
+  limit, lands on the nearest Home Point / Survival Guide / waypoint: 10-24 Valkurm Dunes, 25-50 Oldton Movalpolos,
+  50-70 Bhaflau Thickets, 70-80 Kuftal Tunnel, 80-90 Mount Zhayolm, 90-99 Yahse Hunting Grounds (Frontier Station).
+  Look: model 2290 (floating book, to confirm in game). Only in GM Home until Eric sends a !pos; loads at next restart.
+- NPCs moved to Norg (Eric's !pos, 2026-09-23): Augmenter (-24.73, 1.10, -34.12, rot 29) and Trust Vendor (-24.94, 1.10,
+  -33.33, rot 32) left Lower Jeuno (they stand under 1 yalm apart: Eric's choice); Leveling Guide (-13.31, 1.10, -36.12,
+  rot 142). All three take effect at the next restart. Tests updated (augmenter_engine, trust_vendor), not run yet.
+- **Menu size limit (important for every custom menu):** `player:customMenu` sends the title and all options as ONE chat
+  message, `GP_SERV_COMMAND_CHAT_STD` `Mes[150]`: anything past 150 bytes is cut off in game. The Leveling Guide showed
+  "Lv 80-90:" with no name and no 90-99 entry. Fixed with short labels (menu ~120 bytes). The Trust Vendor had the same
+  problem (pages up to 161 bytes, cutting off the last trusts / "Next page"): now 5 per page, short titles
+  ("Event trusts 1/10"), "Next"/"Prev"/"Back"; longest page ~120 bytes, and `trust_vendor.lua` has a test that every
+  vendor menu stays under 140. The Augmenter's menus have not been measured yet.
+- Leveling Guide turned 180 degrees (rotation 142 -> 14). Augmenter moved again: Norg (-22.38, 1.10, -32.01, rot 24).
+  All of this takes effect at the next restart (NPCs hold the menu code they got when the zone started).

@@ -21,18 +21,20 @@ config.npcModel = 82
 -- Rotation is 0-255 (0 = east). New spots need a server restart.
 config.placements =
 {
-    -- Lower Jeuno, beside the Augmenter (7.03, 6.05). Eric's !pos was 6.14, 6.55, only 1 yalm from it, so the vendor
-    -- stands 3 yalms from the Augmenter along that same line, facing the same way.
-    { zone = 'Lower_Jeuno', x = 4.40, y = 0.0, z = 7.50, rotation = 84 },
+    -- Norg, right beside the Augmenter (under 1 yalm apart, Eric's choice). Chosen by Eric with !pos (2026-09-23;
+    -- was Lower Jeuno).
+    { zone = 'Norg', x = -24.9424, y = 1.0977, z = -33.3262, rotation = 32 },
 
     -- GM Home, for testing
     { zone = 'GM_Home', x = 10.0, y = 0.0, z = 3.0, rotation = 128 },
 }
 
+-- Keep titles and names SHORT: every menu is sent as one chat message of at most 150 bytes
+-- (GP_SERV_COMMAND_CHAT_STD Mes[150]) and anything past that is cut off in game. The longest page is ~120 bytes.
 config.groups =
 {
     {
-        title = 'Event and campaign trusts',
+        title = 'Event trusts', -- login campaigns, Mog Pells, seasonal events
         trusts =
         {
             { spell = xi.magic.spell.ABENZIO,          name = 'Abenzio' },
@@ -84,7 +86,7 @@ config.groups =
         },
     },
     {
-        title = 'Story trusts (quest not in game yet)',
+        title = 'Story trusts', -- their quest or mission is not in LSB yet
         trusts =
         {
             { spell = xi.magic.spell.ARCIELA_II,       name = 'Arciela II' },
