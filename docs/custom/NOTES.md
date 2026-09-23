@@ -1074,3 +1074,16 @@ or cipher source exists in the scripts; checked statically, not each in game). T
 `modules/custom/commands/shop.lua`: added `FLASK_OF_HOLY_WATER` (4154), `PINCH_OF_PRISM_POWDER` (4164) and `POT_OF_SILENT_OIL` (4165) after Echo Drops. Live on test without a restart
 (log: `RE-RUNNING MODULE FILE modules/custom/commands/shop.lua`). Note: a `sed -i` edit was not noticed by the file
 watcher; rewriting the file normally was.
+
+## 2026-09-23 (prod) — patch-2026-09-23-3 deployed on prod (16:56, 0 players online)
+
+Clean fast-forward from patch-2026-09-23-2. No C++ compiled (CMake re-ran for the new module files, relink only).
+dbtool up to date, no custom migrations. Pre-deploy DB backup in `sql/backups/` (20260923-165559). All four xi_* up,
+xi_map ready in 44 s, no error/critical. trust_quest_grants_login and trust_vendor_npc loaded.
+
+**deploy.sh bug found by prod:** the first attempt refused with "another deploy is running". `deploy.sh` holds its lock
+on fd 9 (`exec 9> sql/backups/.deploy.lock`, `flock`), and the servers it started inherited fd 9, so they held the lock
+for as long as they ran. Prod stopped the servers (SIGTERM) and deployed. Fix (test, not yet on prod): `start_servers()`
+now starts each server with `9>&-`. Reproduced with a small script: without it the next lock attempt is blocked, with it
+the lock is free. **The servers now running on prod were started by the old script and still hold the lock**, so the
+next prod deploy needs the servers stopped first, one last time; deploys after that don't.

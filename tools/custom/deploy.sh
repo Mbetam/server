@@ -89,7 +89,8 @@ start_servers() {
 
     for name in "${SERVERS[@]}"; do
         [[ -x "./$name" ]] || die "./$name missing, build did not produce it"
-        setsid nohup "./$name" > /dev/null 2>&1 < /dev/null &
+        # 9>&-: don't hand the servers fd 9 (the deploy lock), or they hold it and block every later deploy
+        setsid nohup "./$name" > /dev/null 2>&1 < /dev/null 9>&- &
         echo "started $name (pid $!)"
     done
 
