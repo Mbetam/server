@@ -1151,3 +1151,22 @@ Upstream has job tests only for COR, DNC, GEO, MNK, PUP, RUN, SMN, THF, WAR.
   vendor menu stays under 140. The Augmenter's menus have not been measured yet.
 - Leveling Guide turned 180 degrees (rotation 142 -> 14). Augmenter moved again: Norg (-22.38, 1.10, -32.01, rot 24).
   All of this takes effect at the next restart (NPCs hold the menu code they got when the zone started).
+
+## 2026-09-23 (prod) — patch-2026-09-23-4 deployed on prod (18:53, 0 players online)
+
+Servers stopped first (old lock), then a clean fast-forward from patch-2026-09-23-3; no C++ compiled (relink only),
+dbtool up to date, no custom migrations. Pre-deploy DB backup in `sql/backups/` (20260923-185308). All four xi_* up,
+xi_map ready in 38 s, no error/critical; leveling_guide_npc loaded.
+**Lock still held afterwards (expected):** the deploy that ships a `deploy.sh` fix is run by the OLD script, whose
+`start_servers()` was already loaded before the checkout, so these servers still inherited fd 9. Prod then restarted
+the servers once more with fd 9 closed (18:56, 0 players online, no errors): lock free. **The next prod deploy needs
+no manual stop.**
+Lesson: a change to `deploy.sh` only takes effect on the deploy AFTER the one that ships it.
+
+## 2026-09-23 — Bags and wardrobes at 80 (design baseline)
+
+Eric: inventory was still 30. `START_INVENTORY` (settings) only applies once, at a character's first login, and was
+left at 30. New module `modules/custom/lua/bags_to_80.lua` (in `modules/init.txt`): at every login (not zoning) it raises
+Inventory, Satchel, Sack, Case and Wardrobes 1-8 to 80 if smaller, never shrinks. Covers existing characters. Mog Safe,
+Storage and Locker are not touched. Test `scripts/tests/modules/bags_to_80.lua` 1/1. Needs a restart to load (done on
+test). Not yet checked in game whether the client shows Wardrobes 3-8 from the size alone.
