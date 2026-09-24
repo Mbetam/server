@@ -49,3 +49,4 @@ custom/lua/trust_vendor_npc.lua
 custom/lua/leveling_guide_npc.lua
 custom/lua/bags_to_80.lua
 custom/lua/mark_nm_placeholders.lua
+custom/lua/jug_pet_damage.lua
