@@ -8,6 +8,29 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-24
+
+### For players
+- **Augmenter:** Rare gear can now be augmented, a full bag no longer blocks it, and you can add all four augments in one trade: after each augment the Augmenter goes straight back to its menu.
+- **Beastmaster jug pets deal +50% damage**, both Ready moves and auto-attacks. Call your pet again to get it.
+- **Healer trusts no longer spam Protectra / Shellra** (Apururu (UC), Kupipi, Karaha-Baruha, Yoran-Oran (UC), Cherukiki, Mihli Aliapoh). Protectra/Shellra only reach party members within about 10 yalms of the healer; stay close to get them.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: none. One new module in `modules/init.txt` (comes with the tag): `custom/lua/jug_pet_damage.lua`; it loads at the restart `deploy.sh` does.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-23-6
+- Augmenter: Rare gear, and several augments in one trade (7c962ae866)
+- Jug pets deal +50% damage (Eric's choice, above retail) (0b46bba039)
+- Healer trusts: stop spamming Protectra/Shellra (a3d3a2daa6)
+
 ## patch-2026-09-23-6
 
 ### For players
