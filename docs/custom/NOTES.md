@@ -1194,3 +1194,57 @@ so a placeholder can stand away from the NM's own spawn points. The NM appears a
 (Forest Hare: 180 s) plus the 30 s respawn waves, not at once.
 - Test settings: added prod's NM caps to `settings/map.lua` (git-ignored): NM_RESPAWN_CAP 120, HNM_RESPAWN_CAP 3600,
   HNM_RESPAWN_THRESHOLD 64800. Live on save; timers already running keep their length.
+
+## 2026-09-23 (prod) — patch-2026-09-23-6 deployed on prod (20:27, 0 players online)
+
+deploy.sh ran end to end with no manual stop. Fast-forward from patch-2026-09-23-5, no C++ compiled (relink only),
+dbtool up to date, no custom migrations. Pre-deploy DB backup in `sql/backups/` (20260923-202653). All four xi_* up,
+xi_map ready in 39 s, no error/critical; mark_nm_placeholders loaded; lock free.
+
+## 2026-09-23 — Augmenter works on Rare gear
+
+Rare items could not be augmented: the Augmenter made the augmented copy first and removed the original after, and a
+player cannot hold two of a Rare item. Now the original is taken FIRST, then the copy is made; if the copy cannot be
+made, the original is given back with its exact augments and the gil refunded (never lose item or gil). This also frees
+a slot, so a full bag no longer blocks augmenting (the free-slot check is gone).
+Tried first and dropped: changing the item's exdata in place (`setExData`, which the engine saves and sends to the
+client). The augments were saved, but the engine builds an item's augment stats (its modList) once, when the item is
+created, so the stats stayed stale (stacking gave +1 instead of +2; removing left the bonus). Not fixable from Lua.
+Tests: augmenter_flow 35/35 (new: full bag, original given back if the copy fails, refund if the original can't be
+taken), augmenter_engine 15/15 (new: Rare Cassie Earring with a full bag, Dual Wield applies when worn), augment_core 52/52.
+- **Several augments in one trade** (Eric's request): after a successful add or remove, the Augmenter keeps following the
+  new copy of the item (its new bag slot) and reopens the first menu instead of ending the conversation. "Add an
+  augment" disappears once all 4 slots are used; "Never mind" or closing the menu ends it. Every payment still re-checks
+  the item first. Tests: augmenter_flow 36/36 (new: 4 augments in one trade; nothing charged after "Never mind"),
+  augmenter_engine 15/15 (its after_each now ends the open conversation so tests stay independent).
+
+## 2026-09-24 — Magic damage checked: matches retail (not a bug)
+
+Report: high-tier nukes feel weak. `scripts/globals/spells/damage_spell.lua` pTable matches BG Wiki "Magic Damage" (V and
+the 7 dINT-band M values) for Fire V/VI, Thunder VI, Stone V/VI, Blizzard VI, Aero VI, Water VI, Firaja, Thundaja
+(Firaja/Thundaja M200 differ by 0.06/0.1). Prod test (BLM 99/WHM 99 Tarutaru, Tarutaru starter set + Onion Staff, no
+merits/JP, `!dummy 99`): Fire V 1254, Firaja 1394, every cast identical (no resist). Solving the two gives a MAB/MDB
+ratio of 1.40 (BLM's native MAB trait +40 vs 0 MDB) and dINT ~20; both numbers match (V + 4.8 x 20) x 1.40 exactly.
+Low damage = no INT / MAB gear, as in retail. Options if Eric wants stronger nukes: MAB/INT augments (fits the
+"retail stats + augments" rule) or a global multiplier (design change).
+
+## 2026-09-24 — Jug pets deal +50% damage (Eric's choice, above retail)
+
+Checked first: Ready move math is not weak (Foot Kick: retail fTP 1.0 flat; ours 2.0 from pet level 50, only the 10%
+STR/DEX WSC is missing). Weak pets come from jug level caps (e.g. Courier Carrie, Fish Oil Broth: pet lv 23-75, as
+retail). Eric still asked for +50% on all jug pet damage:
+`modules/custom/lua/jug_pet_damage.lua` (in `modules/init.txt`): Ready moves x1.5 on final damage (override of
+`xi.mobskills.processDamage`, which every move calls just before applying damage); auto-attacks: mobMod
+BASE_DAMAGE_MULTIPLIER 150 set after Call Beast / Bestial Loyalty (every jug pool has cmbDmgMult 100; it scales the
+weapon-damage part of a hit, so the total is a bit under +50%). Charmed monsters and other pets untouched. Knob:
+`multiplier` at the top. Tests: jug_pet_damage 2/2, bst_jug_pets 99/99.
+
+## 2026-09-24 — Healer trusts no longer spam Protectra/Shellra
+
+Eric: all healer trusts spam Protectra and Shellra. Cause: the gambit was "any party member lacks Protect -> cast
+Protectra", but -ra spells reach only members within 10 yalms of the caster (spell_list radius 100), and healers stand
+back at mid/long range, so a master meleeing out of range never got it and the healer recast endlessly (engine test:
+14 Protectras in 90 s). Fix in all 6 trusts that use them (Apururu (UC), Kupipi, Karaha-Baruha, Yoran-Oran (UC),
+Cherukiki, Mihli Aliapoh): cast when the healer herself lacks it (covers everyone in range once), plus the old PARTY
+check with a 60 s retry so out-of-range members still get a try. Test in `trust_healers.lua` (master stripped of
+Protect/Shell every second: at most 3 casts in 90 s) fails on the old script, passes now; trust_healers 14/14.

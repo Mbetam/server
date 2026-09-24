@@ -236,6 +236,36 @@ describe('Healer and support trusts', function()
     end)
 
     -----------------------------------
+    -- Protectra / Shellra spam (Eric, 2026-09-24): the -ra spells only reach members within 10 yalms of the caster,
+    -- so a member out of range kept the healer casting them forever.
+    -----------------------------------
+    it('Kupipi does not spam Protectra/Shellra when a party member never gets them', function()
+        summon(spell.KUPIPI)
+
+        -- The master loses Protect and Shell every second, like a member standing out of the spell's range
+        fight(90, function()
+            player:delStatusEffect(xi.effect.PROTECT)
+            player:delStatusEffect(xi.effect.SHELL)
+        end)
+
+        local function casts(ids)
+            local n = 0
+
+            for _, id in ipairs(ids) do
+                for _, count in pairs(used.spell[id] or {}) do
+                    n = n + count
+                end
+            end
+
+            return n
+        end
+
+        assert(casts(protectras) >= 1, 'no Protectra at all. ' .. dump())
+        assert(casts(protectras) <= 3, casts(protectras) .. ' Protectras in 90 s: still spamming. ' .. dump())
+        assert(casts(shellras) <= 3, casts(shellras) .. ' Shellras in 90 s: still spamming. ' .. dump())
+    end)
+
+    -----------------------------------
     -- Yoran-Oran (UC)
     -----------------------------------
     it('Yoran-Oran (UC) uses Afflatus Solace, Protectra, Shellra, Stoneskin and cures', function()
