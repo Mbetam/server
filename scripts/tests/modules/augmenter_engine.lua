@@ -61,6 +61,9 @@ describe('Augmenter NPC', function()
 
     after_each(function()
         flow.setMenuSender(nil)
+        -- The conversation now stays open after an augment (back to the first menu), as it would until the player
+        -- closes the menu: end it, so the next test starts clean
+        flow.finish(player)
     end)
 
     it('stands in GM Home', function()
@@ -121,6 +124,34 @@ describe('Augmenter NPC', function()
         player:equipItem(ring, nil, xi.slot.RING1)
 
         assert(player:getMod(xi.mod.DUAL_WIELD) - before == 1, 'the new ring should give Dual Wield +1')
+    end)
+
+    it('augments a Rare item in place (Cassie Earring), even with a full bag', function()
+        local earring = xi.item.CASSIE_EARRING
+
+        player:addItem(earring)
+
+        -- Fill the bag: augmenting no longer needs a free slot
+        while player:getFreeSlotsCount() > 0 do
+            player:addItem(xi.item.PEBBLE, 99) -- a full stack takes a slot of its own
+        end
+
+        player.actions:tradeNpc('DE_Augmenter', { earring })
+        settle()
+
+        flow.commitAdd(player, 'dual_wield', 1)
+        settle()
+
+        assert(player:getGil() == 10000000 - 10000, 'a tier 1 augment costs 10,000 gil but the player paid ' .. (10000000 - player:getGil()))
+        assert(player:getItemCount(earring) == 1, 'there should still be exactly one earring: ' .. player:getItemCount(earring))
+
+        local augments = core.readItem(player:findItem(earring))
+        assert(#augments == 1 and augments[1].id == 146 and augments[1].value == 0, 'the Rare earring should carry Dual Wield +1')
+
+        local before = player:getMod(xi.mod.DUAL_WIELD)
+        player:equipItem(earring, nil, xi.slot.EAR1)
+
+        assert(player:getMod(xi.mod.DUAL_WIELD) - before == 1, 'the earring should give Dual Wield +1')
     end)
 
     it('stacks the same augment through two real conversations', function()

@@ -116,30 +116,36 @@ end
 -----------------------------------
 
 -- Replaces the player's item with a new copy carrying `newAugments`, and takes `price` gil.
--- Every step is undone if a later one fails, so the player can never lose the item or the gil.
+-- The original is taken FIRST and the copy made after: a Rare item cannot be held twice, and it frees a bag slot, so no
+-- free slot is needed. (Changing the item in place is not an option: the engine builds an item's augment stats once, when
+-- the item is made, so an in-place change would save the augments but keep the old stats.)
+-- Every step is undone if a later one fails: if the copy cannot be made, the original is given back exactly as it was
+-- (same augments) and the gil is refunded, so the player can never lose the item or the gil.
 -- Returns true, or false and a reason.
 local function swap(player, session, newAugments, price)
-    if player:getFreeSlotsCount() < 1 then
-        return false, 'You need at least one free inventory slot.'
-    end
-
     if not player:delGil(price) then
         return false, 'You do not have enough gil.'
     end
 
+    if not player:delItemAt(session.itemId, 1, session.container, session.slot) then
+        player:addGil(price)
+
+        return false, 'I could not take your item, so nothing was changed.'
+    end
+
     local added = player:addItem({ id = session.itemId, exdata = core.buildExdata(newAugments), silent = true })
     if added == nil then
-        player:addGil(price)
-        return false, 'I could not make the new item, so nothing was changed.'
-    end
-
-    if not player:delItemAt(session.itemId, 1, session.container, session.slot) then
-        -- The original could not be taken: remove the copy we just made and give the gil back
-        player:delItemAt(session.itemId, 1, added:getLocationID(), added:getSlotID())
+        -- Give the original back as it was, and the gil
+        player:addItem({ id = session.itemId, exdata = core.buildExdata(session.augments), silent = true })
         player:addGil(price)
 
-        return false, 'I could not take your original item, so nothing was changed.'
+        return false, 'I could not make the new item, so you have your original back and nothing was charged.'
     end
+
+    -- Keep following the item, so the player can go on adding or removing without trading it again
+    session.container = added:getLocationID()
+    session.slot      = added:getSlotID()
+    session.augments  = newAugments
 
     return true
 end
@@ -180,7 +186,9 @@ flow.commitAdd = function(player, key, tier)
 
     local stat = core.stat(key)
     say(player, session.npcName, string.format('Done! Your %s now has %s %s. That was %s gil.', session.itemName, stat.name, bonusText(stat, plan.amount), formatGil(plan.price)))
-    flow.finish(player)
+
+    -- Straight back to the first menu: add the next augment without trading the item again
+    flow.showMain(player)
 end
 
 local function confirmAddMenu(player, key, tier)
@@ -311,7 +319,8 @@ flow.commitRemove = function(player, slot)
 
     local stat = core.stat(plan.key)
     say(player, session.npcName, string.format('Done! I removed %s %s from your %s. That was %s gil.', stat.name, bonusText(stat, plan.amount), session.itemName, formatGil(plan.price)))
-    flow.finish(player)
+
+    flow.showMain(player)
 end
 
 local function confirmRemoveMenu(player, slot)
@@ -426,12 +435,6 @@ flow.onTrade = function(player, npc, trade)
     local augments, reason = core.readItem(item)
     if augments == nil then
         say(player, name, reason)
-
-        return
-    end
-
-    if player:getFreeSlotsCount() < 1 then
-        say(player, name, 'You need at least one free inventory slot first.')
 
         return
     end

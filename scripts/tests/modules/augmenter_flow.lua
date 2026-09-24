@@ -43,6 +43,9 @@ local function makeItem(slot, exdata, isGear)
         getLocationID = function() return 0 end,
         isType        = function(self, itemType) return self.isGear and (itemType == xi.itemType.ARMOR or itemType == xi.itemType.WEAPON) end,
         getExData     = function(self) return self.exdata end,
+        -- The Augmenter changes the item in place
+        setExData     = function(self, data) self.exdata = augmentExdata(data.augments) end,
+        setExDataRaw  = function(self) self.exdata = { [0] = 0, [1] = 0, [2] = 0 } end,
     }
 end
 
@@ -95,6 +98,12 @@ local function makePlayer(options)
     end
 
     player.addItem = function(self, data)
+        if self.failNextAdd then
+            self.failNextAdd = false -- fail once, so giving the original back can still work
+
+            return nil
+        end
+
         if self.addFails or self:getFreeSlotsCount() < 1 then
             return nil
         end
@@ -279,12 +288,18 @@ describe('Augmenter: what it accepts', function()
         assert(player.menu == nil and said(player):find('cannot be changed', 1, true), 'a foreign augment should be refused')
     end)
 
-    it('needs a free inventory slot', function()
+    it('works with a full bag (the original is taken before the copy is made)', function()
         local player = bagWith(makePlayer({ capacity = 1 }))
 
         trade(player, 1)
+        assert(hasLabel(player, 'Add an augment'), 'a full bag should not matter any more')
 
-        assert(player.menu == nil and said(player):find('free inventory slot', 1, true), 'a full bag should be refused')
+        pick(player, 'Add an augment')
+        pick(player, 'Dual Wield')
+        pick(player, '+1 (10,000 gil)')
+        pick(player, 'Yes, augment it')
+
+        assert(augmentIds(theOnlyItem(player)) == '146:0', 'the item in the full bag was not augmented: ' .. augmentIds(theOnlyItem(player)))
     end)
 
     it('opens the first menu for a plain item', function()
@@ -478,11 +493,33 @@ describe('Augmenter: adding an augment', function()
         assert(augmentIds(theOnlyItem(player)) == '146:0,143:1', 'the old augment should be kept and the new one added: ' .. augmentIds(theOnlyItem(player)))
     end)
 
-    it('will not start a second transaction after finishing', function()
+    it('adds all four augments in one trade: the menu comes back after each one', function()
+        local player = bagWith(makePlayer())
+
+        trade(player, 1) -- traded once only
+
+        for count = 1, config.slotsPerItem do
+            pick(player, 'Add an augment')
+            pick(player, 'Dual Wield')
+            pick(player, '+1 (10,000 gil)')
+            pick(player, 'Yes, augment it')
+
+            local item = theOnlyItem(player)
+            local _, n = augmentIds(item):gsub('146:0', '')
+            assert(n == count, string.format('after augment %d the item carries: %s', count, augmentIds(item)))
+        end
+
+        assert(player.gil == 10000000 - config.slotsPerItem * 10000, 'each augment should be charged once: ' .. player.gil)
+        assert(player.menu ~= nil and not hasLabel(player, 'Add an augment'), 'with every slot used, the menu should no longer offer to add')
+        assert(hasLabel(player, 'Remove an augment'), 'removing should still be offered')
+    end)
+
+    it('will not start a second transaction after the player is done', function()
         local player = bagWith(makePlayer())
 
         addDualWield(player, '+1 (10,000 gil)')
         pick(player, 'Yes, augment it')
+        pick(player, 'Never mind')
         local goldAfter = player.gil
 
         flow.commitAdd(player, 'dual_wield', 1)
@@ -520,18 +557,19 @@ describe('Augmenter: never losing anything', function()
         pick(player, '+1 (10,000 gil)')
     end
 
-    it('gives the gil back if the new item cannot be made', function()
+    it('gives the original back, unchanged, and the gil if the new item cannot be made', function()
         local player = bagWith(makePlayer())
 
         confirmDualWield(player)
-        player.addFails = true
+        player.failNextAdd = true
         pick(player, 'Yes, augment it')
 
         assert(player.gil == 10000000, 'the gil must be refunded, but the player has ' .. player.gil)
-        assert(augmentIds(theOnlyItem(player)) == '', 'the original item must be untouched')
+        assert(augmentIds(theOnlyItem(player)) == '', 'the original item must come back untouched')
+        assert(said(player):find('original back', 1, true), said(player))
     end)
 
-    it('removes the copy and refunds if the original cannot be taken', function()
+    it('changes nothing and refunds if the original cannot be taken', function()
         local player = bagWith(makePlayer())
 
         confirmDualWield(player)
@@ -539,7 +577,7 @@ describe('Augmenter: never losing anything', function()
         pick(player, 'Yes, augment it')
 
         assert(player.gil == 10000000, 'the gil must be refunded, but the player has ' .. player.gil)
-        assert(augmentIds(theOnlyItem(player)) == '', 'only the original should remain, unaugmented')
+        assert(augmentIds(theOnlyItem(player)) == '', 'the original should remain, unaugmented')
         assert(said(player):find('nothing was changed', 1, true))
     end)
 
@@ -565,15 +603,15 @@ describe('Augmenter: never losing anything', function()
         assert(said(player):find('has changed', 1, true), said(player))
     end)
 
-    it('refuses if the bag filled up while the menus were open', function()
+    it('still works if the bag filled up while the menus were open', function()
         local player = bagWith(makePlayer({ capacity = 2 }))
 
         confirmDualWield(player)
         player.items[2] = makeItem(2)
         pick(player, 'Yes, augment it')
 
-        assert(player.gil == 10000000, 'nothing should be charged')
-        assert(said(player):find('free inventory slot', 1, true), said(player))
+        assert(player.gil == 10000000 - 10000, 'the augment should have gone through: ' .. player.gil)
+        assert(augmentIds(player.items[1]) == '146:0', augmentIds(player.items[1]))
     end)
 
     it('forgets the conversation when the player cancels', function()
