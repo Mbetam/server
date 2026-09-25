@@ -8,6 +8,28 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-25
+
+### For players
+- **Trusts now have Refresh +50**, so healers and casters no longer run out of MP. Summon them again to get it.
+- **Empyrean armor set bonuses fixed:** old Empyrean +2 pieces and Reforged pieces now count as one set, as on retail (before, mixing one of each gave no bonus). Every job's Empyrean set now does something, including BRD, BLM, RDM, SMN, GEO, DRK, BST, DRG and PUP, which did nothing before.
+- **Gear effects that did nothing now work,** for example Allies' Roll gloves, Runeist Coat/Bottes, Futhark Coat, True Shot gear, Reward recast gear and "Pet: TP Bonus".
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none. Do NOT add `ENABLE_ARMOR_UPGRADER`: the Armor Upgrader NPC stays off on prod until the armor is fully working.
+- Other manual steps: none. New entries in `modules/init.txt` (come with the tag): `custom/lua/af_upgrade_npc.lua` (does nothing without the setting), `custom/sql/armor_stats.sql`, `custom/lua/armor_sets.lua`, `custom/lua/trust_refresh.lua`; they load at the restart `deploy.sh` does.
+- Rebuild: yes (C++ changed, and new modifiers in `data/enums/mod.yaml` regenerate the enum header, so it is a full rebuild: about 10 minutes on test)
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - `modules/custom/sql/armor_stats.sql` (module SQL: item stats and latents for Artifact/Relic/Empyrean tiers, INSERT IGNORE, plus one UPDATE: Chasseur's Gants +2 Allies' Roll 5 -> 100)
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-24
+- Armor Upgrader: AF/Relic/Empyrean +4 stats, set bonuses, job effects (test only) (cb86250f87)
+- Trusts get Refresh +50 (Eric's choice, not retail) (33850eaa7a)
+
 ## patch-2026-09-24
 
 ### For players
