@@ -8,6 +8,26 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-25-2
+
+### For players
+- Fixes the auction house not returning some expired listings (a search-server error). Nothing else changes in game.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps: none. The AH bot timer runs the new code from the checkout; its first run after the deploy
+  deletes the bot's (charid 10000001) delivery box rows, which are only returned bot listings and sale gil.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-25
+- AH bot: empty its own delivery box every run (dfdbaa8202)
+
 ## patch-2026-09-25
 
 ### For players
