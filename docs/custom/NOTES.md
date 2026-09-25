@@ -1490,3 +1490,13 @@ Shipping: the Armor Upgrader NPC only appears when `settings/main.lua` has `ENAB
 not on prod, per Eric: no Upgrader on prod until the armor is fully working). Prod still gets the stats, set bonuses and
 engine fixes, which also apply to armor players already own there. Trusts: `modules/custom/lua/trust_refresh.lua` gives
 every trust summoned through xi.trust.spawn Refresh +50 (Eric's choice, 2026-09-25).
+
+## 2026-09-25 — AH bot delivery box overflow (prod search-server errors)
+
+Prod's search server logged `Duplicate entry '10000001-1-36259' for key 'PRIMARY'` on `INSERT INTO delivery_box ...
+'AH-Jeuno'` when expiring auction listings. 10000001 is the AH bot: its unsold restock listings expire after
+EXPIRE_DAYS (3) and are mailed back to its delivery box, and gil from its sales lands there too. Nothing emptied it
+(test had 5,930 rows, prod over 36,000; the slot trigger numbers each new row MAX(slot)+1), and expiry inserts started
+failing. Fix: `tools/ah_bot/ah_bot.py` `clear_delivery_box` deletes the bot's box-1 rows at the start of every run (it
+restocks fresh listings anyway). Test cleared 5,930 rows on the first timer run. The listings whose return failed stay
+on the AH and are retried by the next expiry pass (hourly), which then succeeds.

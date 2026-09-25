@@ -7,7 +7,8 @@ docs/custom/NOTES.md for the design.
 
 Prints what it would do and does NOT touch the database unless run with --apply. Meant to be run
 repeatedly (a cron job or a systemd timer - see docs/custom/NOTES.md for the unit files), not as a
-long-running daemon: each run does one restock pass and one buyout pass, then exits.
+long-running daemon: each run empties the bot's own delivery box (expired listings / sale gil it has no use
+for), then does one restock pass and one buyout pass, then exits.
 
     python3 ah_bot.py            # dry run: prints what it WOULD do
     python3 ah_bot.py --apply    # actually lists / buys items
@@ -178,6 +179,22 @@ def buy_out(cur, apply_changes):
     return bought, spent
 
 
+def clear_delivery_box(cur, apply_changes):
+    # The bot's own listings that sit unsold for EXPIRE_DAYS are mailed back to its delivery box by the search server
+    # ("AH-Jeuno"), and gil from its sales lands there too. Nothing ever empties it, so it grew without end (prod
+    # passed 36,000 rows and the search server's expiry inserts started failing with duplicate keys). The bot needs
+    # none of it (restock lists fresh stock), so it throws its incoming box away every run.
+    cur.execute('SELECT COUNT(*) FROM delivery_box WHERE charid = %s AND box = 1', (BOT_CHARID,))
+    count = cur.fetchone()[0]
+
+    if apply_changes and count:
+        cur.execute('DELETE FROM delivery_box WHERE charid = %s AND box = 1', (BOT_CHARID,))
+
+    print(f'delivery box: {count} returned item(s) / gil cleared{"" if apply_changes else " (dry run, nothing written)"}')
+
+    return count
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--apply', action='store_true', help='Actually write to the database. Without this, only prints what would happen.')
@@ -189,6 +206,7 @@ def main():
     try:
         cur = conn.cursor()
 
+        clear_delivery_box(cur, args.apply)
         restock(cur, args.apply)
         buy_out(cur, args.apply)
 
