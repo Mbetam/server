@@ -1273,6 +1273,16 @@ values:
   wsdmg_glory_slash:       809
   wsdmg_tartarus_torpor:   810
 
+  # Custom (this fork): high ids so upstream's new mods (from the spares below) never collide with them.
+  att_varies_with_hp:      1900 # % chance per melee hit that damage rises by the wearer's HP% (100% HP doubles it). Heathen's / Bale +2 set
+  att_varies_with_pet_hp:  1901 # % chance per PET melee hit (on the master) that the pet's damage rises by its HP%. Nukumi, Peltast's, Karagoz (+ old +2) sets
+  efflux_tp_bonus:         1902 # TP added to the Efflux-boosted blue magic spell (Hashishin Tayt +3)
+  enfeebling_cast_time:    1903 # % enfeebling magic casting time reduction, stored positive (like CURE_CAST_TIME)
+  enhancing_cast_time:     1904 # % enhancing magic casting time reduction, stored positive
+  healing_cast_time:       1905 # % healing magic casting time reduction, stored positive (stacks with CURE_CAST_TIME)
+  blue_magic_cast_time:    1906 # % blue magic casting time reduction, stored positive
+  utsusemi_cast_time:      1907 # % Utsusemi casting time reduction, stored positive
+
   # The spares take care of finding the next ID to use so long as we don't forget to list IDs that have been freed up by refactoring.
   # 570 through 825 used by WS DMG mods these are not spares.
   # SPARE IDs: 1215 and onward, 378

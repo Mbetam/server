@@ -419,7 +419,7 @@ xi.job_utils.rune_fencer.useVallationValiance = function(player, target, ability
     local meritBonus            = player:getMerit(xi.merit.VALLATION_EFFECT)
     local inspirationMerits     = player:getMerit(xi.merit.INSPIRATION)
     local inspirationFCBonus    = inspirationMerits + inspirationMerits / 10 * player:getMod(xi.mod.ENHANCES_INSPIRATION)  -- 10 FC per merit level, plus 2% per level from AF2 leg aug
-    local jobPointBonusDuration = player:getJobPointLevel(xi.jp.VALLATION_DURATION)
+    local jobPointBonusDuration = player:getJobPointLevel(xi.jp.VALLATION_DURATION) + player:getMod(xi.mod.VALIANCE_VALLATION_DURATION) -- + gear (Runeist Coat)
 
     sdtPower = (sdtPower + meritBonus) * 100
 
@@ -723,6 +723,8 @@ xi.job_utils.rune_fencer.usePflug = function(player, target, ability, action)
         baseStrength = 15
     end
 
+    baseStrength = baseStrength + player:getMod(xi.mod.PFLUG) -- gear (Runeist Bottes): +N% status resistance
+
     action:info(target:getID(), getSpecEffectElementWard(highestRune))
 
     player:addStatusEffect(xi.effect.PFLUG, { power = baseStrength, duration = 120, origin = player, subPower = meritBonus })
@@ -855,7 +857,7 @@ xi.job_utils.rune_fencer.useLiement = function(player, target, ability, action)
 
     local runeEffects = target:getAllRuneEffects()
     local absorbPower = 15 -- in core -> 85 + 15 * (1, 2, or 3) = 100, 115, 130
-    local duration    = 10 + player:getMod(xi.mod.LIEMENT_DURATION)
+    local duration    = 10 + player:getMod(xi.mod.LIEMENT_DURATION) + player:getMod(xi.mod.LIEMENT) -- gear uses both
     local absorbTypes = {} -- one absorb type per rune which can be additive
     local i           = 0
 

@@ -1248,3 +1248,245 @@ back at mid/long range, so a master meleeing out of range never got it and the h
 Cherukiki, Mihli Aliapoh): cast when the healer herself lacks it (covers everyone in range once), plus the old PARTY
 check with a 60 s retry so out-of-range members still get a try. Test in `trust_healers.lua` (master stripped of
 Protect/Shell every second: at most 3 casts in 90 s) fails on the old script, passes now; trust_healers 14/14.
+
+## 2026-09-24 (prod) — patch-2026-09-24 deployed on prod (22:44 UTC, 0 players online)
+
+Clean fast-forward from patch-2026-09-23-6: no rebuild (CMake re-configure only), dbtool up to date, no migrations, zone
+IP unchanged. Pre-deploy DB backup in `sql/backups/` (20260924-224402). xi_map ready in 43 s, no error/critical,
+jug_pet_damage loaded, deploy lock free. Minor: CMake warned "CPM: Cache for ZLIB is dirty" (harmless; check
+`.cpm-cache/zlib` if it recurs). No settings changed on prod.
+
+## 2026-09-25 — AF Upgrader NPC: artifact armor from the first set to +4 (gil)
+
+Eric's choice: a gil path instead of retail's sources (base +1 trades, Dynamis Divergence for Reforged +1..+3,
+Sortie/Odyssey for +4; not in LSB). Every tier already exists in item_basic. Chains (22 jobs x 5 slots = 110, 640
+steps) generated from item names per job and slot: base > base +1 > Reforged > R+1 > +2 > +3 > +4; GEO and RUN have no
+old AF (Reforged to +4). Odd names in the item data: BLM Spaekona's Gloves +4 is "spaekonas_gloves" (23988), COR +4
+head/body/feet are "laksamana_*" (no s), RUN +4 feet are "runeist_boots_+4" (other RUN feet are "bottes").
+Files: `modules/custom/lua/af_upgrade_config.lua` (chains, prices, spots), `af_upgrade_flow.lua` (trade, confirm,
+upgrade), `af_upgrade_npc.lua` (module, in `modules/init.txt`). Prices by tier reached: +1 50k, Reforged 100k,
+R+1 250k, +2 500k, +3 1M, +4 2.5M. Augmenter augments carry over; pieces with other data are refused. The original is
+taken first (AF is Rare), and restored with a refund if the new piece can't be made. Only in GM Home until Eric picks a
+spot. Test `af_upgrade.lua` 6/6 (all 110 chains exist, real trades, prices, augments kept, +4 and non-AF refused).
+- **Extended the same day to Relic and Empyrean** (Eric), same NPC, renamed "Armor Upgrader", standing in Norg
+  (-26.66, 1.10, -35.65, rot 4; Eric's !pos) and GM Home. 330 chains (3 families x 22 jobs x 5 slots), 2010 steps:
+  Relic old set base/+1/+2 then Reforged (Agoge...) to +4; Empyrean old set base/+1/+2 then Reforged (Boii...) to +3
+  (no Empyrean +4 exists). GEO/RUN: Reforged sets only. The generator skips the Relic "-1" Dynamis items (they matched
+  as base pieces at first). Odd names: COR Relic head +2 is "commodores_tricorne_+2" (10666). Prices by tier reached:
+  old +1 50k, old +2 75k, Reforged 100k, R+1 250k, +2 500k, +3 1M, +4 2.5M. Test `af_upgrade.lua` 6/6.
+
+## 2026-09-25 — Armor stats imported for the Upgrader's empty tiers (425 pieces, 7,756 stats)
+
+All 2,340 pieces in the Armor Upgrader's chains now have stats. Source: BG Wiki item descriptions, fetched as raw
+wikitext through `https://www.bg-wiki.com/api.php` (50 titles per request; our item names drop apostrophes, so both
+"Pummelers" and "Pummeler's" were tried; five pages only exist under abbreviated titles, e.g. "Kas. Sune-Ate +3").
+Mapping label -> LSB modifier was LEARNED from each piece's lower tier (which LSB has): common labels by vote, a fixed
+table for core stats (Accuracy and Magic Accuracy often share a value, so votes split), rare labels only from the same
+piece's lower tier when exactly one unexplained modifier matches, pet labels ("Avatar:", "Wyvern:"...) only into
+`item_mods_pet` with the pet type (a first pass had wrongly mapped some pet labels onto player stats). The parser also
+splits wiki typos where two stats run together ("Evasion+122Magic Evasion", "br>").
+Check: the same mapper reproduces 5,510 of 5,529 known lower-tier stats exactly (99.7%); the 19 differences look like
+LSB data errors (Vitiation Chapeau +3 MP 7 vs BG 77, Bagua Mitaines +3 Enmity sign).
+Output: `modules/custom/sql/armor_stats.sql` (INSERT IGNORE, so upstream rows would win), listed in `modules/init.txt`
+so dbtool applies it; applied on test. Engine test: Pummeler's Lorica +4 worn gives DEF +168, STR +40, Haste +4%.
+Still to do (armor "fully working"): ~230 job-specific effect lines (e.g. "Meditate" duration, Blood Pact delay,
+physical damage limit): LSB has modifiers for most, but unit and sign must be checked in the engine code per effect;
+set bonuses (+4 AF and Empyrean +2/+3 not in their sets, 19 sets missing); 6 JA-effect modifiers no code reads.
+
+## 2026-09-25 — Armor job-specific effects mapped; what is left
+
+Second pass on `modules/custom/sql/armor_stats.sql`: 7,866 stats + 76 pet stats on the 425 pieces (was 7,756). How:
+- Learned from ALL LSB items with the same effect: BG descriptions of 3,750 items carrying uncommon modifiers, paired
+  with their LSB rows, sign flips allowed; kept only with 2+ agreeing items and a majority (16 labels, e.g. Cure
+  casting time -> CURE_CAST_TIME x-1, Snapshot, Song casting/recast, Blood Pact ability delay, Dual Wield). Dropped one
+  coincidence ("blood pact damage" -> ACC).
+- Hand mapping (`manual_map` in the importer) for ~55 labels with a documented unit in `docs/mods_by_id.txt` and a
+  sign checked against existing gear. Conventions found: SPELLINTERRUPT, ELEMENTAL_CELERITY, SONG_SPELLCASTING_TIME,
+  PERPETUATION_REDUCTION, BP_DELAY(_II) are stored POSITIVE for a reduction; GRIMOIRE_SPELLCASTING,
+  WHITE/BLACK_MAGIC_CAST are stored NEGATIVE.
+- Wiki lines where two effects are glued together are split, e.g. Chevalier's Armet +3 "Converts 8% of physical damage
+  taken to MP" + "Damage taken -11%" (its DT was missing).
+- Regenerated rows replace my first import's item_mods rows (these items had none before); item_mods_pet is only
+  added to with INSERT IGNORE because LSB has its own pet rows for 24 of these items.
+Tests: af_upgrade 7/7, augmenter_engine 15/15.
+Not placed (107 lines, 85 labels): no LSB modifier exists, or its unit/sign is uncertain. Each needs a modifier and
+engine code, or a checked unit:
+  - enhancing magic casting time (4): futhark_trousers, futhark_trousers_+1, futhark_trousers_+3, futhark_trousers_+4
+  - counter critical hit rate (3): hesychasts_cyclas_+3, hesychasts_cyclas_+4, hesychasts_gaiters_+4
+  - indicolure spell duration (3): azimuth_gaiters, azimuth_gaiters_+1, azimuth_gaiters_+3
+  - killer effects (3): ankusa_helm_+3, ankusa_helm_+4, totemic_trousers_+4
+  - all jumps: tp (2): vishap_finger_gauntlets_+4, vishap_mail_+4
+  - all resistances (2): erilaz_greaves_+3, runeist_coat_+4
+  - augments vivacious pulse refresh potency (2): erilaz_galea, erilaz_galea_+3
+  - counter attack (2): anchorites_hose_+4, hesychasts_gaiters_+4
+  - double shot damage (2): arcadian_jerkin_+3, arcadian_jerkin_+4
+  - full circle (2): azimuth_hood, azimuth_hood_+1
+  - hasso (2): wakido_kote_+4, wakido_sune-ate_+4
+  - kicks (2): anchorites_gaiters_+4, hesychasts_hose_+4
+  - liement duration (2): futhark_coat, futhark_coat_+1
+  - magic burst accuracy (2): pedagogy_mortarboard_+3, pedagogy_mortarboard_+4
+  - reward recasting time (2): ankusa_trousers_+4, totemic_trousers_+4
+  - spirit link (2): peltasts_vambraces_+3, vishap_armet_+4
+  - utsusemi casting time (2): mochizuki_chainmail_+3, mochizuki_chainmail_+4
+  - absorb effect duration (1): ignominy_burgeonet_+4
+  - addendum: black enmity (1): arbatel_gown_+3
+  - addendum: white enmity (1): arbatel_gown_+3
+  - ancient circle (1): vishap_brais_+4
+  - arcane circle (1): ignominy_sollerets_+4
+  - arts: magic accuracy (1): academics_loafers_+4
+  - avatar ele. res. (1): convokers_doublet_+4
+  - azure burst (1): assimilators_shalwar_+4
+  - banish potency against undead (1): piety_mitts_+4
+  - barrage (1): orion_bracers_+4
+  - blue magic casting time (1): hashishin_mintan_+3
+  - boost (1): anchorites_gloves_+4
+  - breath attack damage (1): luhlaza_keffiyeh_+4
+  - bsharpshot (1): orion_braccae_+4
+  - climactic flourish: critical hit rate (1): maculele_tiara_+3
+  - converts 8% of cure amount to mp healing magic casting time (1): ebers_pantaloons_+3
+  - critical parry (1): futhark_boots_+4
+  - defender: shield block rate (1): agoge_mufflers_+4
+  - divine caress (1): ebers_mitts_+3
+  - double shot enmity (1): amini_gapette_+3
+  - efflux tp bonus (1): hashishin_tayt_+3
+  - elemental magic status down effect (1): archmages_sabots_+4
+  - elemental resistance magic (1): piety_pantaloons_+4
+  - enfeebling magic casting time (1): lethargy_chappel_+3
+  - evasion effect (1): anchorites_gaiters_+4
+  - evening to early morning: movement speed (1): hachiya_kyahan_+4
+  - feather step (1): maculele_toe_shoes_+3
+  - gain magic effect (1): vitiation_gloves_+3
+  - gain magic effects (1): vitiation_gloves_+4
+  - grimoire: magic accuracy (1): arbatel_pants_+3
+  - hasso: haste (1): kasuga_haidate_+3
+  - immanence (1): arbatel_bracers_+3
+  - increases magic effect duration (1): wicce_chausses_+3
+  - indi effect duration (1): bagua_pants_+4
+  - innin: double attack (1): hattori_zukin_+3
+  - inquartata (1): erilaz_leg_guards
+  - kicks attack (1): anchorites_gaiters_+4
+  - klimaform (1): arbatel_loafers_+3
+  - last resort (1): fallens_sollerets_+4
+  - m. attack b. (1): lethargy_houseaux_+3
+  - mag. dmg. (1): lethargy_houseaux_+3
+  - mana wall (1): wicce_sabots_+3
+  - migawari (1): hattori_ningi_+3
+  - nether void (1): heathens_flanchards_+3
+  - overload chance (1): foire_dastanas_+4
+  - overload rate (1): karagoz_farsetto_+3
+  - penury and parsimony (1): arbatel_pants_+3
+  - perpetuance (1): arbatel_bracers_+3
+  - phantom rolls (1): lanun_tricorne_+4
+  - potency of banish vs. undead (1): piety_mitts_+3
+  - ready tp bonus (1): nukumi_manoplas_+3
+  - reward recast delay (1): ankusa_trousers_+3
+  - seigan: counter rate (1): kasuga_kabuto_+3
+  - sekkanoki: tp bonus based on remaining tp (1): kasuga_kote_+3
+  - sengikori (1): kasuga_sune-ate_+3
+  - shadowbind effect duration (1): orion_bracers_+4
+  - sic tp bonus (1): nukumi_manoplas_+3
+  - skill (1): karagoz_pantaloni_+3
+  - spikes damage (1): vitiation_tights_+4
+  - steps tp consumed (1): horos_toe_shoes_+4
+  - stout servant (1): nukumi_quijotes_+3
+  - striking flourish: double attack critical hit rate (1): maculele_casaque_+3
+  - trick attack (1): plunderers_vest_+4
+  - trick attack damage (1): plunderers_vest_+3
+  - velocity shot (1): amini_caban_+3
+  - warding circle (1): wakido_kabuto_+4
+  - wyvern: breath attacks (1): pteroslaver_armet_+4
+  - yonin: counter (1): hattori_hakama_+3
+
+## 2026-09-25 — Armor set bonuses; Upgrader chains corrected (by slot AND item word)
+
+Chains fixed: the first generator matched pieces by slot only, so where a job has two items in one slot one replaced the
+other. Now matched by slot + item word, with split spellings merged when they cover different tiers ("gauntlets" /
+"finger_gauntlets", "flanchard" / "flanchards") and overlapping extra items dropped (Azimuth Turban). Corrections: BST
+hands start at Beast Gloves (was Beast Bazubands), SMN hands/feet at Evoker's Bracers/Pigaches (was Gages/Boots), COR
+head Corsair's Tricorne > Tricorne +1 (had mixed in Corsair's Hat +1), and DNC Artifact now has male AND female chains
+(both genders share item names; male = lower id). 335 chains, 2,375 pieces, all with stats.
+Set bonuses: `modules/custom/lua/armor_sets.lua` (in `modules/init.txt`), without editing LSB's gear_sets.lua:
+- 225 pieces added to 34 existing LSB sets through the public `xi.gear_sets.itemToSetId`: Artifact +4 into the
+  "AF1 119 +2/3" sets 93-115 (incl. DNC M/F), Empyrean Reforged +2/+3 into the "109/119 AF3" sets 57-66 and 132.
+  Derived from the chains. Relic Reforged has no set bonus in retail (BG descriptions: none on +2/+3/+4).
+- New sets (ids 1001+, applied by wrapping `xi.gear_sets.checkForGearSet`): DNC Maculele (Samba double damage) and RUN
+  Erilaz (absorb damage chance), 2/3/4/5 as LSB's older sets for the same effect.
+- Test gotcha: `equipItem` from Lua does not run the set check (the client's equip packet does); tests call
+  `xi.gear_sets.checkForGearSet` themselves. Test `armor_sets.lua` 5/5 (with a control on LSB's own +3 set).
+Still needs engine code (codes exist but nothing reads them, or no code): Empyrean set effects for BLM (Augments Conserve
+MP), RDM (Composure), SMN (Blood Boon), GEO (MP not depleted), BRD (Augments songs), DRK/BST/DRG/PUP (attack varies with
+own/pet/wyvern/automaton HP); the matching old Empyrean +2 sets for those jobs (Goetia, Estoqueur's, Bale, Ferine,
+Aoidos', Lancer's, Caller's, Cirque); the 6 JA-effect mods; the 85 unplaced effect labels.
+
+## 2026-09-25 — Empyrean set effects coded: BLM, GEO, SMN, RDM
+
+Retail (BG Wiki set pages): Empyrean +2 pieces and all Reforged tiers count toward ONE set (mix freely); most effects
+are a chance of +1% per piece (2-5%). New sets in `modules/custom/lua/armor_sets.lua` include the old +2 pieces:
+- BLM Goetia +2 / Wicce, "Augments Conserve MP" (10/15/20/25%, BG: +5% per piece): when Conserve MP and the set proc,
+  spell damage x (1 + 2 x share of MP conserved), as the last multiplier. `src/map/ai/states/magic_state.cpp`
+  (SpendCost) stores the share in permille in local var `[ConserveMP]SavedPermille` (reset every cast);
+  `scripts/globals/spells/damage_spell.lua` applies it.
+- GEO Azimuth, "MP occasionally not depleted" (2-5%): magic_state.cpp SpendCost sets a Geomancy spell's cost to 0.
+- SMN Caller's +2 / Beckoner's, "Augments Blood Boon" (2-5%): `job_utils/summoner.lua` getMPCost also returns the
+  share saved; onUseBloodPact stores it as `[BloodBoon]SavedPermille` for the primary target; armor_sets.lua wraps
+  `xi.mobskills.processDamage` to raise the pact's damage by that share. Ward pact duration is NOT done yet.
+- RDM Estoqueur's +2 / Lethargy, "Augments Composure" (+10/20/35/50%): while Composure is up, Enhancing magic on others
+  (`enhancing_spell.lua`) and Enfeebling magic (`enfeebling_spell.lua`) last longer. Read as "only while Composure is
+  active" because BG lists it under Composure's own entry; Eric confirmed this is correct (2026-09-25).
+Core change (C++, rebuild needed on prod): magic_state.cpp only. Upstream Lua files touched with marked blocks:
+damage_spell.lua, summoner.lua, enhancing_spell.lua, enfeebling_spell.lua.
+Tests: armor_set_effects 5/5 (real Indi-Regen and Fire casts; duration functions), armor_sets 5/5, af_upgrade 7/7,
+jug_pet_damage 2/2. Still to run: the upstream spell/SMN/GEO suites (touched files) for regressions.
+Left: BRD Fili/Aoidos' "Augments songs" (stat by song element), DRK/BST/DRG/PUP "Attack occ. varies with (pet/wyvern/
+automaton) HP" (C++ melee), SMN ward duration, and merging LSB's separate old +2 / Reforged sets for the other 11 jobs.
+
+## 2026-09-25 — Armor "fix it all" pass: remaining set effects, set merges, JA mods, unplaced labels
+
+Set effects (`modules/custom/lua/armor_sets.lua`), every Empyrean job now has its set effect:
+- BRD Aoidos' +2 / Fili (1007): AUGMENT_SONG_STAT 1/2/3/4. LSB's song code already passes it to every song's
+  subPower and the effect scripts add the element's stat; only Ballad (Light -> CHR) ignored it (`effects/ballad.lua`).
+- DRK Bale +2 / Heathen's (1008), BST Ferine +2 / Nukumi (1009), DRG Lancer's +2 / Peltast's (1010), PUP Cirque +2 /
+  Karagoz (1011): "Attack occ. varies with (pet's) HP", 2-5% chance per hit, damage x (1 + HP%). New custom mods
+  ATT_VARIES_WITH_HP 1900 / ATT_VARIES_WITH_PET_HP 1901 (`data/enums/mod.yaml`, ids far from upstream's spares),
+  DRK in `attackutils::CheckForDamageMultiplier` like the other Empyrean procs (own hits, own HP). BST/DRG/PUP: Eric
+  chose (2026-09-25) that it boosts the PET's melee hits by the pet's HP% (`attackutils::CheckForPetHPDamage`, called
+  from attack.cpp for pet attackers; chance = the master's mod). Pet TP moves / breath are not affected.
+- SMN Beckoner's: Ward pacts now also last longer by the Blood Boon share: `xi.job_utils.summoner.wardDuration`,
+  wrapped around the duration of all 35 addStatusEffect calls in the 20 ward pact scripts.
+- Merged sets (retail counts old +2 and Reforged as one set): the old +2 pieces of WAR/COR/NIN/RNG/PLD/SAM/MNK/THF/
+  WHM/SCH now count toward LSB's Reforged set (26->59, 33->64, 35->63, 36->61, 37->62, 38->57, 39->58, 40->60, 41->66,
+  42->65), DNC Charis +2 toward Maculele (1001), and BLU Mavi +2 (no LSB set) toward Hashishin (132).
+JA-effect mods now read by code:
+- ENHANCES_ALLIES_ROLL: Allies' Roll added to corsair.lua `rollEnhanceMods` (chance for the roll's +5% job bonus).
+  LSB's own Chasseur's Gants +2 row said 5 while +1/+3 say 100: Eric chose 100 (UPDATE at the end of armor_stats.sql).
+- VALIANCE_VALLATION_DURATION (+s) and PFLUG (+% status resist) in rune_fencer.lua; Liement reads LIEMENT too (LSB's
+  Futhark Coat +2 uses it instead of LIEMENT_DURATION).
+- SCHERZO_EFFECT in the song table, BUT Sentinel's Scherzo itself does nothing in LSB (TODO in HandleSevereDamage).
+- TRUE_SHOT_EFFECT: +N% ranged auto-attack damage (battle_entity.cpp OnRangedAttack), as the enum documents it; the
+  trait's distance sweet spot is not modelled.
+- PET_TP_BONUS (LSB's Beckoner's Spats +2): `xi.mobskills.getTPBonus(mob)` adds the master's PET_TP_BONUS to the
+  5 TP_BONUS reads in mobskills.lua.
+- REWARD_RECAST (s): char_entity.cpp uses the mod instead of a hardcoded -10s for four warbonnets (which carry it).
+Data fixes in `modules/custom/sql/armor_stats.sql`:
+- Pet sections: the importer tagged only the FIRST stat after "Avatar:/Pet:/Wyvern:/Automaton:/Luopan:"; the rest went
+  to the player. 58 pieces fixed (44 leaked player rows moved to item_mods_pet), e.g. Beckoner's Spats +3 avatar
+  R.Acc/M.Acc/TP Bonus. Wyvern "Breath Accuracy" as wyvern M.Acc and "Breath attacks +28" as WYVERN_BREATH 72,
+  matching LSB's +3s.
+- 89 rows for unplaced labels mapped to existing LSB mods (lower tier's convention): All Jumps TP, resist all
+  elements, circles +1, Burst Affinity, Barrage, Shadowbind, Boost, breath damage, Sharpshot, Cure->MP, Critical
+  (Tactical) Parry, elemental debuff, bar-element, Dodge, Kick Attacks, Indicolure duration, killer effects, Liement,
+  MAB/Magic Damage, Nether Void, Overload, Phantom Roll bonus chance, Reward recast, Sengikori, automaton skills,
+  spikes, Spirit Link, steps TP, Velocity Shot, Absorb duration, Full Circle, Inquartata, Vivacious Pulse/Refresh.
+- New custom mods 1902-1907: Efflux TP bonus (bluemagic.lua), and enfeebling / enhancing / healing / blue magic /
+  Utsusemi casting time (battleutils CalculateSpellCastTime, positive = reduction like CURE_CAST_TIME).
+- Item latents (status effect active): Innin DA, Yonin Counter, Hasso Haste, Seigan Counter, Defender block rate,
+  Arts/Grimoire M.Acc, Addendum Enmity; Hachiya Kyahan +4 dusk-to-dawn speed. Sic/Ready TP Bonus = pet TP Bonus.
+Still NOT working (no engine support; each is a new feature): Addendum/Immanence/Perpetuance/Klimaform/Penury
+potency, climactic & striking flourish crits, counter attack/counter crit, Divine Caress, double shot damage/enmity,
+Feather Step, Gain-spell potency, Hasso +N, Magic burst accuracy, Mana Wall, Migawari, Stout Servant, Trick Attack
+damage, Banish vs undead, avatar element resist, Wicce "magic effect duration", kick attack attack, Last Resort +1,
+Vishap "Spirit Link +16", and Sentinel's Scherzo (the song itself).
+Shipping: the Armor Upgrader NPC only appears when `settings/main.lua` has `ENABLE_ARMOR_UPGRADER = true` (set on test,
+not on prod, per Eric: no Upgrader on prod until the armor is fully working). Prod still gets the stats, set bonuses and
+engine fixes, which also apply to armor players already own there. Trusts: `modules/custom/lua/trust_refresh.lua` gives
+every trust summoned through xi.trust.spawn Refresh +50 (Eric's choice, 2026-09-25).

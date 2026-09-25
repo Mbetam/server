@@ -13,7 +13,7 @@ abilityObject.onPetAbility = function(target, pet, petskill, summoner, action)
 
     if
         not target:isPC() or
-        not target:addStatusEffect(xi.effect.RERAISE, { power = 2, duration = 3600, origin = pet })
+        not target:addStatusEffect(xi.effect.RERAISE, { power = 2, duration = xi.job_utils.summoner.wardDuration(summoner, 3600), origin = pet })
     then
         petskill:setMsg(xi.msg.basic.NO_EFFECT)
         return 0

@@ -381,6 +381,12 @@ xi.spells.enfeebling.calculateDuration = function(caster, target, spellId, spell
         end
 
         duration = math.floor(duration * (1 + caster:getMod(xi.mod.ENF_MAG_DURATION) / 100))
+
+        -- Custom (armor sets): RDM Estoqueur's +2 / Lethargy set "Augments Composure": while Composure is up, enfeebling
+        -- magic lasts +10/20/35/50% (2-5 pieces, BG Wiki)
+        if caster:hasStatusEffect(xi.effect.COMPOSURE) then
+            duration = math.floor(duration * (1 + caster:getMod(xi.mod.AUGMENT_COMPOSURE) / 100))
+        end
     end
 
     ---@cast duration integer

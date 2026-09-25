@@ -5624,6 +5624,30 @@ timer::duration CalculateSpellCastTime(CBattleEntity* PEntity, CMagicState* PMag
         fastCast += PChar->PJobPoints->GetJobPointValue(JP_WIDENED_COMPASS_EFFECT);
     }
 
+    // Custom: per-skill casting time gear (Armor Upgrader pieces), stored positive for a reduction like CURE_CAST_TIME
+    switch (PSpell->getSkillType())
+    {
+        case xi::SkillType::EnfeeblingMagic:
+            fastCast += PEntity->getMod(xi::Mod::ENFEEBLING_CAST_TIME);
+            break;
+        case xi::SkillType::EnhancingMagic:
+            fastCast += PEntity->getMod(xi::Mod::ENHANCING_CAST_TIME);
+            break;
+        case xi::SkillType::HealingMagic:
+            fastCast += PEntity->getMod(xi::Mod::HEALING_CAST_TIME);
+            break;
+        case xi::SkillType::BlueMagic:
+            fastCast += PEntity->getMod(xi::Mod::BLUE_MAGIC_CAST_TIME);
+            break;
+        default:
+            break;
+    }
+
+    if (PSpell->getID() == SpellID::Utsusemi_Ichi || PSpell->getID() == SpellID::Utsusemi_Ni || PSpell->getID() == SpellID::Utsusemi_San)
+    {
+        fastCast += PEntity->getMod(xi::Mod::UTSUSEMI_CAST_TIME);
+    }
+
     fastCast                  = std::clamp<int16>(fastCast, -100, 80);
     int16 uncappedFastCast    = std::clamp<int16>(PEntity->getMod(xi::Mod::UFASTCAST), -100, 100);
     int16 inspirationFastCast = std::clamp<int16>(PEntity->getMod(xi::Mod::INSPIRATION_FAST_CAST), -100, 100);

@@ -1942,13 +1942,9 @@ void CCharEntity::OnAbility(CAbilityState& state, action_t& action)
 
         if (PAbility->getID() == ABILITY_REWARD)
         {
-            CItem* PItem = getEquip(SLOT_HEAD);
-            if (PItem && (PItem->getID() == 15157 || PItem->getID() == 15158 || PItem->getID() == 16104 || PItem->getID() == 16105))
-            {
-                // TODO: Transform this into an item Mod::REWARD_RECAST perhaps ?
-                // The Bison/Brave's Warbonnet & Khimaira/Stout Bonnet reduces recast time by 10 seconds.
-                action.recast -= 10s; // remove 10 seconds
-            }
+            // Custom: gear "Reward recast delay -N" is Mod::REWARD_RECAST in seconds (warbonnets, Ankusa/Totemic Trousers).
+            // Replaces the old hardcoded -10s for the four warbonnets, which carry the mod themselves.
+            action.recast = std::max<timer::duration>(0s, action.recast - std::chrono::seconds(getMod(xi::Mod::REWARD_RECAST)));
         }
         else if (PAbility->getID() == ABILITY_READY || PAbility->getID() == ABILITY_SIC)
         {

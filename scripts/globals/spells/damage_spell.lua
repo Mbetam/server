@@ -1161,6 +1161,13 @@ xi.spells.damage.useDamageSpell = function(caster, target, spell)
     finalDamage = math.floor(finalDamage * areaOfEffectResistance)
     finalDamage = math.floor(finalDamage * actionTypeMultiplier)
 
+    -- Custom (armor sets): BLM Wicce/Goetia set "Augments Conserve MP": damage x (1 + 2 x share of MP conserved), the
+    -- last multiplier (BG Wiki). magic_state.cpp stores the share, in permille, when Conserve MP and the set proc.
+    local conservedPermille = caster:getLocalVar('[ConserveMP]SavedPermille')
+    if conservedPermille > 0 then
+        finalDamage = math.floor(finalDamage * (1 + 2 * conservedPermille / 1000))
+    end
+
     -- Handle "Nuke Wall". It must be handled after all previous calculations, but before clamp.
     local nukeWallFactor = not absorb and calculateNukeWallFactor(target, spellElement, finalDamage) or 1
     finalDamage          = math.floor(finalDamage * nukeWallFactor)

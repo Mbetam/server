@@ -306,6 +306,14 @@ uint32 CheckForDamageMultiplier(CCharEntity* PChar, CItemWeapon* PWeapon, uint32
         }
     }
 
+    // Custom DRK Empyrean set (modules/custom/lua/armor_sets.lua): "Attack occ. varies with HP". The chance is the
+    // set's value in % per hit (like the other Empyrean set procs below), and the damage rises by that HP%
+    // (BG Wiki: 100% HP doubles it). The BST/DRG/PUP version is CheckForPetHPDamage (the pet's own hits).
+    if (xirand::GetRandomNumber(100) < PChar->getMod(xi::Mod::ATT_VARIES_WITH_HP))
+    {
+        return originalDamage + originalDamage * PChar->GetHPP() / 100;
+    }
+
     switch (attackType)
     {
         case PHYSICAL_ATTACK_TYPE::ZANSHIN:
@@ -342,6 +350,29 @@ uint32 CheckForDamageMultiplier(CCharEntity* PChar, CItemWeapon* PWeapon, uint32
             break;
     }
     return originalDamage;
+}
+
+/************************************************************************
+ *                                                                       *
+ *  Custom BST/DRG/PUP Empyrean sets: "Attack occ. varies with pet's HP" *
+ *  The master's ATT_VARIES_WITH_PET_HP is the % chance per pet melee    *
+ *  hit; the hit's damage rises by the pet's HP% (100% HP doubles it).   *
+ *                                                                       *
+ ************************************************************************/
+
+uint32 CheckForPetHPDamage(CBattleEntity* PPet, uint32 damage)
+{
+    if (PPet == nullptr || PPet->objtype != TYPE_PET || PPet->PMaster == nullptr || PPet->PMaster->objtype != TYPE_PC)
+    {
+        return damage;
+    }
+
+    if (xirand::GetRandomNumber(100) < PPet->PMaster->getMod(xi::Mod::ATT_VARIES_WITH_PET_HP))
+    {
+        return damage + damage * PPet->GetHPP() / 100;
+    }
+
+    return damage;
 }
 
 } // namespace attackutils

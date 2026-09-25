@@ -3335,6 +3335,10 @@ void CBattleEntity::OnRangedAttack(CRangeState& state, action_t& action)
         {
             auto attackType = state.IsRapidShot() ? PHYSICAL_ATTACK_TYPE::RAPID_SHOT : PHYSICAL_ATTACK_TYPE::RANGED;
             totalDamage     = attackutils::CheckForDamageMultiplier(PChar, PItem, totalDamage, attackType, slot, true);
+
+            // Custom: gear "True Shot"+N (Amini, Adhemar) = +N% ranged damage, as the mod is documented. The True Shot
+            // trait's distance sweet spot is not modelled in this engine.
+            totalDamage = totalDamage * (100 + getMod(xi::Mod::TRUE_SHOT_EFFECT)) / 100;
         }
         actionResult.recordDamage(attack_outcome_t{
             .atkType    = xi::AttackType::Physical,

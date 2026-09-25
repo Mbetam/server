@@ -201,7 +201,7 @@ local getTPBonus = function(caster, params)
     -- Efflux acts like a 1k tp Chain Affinity
     -- With Chain Affinity, this is effectively TP bonus +1000.
     if params.hasEfflux then
-        tp = 1000 -- TOOD: add Efflux bonus gear as mod
+        tp = 1000 + caster:getMod(xi.mod.EFFLUX_TP_BONUS) -- + gear (Hashishin Tayt +3)
     end
 
     if params.hasChainAffinity then

@@ -150,8 +150,11 @@ local function getBaseMPCost(player, ability)
     return baseMPCost
 end
 
+-- Returns the MP cost, and (custom, armor sets) the share of MP Blood Boon saved in permille when the Beckoner's /
+-- Caller's set "Augments Blood Boon" procs, else 0.
 local function getMPCost(baseMPCost, player, petskill)
-    local mpCost = baseMPCost
+    local mpCost        = baseMPCost
+    local boonPermille  = 0
 
     -- don't proc blood boon on Astral Flow
     if petskill:getAddType() ~= xi.addType.ADDTYPE_ASTRAL_FLOW then
@@ -159,10 +162,14 @@ local function getMPCost(baseMPCost, player, petskill)
         -- assuming it works like Conserve MP... https://www.bg-wiki.com/ffxi/Conserve_MP
         if math.randomInt(1, 100) <= bloodBoonRate then
             mpCost = mpCost * math.randomInt(8, 15) / 16
+
+            if baseMPCost > 0 and math.randomInt(1, 100) <= player:getMod(xi.mod.AUGMENT_BLOOD_BOON) then
+                boonPermille = math.floor((baseMPCost - mpCost) * 1000 / baseMPCost)
+            end
         end
     end
 
-    return mpCost
+    return mpCost, boonPermille
 end
 
 -- Bloodpact Delay is handled in charentity.cpp
@@ -199,6 +206,14 @@ xi.job_utils.summoner.canUseBloodPact = function(player, pet, target, petAbility
     return xi.msg.basic.UNABLE_TO_USE_JA2, 0 -- TODO: verify exact message in packet.
 end
 
+-- Beckoner's set (modules/custom/lua/armor_sets.lua): when Blood Boon and the set proc, Ward pacts last longer by the
+-- share of MP saved (BG Wiki). onUseBloodPact stores that share on the summoner for the current pact.
+xi.job_utils.summoner.wardDuration = function(summoner, duration)
+    local permille = summoner and summoner:isPC() and summoner:getLocalVar('[BloodBoon]SavedPermille') or 0
+
+    return math.floor(duration * (1 + permille / 1000))
+end
+
 xi.job_utils.summoner.onUseBloodPact = function(target, petskill, summoner, action)
     local bloodPactAbility = GetAbility(petskill:getID()) -- Player abilities and Avatar abilities are mapped 1:1
     if not bloodPactAbility then
@@ -206,10 +221,13 @@ xi.job_utils.summoner.onUseBloodPact = function(target, petskill, summoner, acti
     end
 
     local baseMPCost       = getBaseMPCost(summoner, bloodPactAbility)
-    local mpCost           = getMPCost(baseMPCost, summoner, bloodPactAbility)
+    local mpCost, boonPermille = getMPCost(baseMPCost, summoner, bloodPactAbility)
     local bloodPactRecast  = math.max(0, summoner:getLocalVar('bpRecastTime'))
 
     if target:getID() == action:getPrimaryTargetID() then
+        -- Custom (armor sets): read by modules/custom/lua/armor_sets.lua for this pact's damage
+        summoner:setLocalVar('[BloodBoon]SavedPermille', boonPermille)
+
         -- MP and Cooldown is only consumed if the ability goes off
         summoner:delMP(mpCost)
 

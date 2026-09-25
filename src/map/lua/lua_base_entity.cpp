@@ -15846,6 +15846,11 @@ uint32 CLuaBaseEntity::addDamageFromMultipliers(uint32 damage, PHYSICAL_ATTACK_T
         return attackutils::CheckForDamageMultiplier(PChar, PWeapon, damage, attackType, weaponSlot, allowProc);
     }
 
+    if (auto* PPet = dynamic_cast<CBattleEntity*>(m_PBaseEntity); PPet && PPet->objtype == TYPE_PET) // custom: pet HP sets
+    {
+        return attackutils::CheckForPetHPDamage(PPet, damage);
+    }
+
     return damage;
 }
 

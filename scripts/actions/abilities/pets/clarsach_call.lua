@@ -35,12 +35,12 @@ abilityObject.onPetAbility = function(target, pet, petskill, summoner, action)
 
     summoner:setMP(0)
 
-    pet:addStatusEffect(xi.effect.ATTACK_BOOST, { power = 25, duration = 180, origin = pet })
-    pet:addStatusEffect(xi.effect.DEFENSE_BOOST, { power = 25, duration = 180, origin = pet })
-    pet:addStatusEffect(xi.effect.MAGIC_ATK_BOOST, { power = 25, duration = 180, origin = pet })
-    pet:addStatusEffect(xi.effect.MAGIC_DEF_BOOST, { power = 25, duration = 180, origin = pet })
-    pet:addStatusEffect(xi.effect.EVASION_BOOST, { power = 50, duration = 180, origin = pet })
-    pet:addStatusEffect(xi.effect.MAGIC_EVASION_BOOST, { power = 50, duration = 180, origin = pet })
+    pet:addStatusEffect(xi.effect.ATTACK_BOOST, { power = 25, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
+    pet:addStatusEffect(xi.effect.DEFENSE_BOOST, { power = 25, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
+    pet:addStatusEffect(xi.effect.MAGIC_ATK_BOOST, { power = 25, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
+    pet:addStatusEffect(xi.effect.MAGIC_DEF_BOOST, { power = 25, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
+    pet:addStatusEffect(xi.effect.EVASION_BOOST, { power = 50, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
+    pet:addStatusEffect(xi.effect.MAGIC_EVASION_BOOST, { power = 50, duration = xi.job_utils.summoner.wardDuration(summoner, 180), origin = pet })
 
     return info.damage
 end

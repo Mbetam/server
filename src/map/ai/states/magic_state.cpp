@@ -481,6 +481,9 @@ auto CMagicState::HasCost() -> bool
 
 void CMagicState::SpendCost()
 {
+    // Custom (armor sets): BLM Wicce/Goetia set, read by damage_spell.lua. Reset every cast so it never carries over.
+    m_PEntity->SetLocalVar("[ConserveMP]SavedPermille", 0);
+
     if (m_PSpell->getSpellGroup() == SPELLGROUP_NINJUTSU)
     {
         if (!(m_flags & MAGICFLAGS_IGNORE_TOOLS))
@@ -506,7 +509,21 @@ void CMagicState::SpendCost()
 
         if (xirand::GetRandomNumber(100) < rate)
         {
-            cost = (int16)(cost * (xirand::GetRandomNumber(8.0f, 16.0f) / 16.0f));
+            const int16 fullCost = cost;
+            cost                 = (int16)(cost * (xirand::GetRandomNumber(8.0f, 16.0f) / 16.0f));
+
+            // Custom (armor sets): BLM Wicce/Goetia set "Augments Conserve MP": occasionally the spell's damage rises by
+            // twice the share of MP conserved. Remember that share (in permille) for damage_spell.lua.
+            if (fullCost > 0 && xirand::GetRandomNumber(100) < m_PEntity->getMod(xi::Mod::AUGMENT_CONSERVE_MP))
+            {
+                m_PEntity->SetLocalVar("[ConserveMP]SavedPermille", static_cast<uint32>((fullCost - cost) * 1000 / fullCost));
+            }
+        }
+
+        // Custom (armor sets): GEO Azimuth set "MP occasionally not depleted when using geomancy spells"
+        if (m_PSpell->getSpellGroup() == SPELLGROUP_GEOMANCY && xirand::GetRandomNumber(100) < m_PEntity->getMod(xi::Mod::GEOMANCY_MP_NO_DEPLETE))
+        {
+            cost = 0;
         }
 
         m_PEntity->addMP(-cost);

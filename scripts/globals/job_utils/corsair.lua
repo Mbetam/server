@@ -422,6 +422,7 @@ local rollEnhanceMods =
     [xi.jobAbility.COURSERS_ROLL  ] = xi.mod.ENHANCES_COURSERS_ROLL,
     [xi.jobAbility.BLITZERS_ROLL  ] = xi.mod.ENHANCES_BLITZERS_ROLL,
     [xi.jobAbility.TACTICIANS_ROLL] = xi.mod.ENHANCES_TACTICIANS_ROLL,
+    [xi.jobAbility.ALLIES_ROLL    ] = xi.mod.ENHANCES_ALLIES_ROLL, -- Navarch's / Chasseur's Gants
 }
 
 -----------------------------------

@@ -10,6 +10,19 @@ require('scripts/globals/spells/damage_spell')
 xi = xi or {}
 xi.mobskills = xi.mobskills or {}
 
+-- TP Bonus for a mob skill. Pets also get their master's "Pet: TP Bonus" gear mod (e.g. Beckoner's Spats +2), which
+-- is stored on the master as PET_TP_BONUS rather than in item_mods_pet.
+xi.mobskills.getTPBonus = function(mob)
+    local bonus  = mob:getMod(xi.mod.TP_BONUS)
+    local master = mob:isPet() and mob:getMaster()
+
+    if master then
+        bonus = bonus + master:getMod(xi.mod.PET_TP_BONUS)
+    end
+
+    return bonus
+end
+
 ---@enum xi.mobskills.drainType
 xi.mobskills.drainType =
 {
@@ -505,7 +518,7 @@ xi.mobskills.mobRangedMove = function(mob, target, skill, action, skillParams)
     ----------------------------------
     local fSTR       = 0
     local wscMods    = xi.combat.physical.calculateWSC(mob, skillParams.str_wSC, skillParams.dex_wSC, skillParams.vit_wSC, skillParams.agi_wSC, skillParams.int_wSC, skillParams.mnd_wSC, skillParams.chr_wSC)
-    local bonusTP    = mob:getMod(xi.mod.TP_BONUS) + params.fTPBonus
+    local bonusTP    = xi.mobskills.getTPBonus(mob) + params.fTPBonus
     local skillTP    = math.max(1000, skill:getTP())
     local tpValue    = math.min(skillTP + bonusTP, 3000)
     local basefTP    = xi.combat.physical.calculateTPfactor(tpValue, params.fTP)
@@ -728,7 +741,7 @@ xi.mobskills.mobPhysicalMove = function(mob, target, skill, action, skillParams)
     ----------------------------------
     local fSTR       = 0
     local wscMods    = xi.combat.physical.calculateWSC(mob, skillParams.str_wSC, skillParams.dex_wSC, skillParams.vit_wSC, skillParams.agi_wSC, skillParams.int_wSC, skillParams.mnd_wSC, skillParams.chr_wSC)
-    local bonusTP    = mob:getMod(xi.mod.TP_BONUS) + params.fTPBonus
+    local bonusTP    = xi.mobskills.getTPBonus(mob) + params.fTPBonus
     local skillTP    = math.max(1000, skill:getTP())
     local tpValue    = math.min(skillTP + bonusTP, 3000)
     local basefTP    = xi.combat.physical.calculateTPfactor(tpValue, params.fTP)
@@ -1035,7 +1048,7 @@ xi.mobskills.mobMagicalMove = function(mob, target, skill, action, skillParams)
 
     -- TODO: Do mobs benefit from Fencer job trait's TP_BONUS?
     -- Best way to test will likely be to find a mob that uses a magical skill with fTP scaling and has varying jobs to compare (WAR 45 min for Fencer, 80 BST, 85 BRD).
-    local bonusTP             = mob:getMod(xi.mod.TP_BONUS) + params.fTPBonus
+    local bonusTP             = xi.mobskills.getTPBonus(mob) + params.fTPBonus
     local tpValue             = math.min(skill:getTP() + bonusTP, 3000)
     local baseDamagefTPMult   = xi.combat.physical.calculateTPfactor(tpValue, params.fTP)
     local additiveBonusDamage = math.floor(xi.combat.physical.calculateTPfactor(tpValue, params.additiveDamage))
@@ -1312,7 +1325,7 @@ xi.mobskills.mobBreathMove = function(mob, target, skill, action, skillParams)
     -- Calulate TP and TP_BONUS if applicable.
     -- TODO: Do mobs benefit from Fencer job trait's TP_BONUS?
     -- Best way to test will likely be to find a mob that uses a magical skill with fTP scaling and has varying jobs to compare (WAR 45 min for Fencer, 80 BST, 85 BRD).
-    local bonusTP = mob:getMod(xi.mod.TP_BONUS)
+    local bonusTP = xi.mobskills.getTPBonus(mob)
     local tpValue = math.min(skill:getTP() + bonusTP, 3000)
 
     -- Flat MACC bonus/penalty based on fTP scale if defined.
@@ -1659,7 +1672,7 @@ xi.mobskills.mobHealMove = function(mob, target, skill, action, fedData)
 
     local healAmount = 0
     local wscMods    = xi.combat.physical.calculateWSC(mob, params.str_wSC, params.dex_wSC, params.vit_wSC, params.agi_wSC, params.int_wSC, params.mnd_wSC, params.chr_wSC)
-    local tpValue    = skill:getTP() + mob:getMod(xi.mod.TP_BONUS) + params.fTPBonus
+    local tpValue    = skill:getTP() + xi.mobskills.getTPBonus(mob) + params.fTPBonus
     local basefTP    = xi.combat.physical.calculateTPScaling(tpValue, params.fTP)
     -- TODO: Check/capture if weather/day has any influence on healing power (Avatars, etc.)
 

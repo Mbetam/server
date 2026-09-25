@@ -45,11 +45,11 @@ abilityObject.onPetAbility = function(target, pet, petskill, summoner, action)
     local duration = math.floor(90 * resistRate)
 
     -- Apply sleep and bio
-    if target:addStatusEffect(xi.effect.SLEEP_I, { power = 1, duration = duration, origin = pet, subPower = 2, tier = 4 }) then
+    if target:addStatusEffect(xi.effect.SLEEP_I, { power = 1, duration = xi.job_utils.summoner.wardDuration(summoner, duration), origin = pet, subPower = 2, tier = 4 }) then
         petskill:setMsg(xi.msg.basic.JA_GAIN_EFFECT)
         target:delStatusEffectSilent(xi.effect.DIA)
         target:delStatusEffectSilent(xi.effect.BIO)
-        target:addStatusEffect(xi.effect.BIO, { power = 2, duration = duration, origin = pet, tick = 3, subPower = 10, tier = 11 })
+        target:addStatusEffect(xi.effect.BIO, { power = 2, duration = xi.job_utils.summoner.wardDuration(summoner, duration), origin = pet, tick = 3, subPower = 10, tier = 11 })
 
     -- Miss
     else

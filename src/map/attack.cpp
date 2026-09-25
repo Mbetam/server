@@ -729,6 +729,10 @@ void CAttack::ProcessDamage()
     {
         m_damage = attackutils::CheckForDamageMultiplier(PChar, dynamic_cast<CItemWeapon*>(m_attacker->m_Weapons[slot]), m_damage, m_attackType, slot, m_isFirstSwing);
     }
+    else if (m_attacker->objtype == TYPE_PET && m_damage > 0) // custom: BST/DRG/PUP Empyrean sets
+    {
+        m_damage = attackutils::CheckForPetHPDamage(m_attacker, m_damage);
+    }
 
     // Apply Sneak Attack Augment Mod
     if (m_attacker->getMod(xi::Mod::AUGMENTS_SA) > 0 && IsSneakAttack() && m_attacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::SneakAttack))

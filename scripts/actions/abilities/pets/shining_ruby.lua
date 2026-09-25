@@ -15,7 +15,7 @@ abilityObject.onPetAbility = function(target, pet, petskill, summoner, action)
     xi.job_utils.summoner.onUseBloodPact(target, petskill, summoner, action)
 
     target:delStatusEffect(xi.effect.SHINING_RUBY)
-    target:addStatusEffect(xi.effect.SHINING_RUBY, { power = 1, duration = duration, origin = pet })
+    target:addStatusEffect(xi.effect.SHINING_RUBY, { power = 1, duration = xi.job_utils.summoner.wardDuration(summoner, duration), origin = pet })
 
     if target:getID() == action:getPrimaryTargetID() then
         petskill:setMsg(xi.msg.basic.SKILL_GAIN_EFFECT_2)

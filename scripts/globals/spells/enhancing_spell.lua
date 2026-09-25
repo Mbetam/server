@@ -466,6 +466,15 @@ xi.spells.enhancing.calculateEnhancingDuration = function(caster, target, spell,
         duration = duration * 3
     end
 
+    -- Custom (armor sets): RDM Estoqueur's +2 / Lethargy set "Augments Composure": while Composure is up, enhancing magic
+    -- cast on OTHERS lasts +10/20/35/50% (2-5 pieces, BG Wiki). Self-cast spells already get Composure's own x3.
+    if
+        caster:hasStatusEffect(xi.effect.COMPOSURE) and
+        caster:getID() ~= target:getID()
+    then
+        duration = duration * (1 + caster:getMod(xi.mod.AUGMENT_COMPOSURE) / 100)
+    end
+
     -- Perpetuance (Doesnt affect spikes and other Black magic enhancements)
     if
         caster:hasStatusEffect(xi.effect.PERPETUANCE) and
