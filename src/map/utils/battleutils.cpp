@@ -2676,6 +2676,13 @@ uint8 GetCritHitRate(CBattleEntity* PAttacker, CBattleEntity* PDefender, bool ig
             }
         }
 
+        // Custom: Charis / Maculele Casaque raise the crit rate of the swings Striking Flourish boosts (the effect's
+        // sub power, set from STRIKING_FLOURISH_CRIT when the flourish is used)
+        if (CStatusEffect* PStriking = PAttacker->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::StrikingFlourish))
+        {
+            critHitRate += PStriking->GetSubPower();
+        }
+
         critHitRate = std::clamp(critHitRate, 0, 100);
     }
     return (uint8)critHitRate;
@@ -4769,14 +4776,25 @@ auto HandleSevereDamage(CBattleEntity* PDefender, int32 damage, bool isPhysical)
 {
     damage = HandleSevereDamageEffect(PDefender, xi::StatusEffect::Migawari, damage, true);
 
-    // Custom: Earthen Armor (Titan's Blood Pact). BG Wiki: any single action that would take over 75% of max HP is
-    // reduced by the effect's power (45%). The effect stays up for its duration (it is not used up like Migawari).
-    if (CStatusEffect* PEarthenArmor = PDefender->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::EarthenArmor);
-        PEarthenArmor && damage > 0 && damage * 4 > PDefender->GetMaxHP() * 3)
+    // Custom: Earthen Armor (Titan's Blood Pact) and Sentinel's Scherzo (BRD; LSB had only a TODO). BG Wiki: a single
+    // action over 75% of max HP is reduced by Earthen Armor's power (45%) plus the Scherzo song's power (skill based,
+    // cap 45, +1 per Scherzo gear); the two add together with a 95% cap.
+    if (damage > 0 && damage * 4 > PDefender->GetMaxHP() * 3)
     {
-        damage = damage * (100 - std::clamp<int32>(PEarthenArmor->GetPower(), 0, 95)) / 100;
+        int32 reduction = 0;
+
+        if (CStatusEffect* PEarthenArmor = PDefender->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::EarthenArmor))
+        {
+            reduction += PEarthenArmor->GetPower();
+        }
+
+        if (CStatusEffect* PScherzo = PDefender->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Scherzo))
+        {
+            reduction += PScherzo->GetPower();
+        }
+
+        damage = damage * (100 - std::clamp<int32>(reduction, 0, 95)) / 100;
     }
-    // TODO: Sentinel's Scherzo effect
 
     if (isPhysical && PDefender->objtype == TYPE_PET && PDefender->getMod(xi::Mod::AUTO_SCHURZEN) != 0 && damage >= PDefender->health.hp &&
         ((CPetEntity*)PDefender)->PMaster->StatusEffectContainer->GetEffectsCount(xi::StatusEffect::EarthManeuver) >= 1)
@@ -4833,6 +4851,12 @@ auto HandleSevereDamageEffect(CBattleEntity* PDefender, xi::StatusEffect effect,
 
         // The Threshold for Damage is Stored in the Effect Power
         float threshold = (PDefender->StatusEffectContainer->GetStatusEffect(effect)->GetPower() / 100.00f);
+
+        // Custom: Iga / Hattori Ningi lower Migawari's threshold by N% of max HP (BG Wiki)
+        if (effect == xi::StatusEffect::Migawari)
+        {
+            threshold = std::max(0.0f, threshold - PDefender->getMod(xi::Mod::MIGAWARI_BONUS) / 100.0f);
+        }
 
         // We calcluate the Damage Threshold off of Max HP & the Threshold Percentage
         float damageThreshold = maxHp * threshold;

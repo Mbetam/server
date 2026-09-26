@@ -116,6 +116,12 @@ void CAttack::SetCritical(bool value)
             {
                 attBonus += (footworkEffect->GetSubPower() / 256.0f); // Mod is out of 256
             }
+
+            // Custom: "Kick Attacks attack +N" gear (Anchorite's Gaiters): a flat attack bonus on kicks
+            if (const int32 kickAttack = m_attacker->getMod(xi::Mod::KICK_ATTACK_ATTACK); kickAttack != 0)
+            {
+                attBonus += static_cast<float>(kickAttack) / std::max<float>(1.0f, static_cast<float>(m_attacker->ATT(SLOT_MAIN)));
+            }
         }
 
         xi::SkillType skilltype  = xi::SkillType::None;
@@ -483,7 +489,8 @@ bool CAttack::CheckCounter()
             if (xirand::GetRandomNumber(100) < battleutils::GetHitRate(m_victim, m_attacker))
             {
                 m_isCountered = true;
-                m_isCritical  = (xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(m_victim, m_attacker, false));
+                // Custom: "Counter critical hit rate" gear (Hesychast's Cyclas / Gaiters), Mod::COUNTER_CRIT
+                m_isCritical = (xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(m_victim, m_attacker, false) + m_victim->getMod(xi::Mod::COUNTER_CRIT));
             }
             else
             {
@@ -611,6 +618,33 @@ void CAttack::ProcessDamage()
         m_isTA = true;
     }
 
+    // Custom: Dancer flourishes (BG Wiki). Climactic Flourish: the forced crit on the first swing gets +50% CHR base damage
+    // (and gear's % bonus below), one charge per round. Striking / Ternary: the first swing of the forced multi-attack
+    // gets +100% CHR base damage.
+    int32 climacticBonusPercent = 0;
+
+    if (m_attacker->objtype == TYPE_PC && m_isFirstSwing)
+    {
+        if (CStatusEffect* PClimactic = m_attacker->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::ClimacticFlourish); PClimactic && m_isCritical)
+        {
+            m_bonusBasePhysicalDamage += static_cast<float>(m_attacker->CHR()) * 0.5f;
+            climacticBonusPercent = PClimactic->GetSubPower();
+
+            if (PClimactic->GetPower() <= 1)
+            {
+                m_attacker->StatusEffectContainer->DelStatusEffect(xi::StatusEffect::ClimacticFlourish);
+            }
+            else
+            {
+                PClimactic->SetPower(PClimactic->GetPower() - 1);
+            }
+        }
+        else if (m_attackRound->UsedForcedFlourish())
+        {
+            m_bonusBasePhysicalDamage += static_cast<float>(m_attacker->CHR());
+        }
+    }
+
     // Consume mana
     if (m_attacker->objtype == TYPE_PC)
     {
@@ -689,6 +723,12 @@ void CAttack::ProcessDamage()
         // GetFSTR uses slot to determine fSTR vs fSTR2
         m_damage = std::max(m_attacker->GetRangedWeaponDmg() + battleutils::GetFSTR(m_attacker, m_victim, slot), 0);
         m_damage = std::floor<uint32>(m_damage * m_damageRatio);
+    }
+
+    // Custom: Charis / Maculele Tiara "forced hits receive damage +N%" on Climactic Flourish's crit
+    if (climacticBonusPercent > 0)
+    {
+        m_damage = m_damage * (100 + climacticBonusPercent) / 100;
     }
 
     // Apply Scarlet Delirium damage bonus

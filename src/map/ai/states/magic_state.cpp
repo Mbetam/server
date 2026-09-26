@@ -520,6 +520,21 @@ void CMagicState::SpendCost()
             }
         }
 
+        // Custom (Arbatel Pants etc.): "Penury / Parsimony +N" forces an extra Conserve MP proc on the spell the stratagem
+        // applies to, treated as N = 8 + gear (BG Wiki): up to (8 + N) / 16 of the (already halved) cost is saved.
+        // The exact retail roll is not published; this is an estimate.
+        if (const int16 conserveN = m_PEntity->getMod(xi::Mod::GRIMOIRE_CONSERVE_MP); conserveN > 0 && cost > 0)
+        {
+            const bool penury    = m_PSpell->getSpellGroup() == SPELLGROUP_WHITE && m_PEntity->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Penury);
+            const bool parsimony = m_PSpell->getSpellGroup() == SPELLGROUP_BLACK && m_PEntity->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Parsimony);
+
+            if (penury || parsimony)
+            {
+                const int16 saved = static_cast<int16>(std::min(15, xirand::GetRandomNumber(1, 8 + conserveN + 1)));
+                cost              = static_cast<int16>(cost * (16 - saved) / 16);
+            }
+        }
+
         // Custom (armor sets): GEO Azimuth set "MP occasionally not depleted when using geomancy spells"
         if (m_PSpell->getSpellGroup() == SPELLGROUP_GEOMANCY && xirand::GetRandomNumber(100) < m_PEntity->getMod(xi::Mod::GEOMANCY_MP_NO_DEPLETE))
         {

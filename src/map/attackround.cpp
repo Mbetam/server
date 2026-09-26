@@ -149,6 +149,11 @@ void CAttackRound::SetSATA(bool value)
  *  Returns the SATA flag.                                                *
  *                                                                        *
  ************************************************************************/
+bool CAttackRound::UsedForcedFlourish() const
+{
+    return m_forcedFlourish;
+}
+
 bool CAttackRound::GetSATAOccured() const
 {
     return m_sataOccured;
@@ -318,8 +323,19 @@ void CAttackRound::CreateAttacks(CItemWeapon* PWeapon, PHYSICAL_ATTACK_DIRECTION
     // Mikage > Quad > Triple > Double > Mythic Aftermath > Occasionally Attacks > Hasso + Zanshin
     // Daken is handled separately in CreateDakenAttack() and Zanshin in src/map/entities/battle_entity.cpp#L1768
 
+    // Custom: Striking / Ternary Flourish (DNC; the effects were never read). BG Wiki: force a Double / Triple Attack on
+    // the main hand of the next attack round. The effect is removed after the round (battle_entity.cpp).
+    const bool ternaryFlourish  = isPC && isMainHand && !m_forcedFlourish && m_attacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::TernaryFlourish);
+    const bool strikingFlourish = isPC && isMainHand && !m_forcedFlourish && !ternaryFlourish && m_attacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::StrikingFlourish);
+
+    if (ternaryFlourish || strikingFlourish)
+    {
+        AddAttackSwing(ternaryFlourish ? PHYSICAL_ATTACK_TYPE::TRIPLE : PHYSICAL_ATTACK_TYPE::DOUBLE, direction, ternaryFlourish ? 3 : 2);
+        multiHitOccurred = true;
+        m_forcedFlourish = true;
+    }
     // Checking Mikage Effect - Hits Vary With Num of Utsusemi Shadows for Main Weapon
-    if (m_attacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Mikage) && m_attacker->m_Weapons[SLOT_MAIN] && m_attacker->m_Weapons[SLOT_MAIN]->getID() == PWeapon->getID())
+    else if (m_attacker->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Mikage) && m_attacker->m_Weapons[SLOT_MAIN] && m_attacker->m_Weapons[SLOT_MAIN]->getID() == PWeapon->getID())
     {
         auto shadows = (uint8)m_attacker->getMod(xi::Mod::UTSUSEMI);
         AddAttackSwing(PHYSICAL_ATTACK_TYPE::NORMAL, direction, shadows);

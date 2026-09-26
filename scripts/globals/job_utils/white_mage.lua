@@ -128,6 +128,19 @@ xi.job_utils.white_mage.useDevotion = function(player, target, ability, action)
     return healMP
 end
 
+-- Custom (2026-09-26): Divine Caress's ward (LSB only gave the White Mage the buff). BG Wiki: a status removal spell
+-- (-na, Cursna; not Erase / Esuna / Sacrifice) cast while Divine Caress is up leaves the target an effect that resists
+-- the next enfeeble of the removed kind; Orison / Ebers Mitts add more resists (Mod::DIVINE_CARESS_BONUS). The ward is
+-- checked in xi.data.statusEffect.isEffectNullified. Its duration is not published: 3 minutes here.
+xi.job_utils.white_mage.applyDivineCaress = function(caster, target, removedEffect)
+    if not caster:hasStatusEffect(xi.effect.DIVINE_CARESS_I) or not removedEffect or removedEffect == 0 then
+        return
+    end
+
+    target:delStatusEffectSilent(xi.effect.DIVINE_CARESS_II)
+    target:addStatusEffect(xi.effect.DIVINE_CARESS_II, { power = 1 + caster:getMod(xi.mod.DIVINE_CARESS_BONUS), duration = 180, origin = caster, subPower = removedEffect })
+end
+
 xi.job_utils.white_mage.useDivineCaress = function(player, target, ability)
     player:addStatusEffect(xi.effect.DIVINE_CARESS_I, { power = 3, duration = 60, origin = player })
 

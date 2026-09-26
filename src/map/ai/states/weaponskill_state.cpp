@@ -104,7 +104,8 @@ void CWeaponSkillState::SpendCost()
     else if (m_PEntity->StatusEffectContainer->HasStatusEffect(xi::StatusEffect::Sekkanoki))
     {
         // Sekkanoki counts as a 1000 TP weaponskill.
-        tp = 1000;
+        // Custom: Unkai / Kasuga Kote add N% of the remaining TP to the weapon skill's TP (BG Wiki); still costs 1000.
+        tp = 1000 + std::max(0, m_PEntity->health.tp - 1000) * m_PEntity->getMod(xi::Mod::SEKKANOKI_TP) / 100;
         m_PEntity->addTP(-1000);
         m_PEntity->StatusEffectContainer->DelStatusEffect(xi::StatusEffect::Sekkanoki);
     }

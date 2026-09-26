@@ -59,6 +59,11 @@ spellObject.onSpellCast = function(caster, target, spell)
         spell:setMsg(xi.msg.basic.MAGIC_REMOVE_EFFECT)
     end
 
+    -- Custom: Divine Caress ward
+    if final and final ~= xi.effect.DOOM then
+        xi.job_utils.white_mage.applyDivineCaress(caster, target, final)
+    end
+
     return final
 end
 

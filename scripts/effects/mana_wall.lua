@@ -5,7 +5,7 @@
 local effectObject = {}
 
 effectObject.onEffectGain = function(target, effect)
-    effect:addMod(xi.mod.DMG, -5000)
+    -- Custom: the damage cut and MP payment are in CBattleEntity::takeDamage (battle_entity.cpp), as on retail
 end
 
 effectObject.onEffectTick = function(target, effect)

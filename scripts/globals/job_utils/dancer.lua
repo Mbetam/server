@@ -307,7 +307,10 @@ xi.job_utils.dancer.useStepAbility = function(player, target, ability, action, s
         end
 
         if maxSteps >= origDebuffStacks then
-            target:addStatusEffect(stepEffect, { power = debuffStacks, duration = debuffDuration, origin = player })
+            -- Custom: Charis / Maculele Toe Shoes add N% crit rate to every Bewildered Daze level (Feather Step)
+            local subPower = stepEffect == xi.effect.BEWILDERED_DAZE_1 and player:getMod(xi.mod.FEATHER_STEP_CRIT) or 0
+
+            target:addStatusEffect(stepEffect, { power = debuffStacks, duration = debuffDuration, origin = player, subPower = subPower })
         else
             ability:setMsg(xi.msg.basic.JA_NO_EFFECT)
         end
@@ -525,6 +528,54 @@ xi.job_utils.dancer.useWildFlourishAbility = function(player, target, ability, a
     setFinishingMoves(player, numMoves - 2)
 
     return 0
+end
+
+-- Custom (2026-09-26): Climactic / Striking / Ternary Flourish. The old scripts looked for the retired separate
+-- FINISHING_MOVE_2..5 effects (so Striking and Ternary could never be used) and nothing read their effects. Now they
+-- spend moves from FINISHING_MOVE_1's count like the other flourishes; the engine forces the crit / multi-attack
+-- (battle_entity.cpp, attackround.cpp, attack.cpp). BG Wiki:
+--   Climactic: uses all moves, forces a crit on the first swing of the next N rounds (N = moves; gear adds 1 and a
+--              damage % in sub power).
+--   Striking:  2 moves, forces a Double Attack next round (gear crit rate in sub power).
+--   Ternary:   3 moves, forces a Triple Attack next round.
+local function flourishMoves(player)
+    local effect = player:getStatusEffect(xi.effect.FINISHING_MOVE_1)
+
+    return effect and effect:getPower() or 0
+end
+
+local function clearOtherFlourishes(player)
+    player:delStatusEffectSilent(xi.effect.CLIMACTIC_FLOURISH)
+    player:delStatusEffectSilent(xi.effect.STRIKING_FLOURISH)
+    player:delStatusEffectSilent(xi.effect.TERNARY_FLOURISH)
+end
+
+xi.job_utils.dancer.useClimacticFlourishAbility = function(player, target, ability)
+    local moves  = flourishMoves(player)
+    local bonus  = player:getMod(xi.mod.CLIMACTIC_FLOURISH_BONUS)
+    local rounds = moves + (bonus > 0 and 1 or 0)
+
+    clearOtherFlourishes(player)
+    player:addStatusEffect(xi.effect.CLIMACTIC_FLOURISH, { power = rounds, duration = 60, origin = player, subPower = bonus })
+    setFinishingMoves(player, 0)
+
+    return xi.effect.CLIMACTIC_FLOURISH
+end
+
+xi.job_utils.dancer.useStrikingFlourishAbility = function(player, target, ability)
+    clearOtherFlourishes(player)
+    player:addStatusEffect(xi.effect.STRIKING_FLOURISH, { power = 1, duration = 60, origin = player, subPower = player:getMod(xi.mod.STRIKING_FLOURISH_CRIT) })
+    setFinishingMoves(player, flourishMoves(player) - 2)
+
+    return xi.effect.STRIKING_FLOURISH
+end
+
+xi.job_utils.dancer.useTernaryFlourishAbility = function(player, target, ability)
+    clearOtherFlourishes(player)
+    player:addStatusEffect(xi.effect.TERNARY_FLOURISH, { power = 1, duration = 60, origin = player })
+    setFinishingMoves(player, flourishMoves(player) - 3)
+
+    return xi.effect.TERNARY_FLOURISH
 end
 
 xi.job_utils.dancer.useContradanceAbility = function(player, target, ability)

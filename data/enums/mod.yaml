@@ -1282,6 +1282,25 @@ values:
   healing_cast_time:       1905 # % healing magic casting time reduction, stored positive (stacks with CURE_CAST_TIME)
   blue_magic_cast_time:    1906 # % blue magic casting time reduction, stored positive
   utsusemi_cast_time:      1907 # % Utsusemi casting time reduction, stored positive
+  climactic_flourish_bonus: 1908 # % damage on Climactic Flourish's forced crits; > 0 also forces one more crit
+  striking_flourish_crit:   1909 # % crit rate on the swings boosted by Striking Flourish
+  feather_step_crit:        1910 # extra % crit rate added to every Bewildered Daze level this player's Feather Step applies
+  divine_caress_bonus:      1911 # extra enfeebles resisted by the Divine Caress ward
+  double_shot_dmg:          1912 # % damage on the second shot of a Double Shot
+  mana_wall_bonus:          1913 # % added to Mana Wall's damage reduction (base 50, cap 95)
+  migawari_bonus:           1914 # % lowered Migawari threshold
+  sekkanoki_tp:             1915 # % of remaining TP added to the Sekkanoki weapon skill's 1000 TP
+  spirit_link_hp:           1916 # flat HP the wyvern regains from Spirit Link
+  counter_attack:           1917 # attack bonus on counter attacks
+  counter_crit:             1918 # % crit rate on counter attacks
+  kick_attack_attack:       1919 # attack bonus on Kick Attacks
+  banish_undead:            1920 # % Banish damage against undead
+  gain_effect:              1921 # % Gain-stat spell potency
+  magic_burst_acc:          1922 # magic accuracy when magic bursting
+  avatar_element_res:       1923 # magic evasion against the summoned avatar's element
+  klimaform_damage:         1924 # % magic damage with matching weather while Klimaform is up
+  perpetuance_effect:       1925 # hundredths added to Perpetuance's x2.00 duration (65 = x2.65)
+  grimoire_conserve_mp:     1926 # Penury / Parsimony force a Conserve MP proc with N = 8 + this
 
   # The spares take care of finding the next ID to use so long as we don't forget to list IDs that have been freed up by refactoring.
   # 570 through 825 used by WS DMG mods these are not spares.

@@ -401,6 +401,9 @@ xi.job_utils.dragoon.useSpiritLink = function(player, target, ability, action)
         healPet = healPet + 15
     end
 
+    -- Custom: Vishap Armet "Spirit Link +N": the wyvern recovers N more HP (BG Wiki)
+    healPet = healPet + player:getMod(xi.mod.SPIRIT_LINK_HP)
+
     -- Spirit Link is self target but reports effect on Wyvern.
     action:ID(player:getID(), wyvern:getID())
     return wyvern:addHP(healPet) -- add the hp to wyvern

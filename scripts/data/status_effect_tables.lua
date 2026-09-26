@@ -275,6 +275,18 @@ xi.data.statusEffect.isTargetResistant = function(actor, target, effectId)
 end
 
 xi.data.statusEffect.isEffectNullified = function(target, effectId, effectTier)
+    -- Custom: Divine Caress ward (job_utils/white_mage.lua) resists the enfeeble it was granted against, N times
+    local caress = target:getStatusEffect(xi.effect.DIVINE_CARESS_II)
+    if caress and caress:getSubPower() == effectId then
+        if caress:getPower() <= 1 then
+            target:delStatusEffect(xi.effect.DIVINE_CARESS_II)
+        else
+            caress:setPower(caress:getPower() - 1)
+        end
+
+        return true
+    end
+
     -- Check effects that always block current effect from being applied.
     local nullificatingEffect = xi.data.statusEffect.getNullificatingEffect(effectId)
     if

@@ -13,6 +13,7 @@ spellObject.onSpellCast = function(caster, target, spell)
     if target:getStatusEffect(xi.effect.PARALYSIS) ~= nil then
         target:delStatusEffect(xi.effect.PARALYSIS)
         spell:setMsg(xi.msg.basic.MAGIC_REMOVE_EFFECT)
+        xi.job_utils.white_mage.applyDivineCaress(caster, target, xi.effect.PARALYSIS)
     else
         spell:setMsg(xi.msg.basic.MAGIC_NO_EFFECT)
     end

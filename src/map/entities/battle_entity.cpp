@@ -1098,6 +1098,17 @@ auto CBattleEntity::takeDamage(int32 amount, CBattleEntity* attacker /* = nullpt
         }
     }
 
+    // Custom: Mana Wall (BLM; LSB only gave a flat -50% damage taken). BG Wiki: damage is cut by the Mana Wall % (50,
+    // + Goetia / Wicce Sabots, cap 95) and paid with MP; only the part MP cannot cover reaches HP.
+    if (amount > 0 && StatusEffectContainer->HasStatusEffect(xi::StatusEffect::ManaWall))
+    {
+        const int32 reduced = amount * (100 - std::clamp<int32>(50 + getMod(xi::Mod::MANA_WALL_BONUS), 0, 95)) / 100;
+        const int32 fromMP  = std::min<int32>(reduced, health.mp);
+
+        addMP(-fromMP);
+        amount = reduced - fromMP;
+    }
+
     return addHP(-amount);
 }
 
@@ -3165,6 +3176,7 @@ void CBattleEntity::OnRangedAttack(CRangeState& state, action_t& action)
 
     uint8 shadowsTaken = 0;
     uint8 hitCount     = 1; // 1 hit by default
+    bool  doubleShotProc = false; // custom: Double Shot damage gear
     uint8 realHits     = 0; // Used to store the real number of hits for tp multiplier
     auto  ammoConsumed = 0;
     bool  hitOccured   = false; // Track if there was a successful hit
@@ -3199,7 +3211,8 @@ void CBattleEntity::OnRangedAttack(CRangeState& state, action_t& action)
     }
     else if ((isChar || isTrust) && StatusEffectContainer->HasStatusEffect(xi::StatusEffect::DoubleShot) && xirand::GetRandomNumber(100) < getMod(xi::Mod::DOUBLE_SHOT_RATE))
     {
-        hitCount = 2;
+        hitCount       = 2;
+        doubleShotProc = true;
     }
 
     // Loop for barrage hits. Once there is a miss the loop ends
@@ -3229,6 +3242,12 @@ void CBattleEntity::OnRangedAttack(CRangeState& state, action_t& action)
                 hitOccured = true;
                 realHits++;
                 damage = static_cast<int32>((GetRangedWeaponDmg() + battleutils::GetFSTR(this, PTarget, slot)) * pdif);
+
+                // Custom: "Double Shot damage +N%" gear (Arcadian Jerkin) on the extra shot of a Double Shot
+                if (doubleShotProc && i >= 2)
+                {
+                    damage = damage * (100 + getMod(xi::Mod::DOUBLE_SHOT_DMG)) / 100;
+                }
 
                 // Check for char skill ups
                 if (isChar)
@@ -3726,6 +3745,12 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                             attBonus += std::max((targetDex / 100.f) * csJpModifier, 0.f);
                         }
 
+                        // Custom: "Counter attack +N" gear (Anchorite's Hose, Hesychast's Gaiters): flat attack on counters
+                        if (const int32 counterAttack = PTarget->getMod(xi::Mod::COUNTER_ATTACK); counterAttack != 0)
+                        {
+                            attBonus += static_cast<float>(counterAttack) / std::max<float>(1.0f, static_cast<float>(PTarget->ATT(SLOT_MAIN)));
+                        }
+
                         float DamageRatio     = battleutils::GetDamageRatio(PTarget, this, attack.IsCritical(), attBonus, skilltype, SLOT_MAIN, false);
                         int32 extraCounterDMG = PTarget->getMod(xi::Mod::COUNTER_DAMAGE);
                         int32 damage          = std::max(PTarget->GetMainWeaponDmg() + naturalh2hDMG + extraCounterDMG + battleutils::GetFSTR(PTarget, this, SLOT_MAIN), 0);
@@ -3752,7 +3777,9 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
             {
                 SLOTTYPE weaponSlot = static_cast<SLOTTYPE>(attack.GetWeaponSlot());
                 // Set this attack's critical flag.
-                attack.SetCritical(xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(this, PTarget, !attack.IsFirstSwing(), weaponSlot));
+                // Custom: Climactic Flourish (DNC) forces the first swing of the round to crit (BG Wiki)
+                const bool climactic = objtype == TYPE_PC && attack.IsFirstSwing() && StatusEffectContainer->HasStatusEffect(xi::StatusEffect::ClimacticFlourish);
+                attack.SetCritical(climactic || xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(this, PTarget, !attack.IsFirstSwing(), weaponSlot));
 
                 this->PAI->EventHandler.triggerListener("MELEE_SWING_HIT", this, PTarget, &attack);
 
@@ -3921,6 +3948,13 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
         {
             break;
         }
+    }
+
+    // Custom: Striking / Ternary Flourish last for one attack round
+    if (attackRound.UsedForcedFlourish())
+    {
+        StatusEffectContainer->DelStatusEffect(xi::StatusEffect::StrikingFlourish);
+        StatusEffectContainer->DelStatusEffect(xi::StatusEffect::TernaryFlourish);
     }
 
     PAI->EventHandler.triggerListener("ATTACK", this, PTarget, &action);

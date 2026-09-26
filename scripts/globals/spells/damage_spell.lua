@@ -31,6 +31,19 @@ local column =
     MULTIPLIER_500    = 14,
 }
 
+-- Custom: the Banish family, for Piety Mitts' "Potency of Banish vs. undead"
+local banishSpells =
+{
+    [xi.magic.spell.BANISH       ] = true,
+    [xi.magic.spell.BANISH_II    ] = true,
+    [xi.magic.spell.BANISH_III   ] = true,
+    [xi.magic.spell.BANISH_IV    ] = true,
+    [xi.magic.spell.BANISHGA     ] = true,
+    [xi.magic.spell.BANISHGA_II  ] = true,
+    [xi.magic.spell.BANISHGA_III ] = true,
+    [xi.magic.spell.BANISHGA_IV  ] = true,
+}
+
 xi.spells.damage.pTable =
 {
 -- Single target black magic spells:
@@ -1104,6 +1117,11 @@ xi.spells.damage.useDamageSpell = function(caster, target, spell)
         bonusMacc      = xi.spells.damage.pTable[spellId][column.BONUS_MACC] + cardinalChantBonus(caster, target, xi.direction.SOUTH, spellId, skillType),
     }
 
+    -- Custom: "Magic burst accuracy +N" gear (Pedagogy Mortarboard)
+    if canMBurst then
+        maccParams.bonusMacc = maccParams.bonusMacc + caster:getMod(xi.mod.MAGIC_BURST_ACC)
+    end
+
     -- Calculate base damage and the rest of damage multipliers.
     local spellDamage                 = xi.spells.damage.calculateBaseDamage(caster, target, spellId, spellGroup, skillType, statUsed)
     local multipleTargetReduction     = xi.spells.damage.calculateMTDR(caster, spell)
@@ -1160,6 +1178,23 @@ xi.spells.damage.useDamageSpell = function(caster, target, spell)
     finalDamage = math.floor(finalDamage * helixMeritMultiplier)
     finalDamage = math.floor(finalDamage * areaOfEffectResistance)
     finalDamage = math.floor(finalDamage * actionTypeMultiplier)
+
+    -- Custom: Savant's / Arbatel Loafers "Klimaform +N": N% more magic damage with weather matching the spell while
+    -- Klimaform is up, in its own term (BG Wiki)
+    if
+        caster:hasStatusEffect(xi.effect.KLIMAFORM) and
+        caster:getMod(xi.mod.KLIMAFORM_DAMAGE) > 0 and
+        spellElement > xi.element.NONE and
+        (caster:getWeather() == xi.data.element.getAssociatedSingleWeather(spellElement) or
+        caster:getWeather() == xi.data.element.getAssociatedDoubleWeather(spellElement))
+    then
+        finalDamage = math.floor(finalDamage * (1 + caster:getMod(xi.mod.KLIMAFORM_DAMAGE) / 100))
+    end
+
+    -- Custom: Piety Mitts "Potency of Banish vs. undead +N" (N% more Banish damage to undead)
+    if banishSpells[spellId] and target:isUndead() then
+        finalDamage = math.floor(finalDamage * (1 + caster:getMod(xi.mod.BANISH_UNDEAD) / 100))
+    end
 
     -- Custom (armor sets): BLM Wicce/Goetia set "Augments Conserve MP": damage x (1 + 2 x share of MP conserved), the
     -- last multiplier (BG Wiki). magic_state.cpp stores the share, in permille, when Conserve MP and the set proc.

@@ -12,6 +12,7 @@ end
 spellObject.onSpellCast = function(caster, target, spell)
     if target:delStatusEffect(xi.effect.POISON) then
         spell:setMsg(xi.msg.basic.MAGIC_REMOVE_EFFECT)
+        xi.job_utils.white_mage.applyDivineCaress(caster, target, xi.effect.POISON)
     else
         spell:setMsg(xi.msg.basic.MAGIC_NO_EFFECT)
     end

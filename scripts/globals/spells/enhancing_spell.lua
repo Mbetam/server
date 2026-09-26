@@ -230,6 +230,11 @@ xi.spells.enhancing.calculateEnhancingBasePower = function(caster, target, spell
     then
         basePower = basePower + utils.clamp(math.floor((skillLevel - 300) / 10), 0, 20)
 
+        -- Custom: Vitiation Gloves "Gain magic effect +N": N% more potency on Gain-stat spells
+        if spellId >= xi.magic.spell.GAIN_STR and spellId <= xi.magic.spell.GAIN_CHR then
+            basePower = math.floor(basePower * (1 + caster:getMod(xi.mod.GAIN_EFFECT) / 100))
+        end
+
     -- Embrava
     elseif spellEffect == xi.effect.EMBRAVA then
         basePower = math.min(skillLevel, 500)
@@ -485,7 +490,7 @@ xi.spells.enhancing.calculateEnhancingDuration = function(caster, target, spell,
         caster:hasStatusEffect(xi.effect.PERPETUANCE) and
         spellGroup == xi.magic.spellGroup.WHITE
     then
-        duration  = duration * 2
+        duration  = duration * (2 + caster:getMod(xi.mod.PERPETUANCE_EFFECT) / 100) -- + Savant's / Arbatel Bracers (x2.25 .. x2.65)
     end
 
     ------------------------------

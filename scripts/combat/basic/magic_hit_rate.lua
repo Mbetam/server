@@ -435,12 +435,45 @@ local resistRankMultiplier =
     [11] = 2.35,  -- Impossible to test since 'Magic Hit Rate' is floored to 5% at this point.
 }
 
+-- Custom: element of each summonable avatar / spirit (for "Avatar Ele. Res." gear)
+local avatarElement =
+{
+    [xi.petId.FIRE_SPIRIT   or -10] = xi.element.FIRE,
+    [xi.petId.ICE_SPIRIT    or -11] = xi.element.ICE,
+    [xi.petId.AIR_SPIRIT    or -12] = xi.element.WIND,
+    [xi.petId.EARTH_SPIRIT  or -13] = xi.element.EARTH,
+    [xi.petId.THUNDER_SPIRIT or -14] = xi.element.THUNDER,
+    [xi.petId.WATER_SPIRIT  or -15] = xi.element.WATER,
+    [xi.petId.LIGHT_SPIRIT  or -16] = xi.element.LIGHT,
+    [xi.petId.DARK_SPIRIT   or -17] = xi.element.DARK,
+    [xi.petId.CARBUNCLE     or -18] = xi.element.LIGHT,
+    [xi.petId.FENRIR        or -19] = xi.element.DARK,
+    [xi.petId.IFRIT         or -20] = xi.element.FIRE,
+    [xi.petId.TITAN         or -21] = xi.element.EARTH,
+    [xi.petId.LEVIATHAN     or -22] = xi.element.WATER,
+    [xi.petId.GARUDA        or -23] = xi.element.WIND,
+    [xi.petId.SHIVA         or -24] = xi.element.ICE,
+    [xi.petId.RAMUH         or -25] = xi.element.THUNDER,
+    [xi.petId.DIABOLOS      or -26] = xi.element.DARK,
+    [xi.petId.CAIT_SITH     or -27] = xi.element.LIGHT,
+    [xi.petId.SIREN         or -28] = xi.element.WIND,
+}
+
 local function calculateTargetMagicEvasion(actor, target, params)
     local magicEva = target:getMod(xi.mod.MEVA) -- Base MACC.
 
     -- Elemental magic evasion. All actions and effects have an associated element.
     if params.magicalElement ~= xi.element.NONE then
         magicEva = magicEva + target:getMod(xi.data.element.getElementalMEVAModifier(params.magicalElement))
+
+        -- Custom: Convoker's Doublet "Avatar Ele. Res.": magic evasion against the element of the avatar you have out
+        if
+            target:isPC() and
+            target:getMod(xi.mod.AVATAR_ELEMENT_RES) ~= 0 and
+            avatarElement[target:getPetID() or -1] == params.magicalElement
+        then
+            magicEva = magicEva + target:getMod(xi.mod.AVATAR_ELEMENT_RES)
+        end
     end
 
     -- Magic evasion against specific status effects.

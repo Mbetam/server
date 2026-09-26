@@ -9,25 +9,13 @@
 ---@type TAbility
 local abilityObject = {}
 
+-- Custom (2026-09-26): rewritten on the FINISHING_MOVE_1 count; see xi.job_utils.dancer.useClimacticFlourishAbility
 abilityObject.onAbilityCheck = function(player, target, ability)
-    if
-        player:hasStatusEffect(xi.effect.FINISHING_MOVE_1) or
-        player:hasStatusEffect(xi.effect.FINISHING_MOVE_2) or
-        player:hasStatusEffect(xi.effect.FINISHING_MOVE_3) or
-        player:hasStatusEffect(xi.effect.FINISHING_MOVE_4) or
-        player:hasStatusEffect(xi.effect.FINISHING_MOVE_5)
-    then
-        return 0, 0
-    end
-
-    return xi.msg.basic.NO_FINISHINGMOVES, 0
+    return xi.job_utils.dancer.checkFlourishAbility(player, target, ability, false, 1)
 end
 
 abilityObject.onUseAbility = function(player, target, ability)
-    for move = xi.effect.FINISHING_MOVE_1, xi.effect.FINISHING_MOVE_5 do
-        player:delStatusEffect(move)
-        player:addStatusEffect(xi.effect.CLIMACTIC_FLOURISH, { power = 3, duration = 60, origin = player }) -- TODO: player:getMerit(xi.merit.CLIMACTIC_FLOURISH_EFFECT) This was here and maybe it refered to FLOURISH_III job points?
-    end
+    return xi.job_utils.dancer.useClimacticFlourishAbility(player, target, ability)
 end
 
 return abilityObject

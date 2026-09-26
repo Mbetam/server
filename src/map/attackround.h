@@ -60,6 +60,7 @@ public:
     CAttack&       GetCurrentAttack();          // Returns the current attack.
     void           SetSATA(bool value);         // Sets the SATA flag.
     bool           GetSATAOccured() const;      // Returns the SATA flag.
+    bool           UsedForcedFlourish() const;  // Custom: this round was forced by Striking / Ternary Flourish
     CBattleEntity* GetTAEntity();               // Returns the TA entity.
     CBattleEntity* GetCoverAbilityUserEntity(); // Returns the Cover ablitiy user entity.
 
@@ -71,6 +72,7 @@ private:
     std::vector<CAttack> m_attackSwings;           // The list of attacks for this round.
     bool                 m_sataOccured;            // Flag: Did SATA occur during the round?
     bool                 m_kickAttackOccured;      // Flag: Did a kick attack occur during the round?
+    bool                 m_forcedFlourish{ false }; // Custom: Striking / Ternary Flourish forced this round's multi-attack
 
     std::vector<PHYSICAL_ATTACK_DIRECTION> m_followUpSwings; // The list of follow-up attacks for this round.
 };
