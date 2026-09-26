@@ -751,7 +751,13 @@ xi.spells.blue.usePhysicalSpell = function(caster, target, spell, params)
         end
     end
 
-    return applyPhysicalSpellDamage(caster, target, spell, params, returnInfo, trickAttackTarget)
+    local damage = applyPhysicalSpellDamage(caster, target, spell, params, returnInfo, trickAttackTarget)
+
+    -- Custom fix: spell scripts check params.hitsLanded before applying their additional effect, but nothing set it
+    -- (only tpHitsLanded is counted), so no physical spell's added effect (Sudden Lunge's Stun, etc.) ever landed.
+    params.hitsLanded = returnInfo.hitsLanded or 0
+
+    return damage
 end
 
 -- Get the damage for a magical Blue Magic spell. Called from spell scripts.
