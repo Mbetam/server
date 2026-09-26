@@ -8,6 +8,26 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-26-2
+
+### For players
+- **Merits and job points are now reachable.** You get the Limit Breaker key item once any job reaches 75 (Limit Point mode for merits) and Job Breaker once any job reaches 99 (capacity points and job points from level 100+ monsters). No limit-break quests needed; characters who already qualify get them at their next login.
+
+### For the admin (prod)
+- This tag includes patch-2026-09-26 (not deployed yet on prod); deploy this one instead.
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none (do NOT add `ENABLE_ARMOR_UPGRADER`).
+- Other manual steps: none. New entries in `modules/init.txt` (come with the tag): `custom/sql/job_fixes.sql` (from patch-2026-09-26) and `custom/lua/limit_job_breaker.lua`.
+- Rebuild: yes (C++ changed in patch-2026-09-26)
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - `modules/custom/sql/job_fixes.sql` (from patch-2026-09-26)
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-26
+- Give Limit Breaker (75) and Job Breaker (99) without the limit-break quests (ad5ebeb7b5)
+
 ## patch-2026-09-26
 
 ### For players
