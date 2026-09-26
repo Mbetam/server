@@ -1294,6 +1294,55 @@ void HandleEnspell(CBattleEntity* PAttacker, CBattleEntity* PDefender, action_re
     Action->addEffectMessage = MsgBasic::None;
     Action->addEffectParam   = 0;
 
+    // Custom: Endrain / Enaspir (Fenrir's Heavenward Howl; LSB had no code for either). Each landed hit drains power%
+    // of its damage: Endrain as extra damage that heals the attacker (BG Wiki: unlike Samba it does deal damage),
+    // Enaspir as MP taken from the target. Undead are immune to the HP drain, as with Drain Samba.
+    if (finaldamage > 0)
+    {
+        CStatusEffect* PEndrain = PAttacker->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Endrain);
+        CStatusEffect* PEnaspir = PAttacker->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Enaspir);
+
+        if (PEndrain && PEndrain->GetPower() > 0 && PDefender->m_EcoSystem != xi::Ecosystem::Undead)
+        {
+            int32 drained = std::max<int32>(1, finaldamage * PEndrain->GetPower() / 100);
+
+            Action->additionalEffect = ActionProcAddEffect::HPDrain;
+            Action->addEffectMessage = MsgBasic::AddEffectHPDrained;
+            Action->addEffectParam   = drained;
+
+            PDefender->takeDamage(drained, PAttacker, xi::AttackType::Magical, xi::DamageType::Dark);
+            PAttacker->addHP(drained);
+
+            if (PChar != nullptr)
+            {
+                PChar->updatemask |= UPDATE_HP;
+            }
+
+            return;
+        }
+
+        if (PEnaspir && PEnaspir->GetPower() > 0 && PDefender->GetMaxMP() > 0)
+        {
+            int32 drained = PDefender->addMP(-std::max<int32>(1, finaldamage * PEnaspir->GetPower() / 100)); // returns the amount removed
+
+            if (drained > 0)
+            {
+                Action->additionalEffect = ActionProcAddEffect::MPDrain;
+                Action->addEffectMessage = MsgBasic::AddEffectMPDrained;
+                Action->addEffectParam   = drained;
+
+                PAttacker->addMP(drained);
+
+                if (PChar != nullptr)
+                {
+                    PChar->updatemask |= UPDATE_HP;
+                }
+
+                return;
+            }
+        }
+    }
+
     xi::StatusEffect previous_daze       = xi::StatusEffect::None;
     uint16           previous_daze_power = 0;
 
@@ -4719,7 +4768,14 @@ int32 HandleStoneskin(CBattleEntity* PDefender, int32 damage, xi::AttackType att
 auto HandleSevereDamage(CBattleEntity* PDefender, int32 damage, bool isPhysical) -> int32
 {
     damage = HandleSevereDamageEffect(PDefender, xi::StatusEffect::Migawari, damage, true);
-    // TODO: Earthen Armor effect
+
+    // Custom: Earthen Armor (Titan's Blood Pact). BG Wiki: any single action that would take over 75% of max HP is
+    // reduced by the effect's power (45%). The effect stays up for its duration (it is not used up like Migawari).
+    if (CStatusEffect* PEarthenArmor = PDefender->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::EarthenArmor);
+        PEarthenArmor && damage > 0 && damage * 4 > PDefender->GetMaxHP() * 3)
+    {
+        damage = damage * (100 - std::clamp<int32>(PEarthenArmor->GetPower(), 0, 95)) / 100;
+    }
     // TODO: Sentinel's Scherzo effect
 
     if (isPhysical && PDefender->objtype == TYPE_PET && PDefender->getMod(xi::Mod::AUTO_SCHURZEN) != 0 && damage >= PDefender->health.hp &&
