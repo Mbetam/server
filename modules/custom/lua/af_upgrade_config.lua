@@ -1,7 +1,8 @@
 -----------------------------------
--- Armor Upgrader: which armor it upgrades, the price of each step and where it stands. Not a module (loaded by require).
--- Eric's choice (2026-09-25): a gil path for Artifact, Relic and Empyrean armor instead of retail's sources (Dynamis
--- Divergence, Sortie/Odyssey, Abyssea... not in LSB). Every tier already exists as an item.
+-- Armor Upgrader: which armor it upgrades, the gil some steps cost and where it stands. Not a module (loaded by require).
+-- Eric's choices: a single NPC for Artifact, Relic and Empyrean armor (2026-09-25), taking the retail materials of each
+-- step (2026-09-26; af_upgrade_materials.lua), with added drops where the retail content is not in LSB
+-- (upgrade_drops_config.lua). The +4 tiers are left out for now; they come with the hunt system.
 -- Each chain is the old set (base, +1, and +2 for Relic/Empyrean) followed by the Reforged set (Reforged, +1, +2, +3,
 -- and +4 for Artifact/Relic; Empyrean ends at +3, as in retail). GEO and RUN have no old sets.
 -- Generated from item_basic (names matched per job and slot; "-1" Dynamis items skipped) and checked. Two pieces carry
@@ -10,16 +11,15 @@
 -----------------------------------
 local config = {}
 
--- Price of an upgrade, by the tier you upgrade TO
-config.prices =
+-- Gil on top of the materials, by family and the tier you upgrade TO. Retail pays these two Empyrean steps with
+-- Gallimaufry (Sortie), which is not in LSB; the gil is what the step cost before materials were added.
+config.gil =
 {
-    oldPlus1      =   50000, -- base > +1
-    oldPlus2      =   75000, -- +1 > +2 (Relic, Empyrean)
-    reforged      =  100000, -- old set > Reforged
-    reforgedPlus1 =  250000,
-    reforgedPlus2 =  500000,
-    reforgedPlus3 = 1000000,
-    reforgedPlus4 = 2500000, -- Artifact, Relic
+    empyrean =
+    {
+        reforgedPlus2 =  500000,
+        reforgedPlus3 = 1000000,
+    },
 }
 
 -- The NPC's look: the Moogle model the Augmenter and the Trust Vendor use

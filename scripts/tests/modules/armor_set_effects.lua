@@ -71,7 +71,8 @@ describe('Empyrean set effects', function()
         castAndWait(player, mob, xi.magic.spell.FIRE)
 
         local permille = player:getLocalVar('[ConserveMP]SavedPermille')
-        assert(permille > 0 and permille <= 500, 'expected a saved share between 0 and 50%, got ' .. permille .. ' permille')
+        -- Conserve MP keeps 8-16/16 of the cost, rounded down: on Fire's 7 MP up to 4 (571 permille) can be saved
+        assert(permille > 0 and permille <= 572, 'expected a saved share between 0 and 4/7, got ' .. permille .. ' permille')
     end)
 
     it('RDM: 2 Lethargy pieces give +10; with Composure, enhancing on others and enfeebling last longer (not on self)', function()
