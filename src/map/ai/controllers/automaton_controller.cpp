@@ -260,6 +260,31 @@ auto CAutomatonController::TrySpellcast(const CurrentManeuvers& maneuvers) -> bo
 {
     auto* PTarget = target().resolve<CBattleEntity>();
 
+    // Custom: Amplifier / Amplifier II (the attachments' TODO: "reset cast timer and perform a magic burst on
+    // skillchain"). When a completed skillchain (tier > 0) is open on the target, the automaton skips its magic and
+    // elemental cooldowns once per skillchain and tries a nuke, so it can magic burst.
+    if (PTarget && PAutomaton->PMaster && m_elementalCooldown > 0s &&
+        PAutomaton->getMod(xi::Mod::MAGIC_BURST_BONUS_UNCAPPED) > 0 && CanCastSpells(IgnoreRecastsAndCosts::Yes))
+    {
+        const CStatusEffect* PSkillchain = PTarget->StatusEffectContainer->GetStatusEffect(xi::StatusEffect::Skillchain, 0);
+
+        if (PSkillchain && PSkillchain->GetTier() > 0 && PSkillchain->GetStartTime() != m_LastBurstSkillchainStart)
+        {
+            m_LastBurstSkillchainStart = PSkillchain->GetStartTime();
+
+            const auto savedElementalTime = m_LastElementalTime;
+            m_LastElementalTime           = m_Tick - m_elementalCooldown - 1s;
+
+            if (TryElemental(maneuvers))
+            {
+                m_LastElementalTime = m_Tick;
+                return true;
+            }
+
+            m_LastElementalTime = savedElementalTime;
+        }
+    }
+
     // Apparently the automaton has nothing in its spell list, so CanCastSpells must ignore spell lists and recasts?
     if (!PAutomaton->PMaster || m_magicCooldown == 0s ||
         m_Tick <= m_LastMagicTime + (m_magicCooldown + std::chrono::seconds(PAutomaton->getMod(xi::Mod::AUTO_MAGIC_COOLDOWN))) || !CanCastSpells(IgnoreRecastsAndCosts::Yes))

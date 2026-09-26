@@ -445,45 +445,55 @@ xi.job_utils.thief.useSteal = function(player, target, ability, action)
     end
 
     -- Attempt Aura steal
-    -- local effect = xi.effect.NONE
+    -- Custom (2026-09-25), per BG Wiki: Aura Steal always tries to Dispel an effect (can be resisted) and absorbs it
+    -- instead at the merit chance (a bit under 20% per rank). The Assassin's / Plunderer's Bonnet augment
+    -- (AUGMENTS_AURA_STEAL) adds the same chance of a second effect. LSB only tried the absorb; its Dispel and
+    -- second-effect code were commented out as broken.
     if player:hasTrait(xi.trait.AURA_STEAL) then
         local resist = xi.combat.magicHitRate.calculateResistRate(player, target, { actorStat = xi.mod.INT })
-        -- local effectStealSuccess = false
-        if resist >= 0.25 then
-            local auraStealChance = math.min(player:getMerit(xi.merit.AURA_STEAL), 95)
-            if math.randomInt(1, 100) <= auraStealChance then
-                local targetShadows = target:getMod(xi.mod.UTSUSEMI)
 
-                stolen = player:stealStatusEffect(target)
-                if stolen ~= 0 then
-                    ability:setMsg(xi.msg.basic.STEAL_EFFECT)
+        if resist >= 0.25 then
+            local absorbChance = math.min(player:getMerit(xi.merit.AURA_STEAL), 95)
+            local attempts     = 1
+            local firstEffect  = 0
+
+            if player:getMod(xi.mod.AUGMENTS_AURA_STEAL) > 0 and math.randomInt(1, 100) <= absorbChance then
+                attempts = 2
+            end
+
+            for _ = 1, attempts do
+                local targetShadows = target:getMod(xi.mod.UTSUSEMI)
+                local effect        = 0
+                local absorbed      = false
+
+                if math.randomInt(1, 100) <= absorbChance then
+                    effect   = player:stealStatusEffect(target)
+                    absorbed = effect ~= 0
+
+                    if effect == xi.effect.COPY_IMAGE and targetShadows > 0 then
+                        player:setMod(xi.mod.UTSUSEMI, targetShadows)
+                    end
+                end
+
+                if not absorbed then
+                    effect = target:dispelStatusEffect()
+                end
+
+                if effect ~= 0 and effect ~= xi.effect.NONE and firstEffect == 0 then
+                    firstEffect = effect
                     action:setAnimation(target:getID(), 181)
 
-                    if stolen == xi.effect.COPY_IMAGE then
-                        if targetShadows > 0 then
-                            player:setMod(xi.mod.UTSUSEMI, targetShadows)
-                        end
-                    end
-                end
-            -- else
-            --     effect = target:dispelStatusEffect()
-            end
-
-            -- Try for a second effect if we have the augment
-            --[[
-            TODO: This implementation is currently broken and inaccurate.  20% chance of a second aura being
-            stolen per merit.
-
-            if (effect ~= xi.effect.NONE or stolen ~= 0) and player:getMod(xi.mod.AUGMENTS_AURA_STEAL) > 0 then
-                if math.randomInt(1, 100) <= auraStealChance then
-                    if stolenEffect2 ~= nil and math.randomInt(1, 100) <= auraStealChance then
-                        player:stealStatusEffect(target)
+                    if absorbed then
+                        ability:setMsg(xi.msg.basic.STEAL_EFFECT)
                     else
-                        target:dispelStatusEffect()
+                        ability:setMsg(xi.msg.basic.JA_REMOVE_EFFECT_2)
                     end
                 end
             end
-            ]]--
+
+            if firstEffect ~= 0 then
+                stolen = firstEffect
+            end
         end
     end
 

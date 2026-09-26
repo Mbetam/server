@@ -34,6 +34,8 @@ local pTable =
     [xi.magic.spell.MAGES_BALLAD_II   ] = { 2, xi.effect.BALLAD,    xi.mod.AUGMENT_SONG_STAT, xi.mod.BALLAD_EFFECT,   0,                        0,                    2,   0,   2,   1,  0, true  },
     [xi.magic.spell.MAGES_BALLAD_III  ] = { 3, xi.effect.BALLAD,    xi.mod.AUGMENT_SONG_STAT, xi.mod.BALLAD_EFFECT,   0,                        0,                    3,   0,   3,   1,  0, true  },
     -- Carol - NOTE: CAROL II Gives a fixed elemental evasion. However, it also gives a Elemental Nullification effect, that follows regular song rules concerning power.
+    -- Custom (2026-09-25): Carol II enabled: tier 2 (stacks with Carol I), fixed 100 resistance; the nullification chance
+    -- rides in the subEffect (see useEnhancingSong and effects/carol.lua).
     [xi.magic.spell.FIRE_CAROL        ] = { 1, xi.effect.CAROL,     xi.element.FIRE,          xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
     [xi.magic.spell.ICE_CAROL         ] = { 1, xi.effect.CAROL,     xi.element.ICE,           xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
     [xi.magic.spell.WIND_CAROL        ] = { 1, xi.effect.CAROL,     xi.element.WIND,          xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
@@ -42,14 +44,14 @@ local pTable =
     [xi.magic.spell.WATER_CAROL       ] = { 1, xi.effect.CAROL,     xi.element.WATER,         xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
     [xi.magic.spell.LIGHT_CAROL       ] = { 1, xi.effect.CAROL,     xi.element.LIGHT,         xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
     [xi.magic.spell.DARK_CAROL        ] = { 1, xi.effect.CAROL,     xi.element.DARK,          xi.mod.CAROL_EFFECT,    0,                        0,                   20, 200,  80,   8, 10, true  },
-    -- [xi.magic.spell.FIRE_CAROL_II     ] = { 2, xi.effect.CAROL_II,  xi.element.FIRE,        xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.ICE_CAROL_II      ] = { 2, xi.effect.CAROL_II,  xi.element.ICE,         xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.WIND_CAROL_II     ] = { 2, xi.effect.CAROL_II,  xi.element.WIND,        xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.EARTH_CAROL_II    ] = { 2, xi.effect.CAROL_II,  xi.element.EARTH,       xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.LIGHTNING_CAROL_II] = { 2, xi.effect.CAROL_II,  xi.element.THUNDER,     xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.WATER_CAROL_II    ] = { 2, xi.effect.CAROL_II,  xi.element.WATER,       xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.LIGHT_CAROL_II    ] = { 2, xi.effect.CAROL_II,  xi.element.LIGHT,       xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
-    -- [xi.magic.spell.DARK_CAROL_II     ] = { 2, xi.effect.CAROL_II,  xi.element.DARK,        xi.mod.ETUDE_EFFECT,    0,                        0,                   10, 400,  15, 1.5, 10, true  },
+    [xi.magic.spell.FIRE_CAROL_II     ] = { 2, xi.effect.CAROL,     xi.element.FIRE,                   xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.ICE_CAROL_II      ] = { 2, xi.effect.CAROL,     xi.element.ICE,                    xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.WIND_CAROL_II     ] = { 2, xi.effect.CAROL,     xi.element.WIND,                   xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.EARTH_CAROL_II    ] = { 2, xi.effect.CAROL,     xi.element.EARTH,                  xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.LIGHTNING_CAROL_II] = { 2, xi.effect.CAROL,     xi.element.THUNDER,                xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.WATER_CAROL_II    ] = { 2, xi.effect.CAROL,     xi.element.WATER,                  xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.LIGHT_CAROL_II    ] = { 2, xi.effect.CAROL,     xi.element.LIGHT,                  xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
+    [xi.magic.spell.DARK_CAROL_II     ] = { 2, xi.effect.CAROL,     xi.element.DARK,                   xi.mod.CAROL_EFFECT,    0,                        0,                  100,   0, 100,   0,  0, false },
     -- Etude
     [xi.magic.spell.SINEWY_ETUDE      ] = { 1, xi.effect.ETUDE,     xi.mod.STR,               xi.mod.ETUDE_EFFECT,    0,                        0,                    3,   0,   9,   1,  0, true  },
     [xi.magic.spell.DEXTROUS_ETUDE    ] = { 1, xi.effect.ETUDE,     xi.mod.DEX,               xi.mod.ETUDE_EFFECT,    0,                        0,                    3,   0,   9,   1,  0, true  },
@@ -274,6 +276,20 @@ xi.spells.enhancing.useEnhancingSong = function(caster, target, spell)
     -- Handle subEffect
     if songEffect == xi.effect.CAROL then
         subEffect = pTable[spellId][column.EFFECT_SUB] + (caster:getMod(xi.mod.AUGMENT_SONG_STAT) * 100)
+
+        -- Custom: Carol II also nullifies its element: 15% + 1% per Carol+ gear, doubled by Soul Voice, x1.5 by Marcato,
+        -- capped at 40% (BG Wiki). Packed as thousands in the subEffect, decoded by effects/carol.lua.
+        if tier == 2 then
+            local nullChance = 15 + instrumentBoost
+
+            if caster:hasStatusEffect(xi.effect.SOUL_VOICE) then
+                nullChance = nullChance * 2
+            elseif caster:hasStatusEffect(xi.effect.MARCATO) then
+                nullChance = nullChance * 1.5
+            end
+
+            subEffect = subEffect + math.floor(math.min(40, nullChance)) * 1000
+        end
     elseif songEffect == xi.effect.ETUDE then
         subEffect = pTable[spellId][column.EFFECT_SUB]
     else

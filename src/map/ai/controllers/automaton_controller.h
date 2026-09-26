@@ -113,6 +113,7 @@ private:
     timer::time_point m_LastStatusTime;
     timer::time_point m_LastRangedTime;
     timer::time_point m_LastShieldBashTime;
+    timer::time_point m_LastBurstSkillchainStart{}; // custom: Amplifier bursts once per skillchain
 };
 
 namespace automaton

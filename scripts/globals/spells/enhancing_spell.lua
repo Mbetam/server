@@ -81,6 +81,11 @@ local pTable =
     -- Crusade
     [xi.magic.spell.CRUSADE      ] = { 1, xi.effect.ENMITY_BOOST,  88,   30,  300, true,  false, 0 },
 
+    -- Custom (2026-09-25): SCH spells LSB had no scripts for. BG Wiki: Enmity +20 / -10 for 3 min; Regain 10 TP/tick for 3 min
+    [xi.magic.spell.ANIMUS_AUGEO ] = { 1, xi.effect.ENMITY_BOOST,  85,   20,  180, true,  false, 0 },
+    [xi.magic.spell.ANIMUS_MINUO ] = { 1, xi.effect.PAX,           85,  -10,  180, true,  false, 0 },
+    [xi.magic.spell.ADLOQUIUM    ] = { 1, xi.effect.REGAIN,        88,    1,  180, true,  false, 0 }, -- effects/regain.lua gives power x 10 TP per tick
+
     -- Deodorize / Invisible / Sneak
     [xi.magic.spell.DEODORIZE    ] = { 1, xi.effect.DEODORIZE,     15,    0,  420, true,  false, 10 },
     [xi.magic.spell.INVISIBLE    ] = { 1, xi.effect.INVISIBLE,     20,    0,  420, true,  false, 10 },

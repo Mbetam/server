@@ -630,6 +630,12 @@ xi.weaponskills.calculateRawWSDmg = function(attacker, target, wsID, tp, action,
         finaldmg = finaldmg + firstHitBonus -- Finally add in our "first hit" WS dmg bonus from before
     end
 
+    -- Custom: "True Shot" gear and Hover Shot stacks (Mod TRUE_SHOT_EFFECT, +N% ranged damage) also raise ranged weapon
+    -- skills, as they raise ranged attacks in battle_entity.cpp.
+    if calcParams.attackInfo.slot == xi.slot.RANGED and attacker:getMod(xi.mod.TRUE_SHOT_EFFECT) ~= 0 then
+        finaldmg = finaldmg * (100 + attacker:getMod(xi.mod.TRUE_SHOT_EFFECT)) / 100
+    end
+
     -- Return our raw damage to then be modified by enemy reductions based off of melee/ranged
     calcParams.finalDmg = finaldmg
     calcParams.ammoUsed = ammoUsed

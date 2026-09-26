@@ -54,3 +54,4 @@ custom/lua/af_upgrade_npc.lua
 custom/sql/armor_stats.sql
 custom/lua/armor_sets.lua
 custom/lua/trust_refresh.lua
+custom/sql/job_fixes.sql

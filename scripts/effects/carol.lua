@@ -5,8 +5,11 @@
 local effectObject = {}
 
 effectObject.onEffectGain = function(target, effect)
-    local subPower = effect:getSubPower()
-    local buff     = 0
+    local subPower   = effect:getSubPower()
+    local buff       = 0
+    local nullChance = math.floor(subPower / 1000) -- Custom: Carol II nullification chance (enhancing_song.lua)
+
+    subPower = subPower % 1000
 
     if subPower > xi.element.DARK then -- unpack and apply stat buff if present
         if subPower >= 400 then
@@ -25,6 +28,22 @@ effectObject.onEffectGain = function(target, effect)
     end
 
     effect:addMod(xi.data.element.getElementalMEVAModifier(subPower), effect:getPower())
+
+    if nullChance > 0 then
+        local nullMods =
+        {
+            [xi.element.FIRE]    = xi.mod.FIRE_NULL,
+            [xi.element.ICE]     = xi.mod.ICE_NULL,
+            [xi.element.WIND]    = xi.mod.WIND_NULL,
+            [xi.element.EARTH]   = xi.mod.EARTH_NULL,
+            [xi.element.THUNDER] = xi.mod.LTNG_NULL,
+            [xi.element.WATER]   = xi.mod.WATER_NULL,
+            [xi.element.LIGHT]   = xi.mod.LIGHT_NULL,
+            [xi.element.DARK]    = xi.mod.DARK_NULL,
+        }
+
+        effect:addMod(nullMods[subPower], nullChance)
+    end
 
     if subPower == xi.element.FIRE then -- fire add STR
         effect:addMod(xi.mod.STR, buff)

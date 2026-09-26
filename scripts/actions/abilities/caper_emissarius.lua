@@ -19,7 +19,9 @@ abilityObject.onAbilityCheck = function(player, target, ability)
 end
 
 abilityObject.onUseAbility = function(player, target, ability)
-    target:transferEnmity(player, 99, 20.6)
+    -- Custom fix (2026-09-26): the Scholar hands its enmity to the target party member (the "scapegoat"). This was
+    -- target:transferEnmity(player, ...), which moves the hate the other way (transferEnmity gives FROM self TO arg).
+    player:transferEnmity(target, 99, 20.6)
 end
 
 return abilityObject

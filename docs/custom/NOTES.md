@@ -1500,3 +1500,83 @@ EXPIRE_DAYS (3) and are mailed back to its delivery box, and gil from its sales 
 failing. Fix: `tools/ah_bot/ah_bot.py` `clear_delivery_box` deletes the bot's box-1 rows at the start of every run (it
 restocks fresh listings anyway). Test cleared 5,930 rows on the first timer run. The listings whose return failed stay
 on the AH and are retried by the next expiry pass (hourly), which then succeeds.
+
+## 2026-09-25 — Job fixes resumed: SMN's 18 missing Blood Pacts coded
+
+All 18 pacts from the job audit now have scripts in `scripts/actions/abilities/pets/` (the `pet_skills` rows, MP costs
+and abilities rows already existed; only the scripts were missing). Effects and durations from BG Wiki:
+- Rage: Lunar Bay, Impact (+ all attributes -floor(skill/20), 3 min), Conflag Strike (breath-type, Burn 30/tick INT -63),
+  Crag Throw (Slow 30%, 2 min), Volt Strike (3 hits, Stun 15 s), Night Terror (breath-type, +40% vs sleeping targets),
+  Ruinous Omen (Astral Flow: uses all MP, 5-25% of each target's current HP, 10% cap on NMs, never KOs).
+- Ward: Heavenward Howl (Endrain 5-15% / Enaspir 1-5% by moon phase, 1 min), Inferno Howl (Enfire 20 + (skill-300)/10),
+  Earthen Armor (hits over 75% max HP -45%, 1 min), Fleet Wind (+20% speed via the Quickening effect, 2 min), Hastega II
+  (haste 29.98%, 3 min + skill bonus), Diamond Storm (Evasion -25, 3 min), Crystal Blessing (TP Bonus +250, 3 min),
+  Shock Squall (AoE Stun 15 s), Ultimate Terror (absorbs 0-7 attributes, 21 each, 90 s), Pavor Nocturnus (Death on a
+  sleeping non-NM, else Dispel), Pacifying Ruby (target's enmity -25% on every monster hating them).
+- ESTIMATES (retail numbers not published): Rage fTP values (scaled from LSB's merit pacts / Nether Blast / Chaotic
+  Strike / Mountain Buster), Crag Throw's accuracy-by-TP, Ruinous Omen's 5-25% range, Ultimate Terror's 90 s.
+Engine (C++, `battleutils.cpp`): Endrain / Enaspir did not exist in LSB, now each melee hit drains power% of its
+damage (HandleEnspell); Earthen Armor's reduction in HandleSevereDamage (was a TODO). New effect scripts: endrain,
+enaspir, tp_bonus.
+Found while testing: `xi.combat.action.executeMobskillStatusEffect` needs a message table as its 5th argument (nil
+errors out), and a monster claimed by a previous test's player can't be hit by the next one's pet (tests reset claim).
+Tests: `scripts/tests/jobs/smn/custom_blood_pacts.lua` 20/20 (each pact used for real; Endrain melee drain), SMN suite
+24/24, jobs/combat/effects/spells 119/121 (the 2 THF gil/drop tests fail on our x2 rates, as before).
+Not engine-tested: Earthen Armor's damage cut (needs a hit over 75% of max HP), Enaspir's MP drain (rabbit has no MP).
+
+## 2026-09-26 — Job audit list finished: BLU, BRD, DRK, SCH, RNG, PUP, THF
+
+Every item on the 2026-09-23 job-audit list is now coded (SMN was the previous entry).
+- **BLU, 29 spells (77-99)** in `scripts/actions/spells/blue/` (file names follow the DB names, e.g. `winds_of_promy`,
+  `evryone_grudge`). Values from BG Wiki; ESTIMATES marked in each file (Bilgestorm fTP/WSC, Bloodrake 3000-TP fTP and
+  attack bonus, breath divisors for Thunder Breath / Vapor Spray, Thunderbolt stun and Absolute Terror durations,
+  Mortal Ray accuracy, Everyone's Grudge = 5 x EVERYONES_GRUDGE_KILLS). Unbridled Learning spells are gated by the
+  engine (spell_list requirements). Mechanics: Magic Barrier = magic-only Stoneskin (subType 2, power = Blue skill);
+  Barrier Tusk = Phalanx with subPower 1 -> -15% uncapped damage taken (`effects/phalanx.lua`); Orcish
+  Counterstance = Counter Boost (+10 counter, +50% counter damage; new `effects/counter_boost.lua`); Pyric Bulwark =
+  Physical Shield ended by a TAKE_DAMAGE listener on the first physical hit; Fantod stacks Boost + MAB up to 10.
+- **Bug found in LSB `bluemagic.lua`:** `params.hitsLanded` was never set (only tpHitsLanded), so NO physical Blue
+  Magic spell ever applied its added effect (17 LSB spells incl. Sudden Lunge, Head Butt, Frypan, Sub-zero Smash,
+  Delta Thrust...). Fixed centrally in `usePhysicalSpell`.
+- **BRD Carol II x8:** enabled in `enhancing_song.lua` as tier-2 Carol (stacks with Carol I, fixed +100 resistance);
+  the element's nullify chance (15% +1%/Carol+, x2 Soul Voice, x1.5 Marcato, cap 40) rides in the subPower
+  (thousands) and `effects/carol.lua` applies the element's *_NULL mod.
+- **DRK Endark II:** Endark effect with BG's Endark II potency.
+- **SCH:** Animus Augeo (Enmity +20), Animus Minuo (Pax -10), Adloquium (Regain 10 TP/tick = effect power 1, as
+  `effects/regain.lua` multiplies by 10) added to `enhancing_spell.lua`'s table. LSB shipped `validTargets = 0` for
+  these three (the only learnable spells with no target), so they could never be cast: fixed by an UPDATE in the new
+  `modules/custom/sql/job_fixes.sql` (in init.txt). Libra now prints each nearby party member's enmity on the target
+  as a % of the highest (system text).
+- **RNG Hover Shot:** abilities row added (client id 395, recast id 151, from Windower's resources) in
+  `job_fixes.sql`; `xi.job_utils.ranger.useHoverShot` + `effects/hover_shot.lua`: stacks (max 25) from shots at the
+  same target from a new spot >= 1 yalm away, reset to 1 otherwise; per stack ranged damage +4% (TRUE_SHOT_EFFECT),
+  Ranged Acc +4, Enmity -2 (enmity per stack not published). C++: `OnRangedAttack` now triggers a `RANGED_ATTACK`
+  listener; ranged weapon skills also read TRUE_SHOT_EFFECT (`weaponskills.lua`).
+- **PUP Amplifier:** `automaton_controller.cpp`: with Amplifier equipped and a completed skillchain (tier > 0) on the
+  target, the automaton skips its magic cooldowns once per skillchain and tries a nuke to magic burst.
+- **THF Aura Steal:** rewritten per BG: always Dispels (resistable), absorbs instead at the merit chance; the bonnet
+  augment adds the same chance of a second effect.
+Tests: `systems/spells/custom_blue_magic.lua` 35/35 (x3), `systems/spells/custom_job_fixes.lua` 5/5; full run of
+jobs/modules/spells/combat/effects/trusts/latents/items 806/809 (2 THF x2-rate tests as before; one resist roll, test
+now retries). Not engine-tested: Aura Steal (needs merits), Amplifier bursting (needs a live skillchain), Earthen
+Armor cut, Enaspir. Test gotchas: song limit is 1 without an instrument; Stun from Sudden Lunge lasts 5 s.
+Next on the backlog: engine tests of core abilities for the 13 jobs with no upstream tests (may find more bugs).
+
+## 2026-09-26 — Engine sweep of the 13 jobs with no upstream tests
+
+Diagnostic sweeps (kept out of the repo, in the session scratchpad): every job ability (158) and every spell (562) of
+WHM, BLM, RDM, PLD, DRK, BST, BRD, RNG, SAM, NIN, DRG, SCH (BLU done earlier) used for real by a level 99 test
+character, recording effects gained, HP/MP/TP and damage, plus a second pass with the right setup (ranged gear,
+shield, party member, wyvern / jug pet, Light / Dark Arts). No Lua errors anywhere. Everything that did nothing was
+explained by a missing precondition (merits, key items, dungeon-only Escape, Tabula Rasa, Elemental Seal for Meteor,
+trust permits) except:
+- **Asylum (WHM) and Decoy Shot (RNG)** were enemy-target in LSB (validTarget 4), so the buff went on the monster.
+  Fixed to self (1) in `modules/custom/sql/job_fixes.sql`. Found by comparing all 600 abilities' target flags with the
+  client's (Windower resources); the other 13 differences are intentional (can't Cover yourself, etc.).
+- **Caper Emissarius (SCH)** moved enmity the wrong way (`target:transferEnmity(player)` gives FROM target TO
+  player); now `player:transferEnmity(target, ...)`, so the Scholar sheds hate onto the party member.
+- Not a bug: BST Sic is charmed-pet only (addType 128), as on retail; jug pets use Ready.
+- Merit abilities can't be exercised in tests (no binding to set a merit rank); a static read found only "verify the
+  number" TODOs (Mantra, Flashy/Stealth Shot, Rayke).
+Tests: `custom_job_fixes.lua` 7/7 (adds Asylum / Decoy Shot / Caper), SMN custom pacts 20/20 x3 (Shock Squall test
+now polls and retries: a partial resist shortens the stun); full regression 808/811 before that fix (2 THF x2-rate).

@@ -3537,6 +3537,10 @@ void CBattleEntity::OnRangedAttack(CRangeState& state, action_t& action)
         StatusEffectContainer->DelStatusEffectsByFlag(xi::StatusEffectFlag::Detectable);
         PTarget->LastAttacked = timer::now();
     }
+
+    // Custom: lets Lua react to every completed ranged attack, hit or miss (RNG Hover Shot stacks, job_utils/ranger.lua)
+    PAI->EventHandler.triggerListener("RANGED_ATTACK", this, PTarget);
+
     this->processActionEffectFlags(action);
 }
 

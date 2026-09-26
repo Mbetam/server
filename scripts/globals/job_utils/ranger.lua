@@ -136,7 +136,7 @@ xi.job_utils.ranger.checkDecoyShot = function(player, target, ability)
 end
 
 xi.job_utils.ranger.checkHoverShot = function(player, target, ability)
-    return 0, 0  -- Not implemented yet
+    return 0, 0
 end
 
 xi.job_utils.ranger.checkOverkill = function(player, target, ability)
@@ -376,8 +376,66 @@ xi.job_utils.ranger.useDecoyShot = function(player, target, ability, action)
     return xi.effect.DECOY_SHOT
 end
 
+-- Custom (2026-09-25): Hover Shot (LSB had a stub). BG Wiki: 1 h effect; each ranged attack or ranged weapon skill made
+-- at least 1 yalm from where you last shot, at the same target, adds a stack (max 25); shooting from the same spot or at
+-- another target resets to 1. Per stack: ranged damage +4% (TRUE_SHOT_EFFECT), Ranged Accuracy +4, Enmity -2 (the enmity
+-- amount per stack is not published). Overwrites / is overwritten by Decoy Shot. Stacks are the effect's power.
+local function onHoverShotAttack(player, target)
+    local effect = player:getStatusEffect(xi.effect.HOVER_SHOT)
+
+    if not effect or not target then
+        return
+    end
+
+    local lastTarget = player:getLocalVar('[HoverShot]Target')
+    -- Local vars are unsigned, so positions are stored with a +5000 offset (zone coordinates stay well inside +-5000)
+    local lastX      = player:getLocalVar('[HoverShot]X') / 100 - 5000
+    local lastZ      = player:getLocalVar('[HoverShot]Z') / 100 - 5000
+    local moved      = math.sqrt((player:getXPos() - lastX) ^ 2 + (player:getZPos() - lastZ) ^ 2)
+    local stacks     = 1
+
+    if lastTarget == target:getID() and moved >= 1 then
+        stacks = math.min(25, effect:getPower() + 1)
+    end
+
+    player:setLocalVar('[HoverShot]Target', target:getID())
+    player:setLocalVar('[HoverShot]X', math.floor((player:getXPos() + 5000) * 100))
+    player:setLocalVar('[HoverShot]Z', math.floor((player:getZPos() + 5000) * 100))
+
+    if stacks ~= effect:getPower() then
+        local remaining = math.max(1, math.floor(effect:getTimeRemaining() / 1000))
+
+        player:delStatusEffectSilent(xi.effect.HOVER_SHOT)
+        player:addStatusEffect(xi.effect.HOVER_SHOT, { power = stacks, duration = remaining, origin = player })
+    end
+end
+
+xi.job_utils.ranger.onHoverShotAttack = onHoverShotAttack
+
 xi.job_utils.ranger.useHoverShot = function(player, target, ability, action)
-    return 0, 0 -- Not implemented yet
+    player:delStatusEffect(xi.effect.DECOY_SHOT)
+    player:delStatusEffectSilent(xi.effect.HOVER_SHOT)
+    player:setLocalVar('[HoverShot]Target', 0)
+
+    player:addStatusEffect(xi.effect.HOVER_SHOT, { power = 0, duration = 3600, origin = player })
+
+    player:removeListener('HOVER_SHOT_RA')
+    player:removeListener('HOVER_SHOT_WS')
+
+    player:addListener('RANGED_ATTACK', 'HOVER_SHOT_RA', function(attacker, defender)
+        onHoverShotAttack(attacker, defender)
+    end)
+
+    player:addListener('WEAPONSKILL_USE', 'HOVER_SHOT_WS', function(attacker, defender, skill)
+        local wsId = skill and skill:getID() or 0
+
+        -- Archery (192-207) and Marksmanship (208-223) weapon skills
+        if wsId >= 192 and wsId <= 223 then
+            onHoverShotAttack(attacker, defender)
+        end
+    end)
+
+    return xi.effect.HOVER_SHOT
 end
 
 xi.job_utils.ranger.useOverkill = function(player, target, ability, action)
