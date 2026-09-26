@@ -8,6 +8,28 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-26-3
+
+### For players
+- **Dancer flourishes work properly.** Striking and Ternary Flourish can be used again (2 and 3 finishing moves) and force a Double / Triple Attack round; Climactic Flourish uses all your finishing moves and forces critical hits on the next rounds.
+- **Mana Wall** now makes your MP take the damage (half of it, more with gear) instead of a flat cut; **Sentinel's Scherzo** cuts big single hits; **Divine Caress** leaves a ward that blocks the ailment you just removed.
+- **More armor effects now work:** Climactic / Striking / Feather Step gear, Divine Caress, Double Shot damage, Mana Wall, Migawari, Sekkanoki, Spirit Link, Counter, Kick Attacks, Banish vs undead, Gain spells, magic burst accuracy, avatar element resistance, Klimaform, Perpetuance, Penury / Parsimony.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none. The Armor Upgrader and its new material drops stay OFF on prod (`ENABLE_ARMOR_UPGRADER` not set) until Eric says to turn them on.
+- Other manual steps: none. New entry in `modules/init.txt` (comes with the tag): `custom/lua/upgrade_drops.lua` (does nothing while the Upgrader is off).
+- Rebuild: yes, FULL rebuild (C++ changed and `data/enums/mod.yaml` regenerates `mod.h`; about 10-15 minutes).
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none (`modules/custom/sql/armor_stats.sql` has new rows; it is re-imported by `dbtool update` as usual)
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-26-2
+- Remaining armor effects, and the base abilities they needed (d590655d8d)
+- Armor Upgrader: retail materials per step instead of gil; drops for missing content (3b936782ae)
+
 ## patch-2026-09-26-2
 
 ### For players
