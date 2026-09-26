@@ -1580,3 +1580,16 @@ trust permits) except:
   number" TODOs (Mantra, Flashy/Stealth Shot, Rayke).
 Tests: `custom_job_fixes.lua` 7/7 (adds Asylum / Decoy Shot / Caper), SMN custom pacts 20/20 x3 (Shock Squall test
 now polls and retries: a partial resist shortens the stun); full regression 808/811 before that fix (2 THF x2-rate).
+
+## 2026-09-26 — Merits and job points checked; Limit / Job Breaker given automatically
+
+Test `scripts/tests/systems/merits_job_points.lua` (7/7) drives both systems through the client's own packets:
+- Merits WORK: EXP at 99 with a full bar turns into limit points automatically; raising a merit in the Mog House
+  (0x0BE; refused during the Mog House entry event, as on retail) raises it (HP merit -> max HP), and merited
+  abilities work (PLD Fealty).
+- Job points: spending (0x0BF, Mog House only, as on retail) and their effect work (5 JP in Berserk raise its
+  attack). But capacity points from kills need the Job Breaker key item (Nomad Moogle after "Beyond Infinity") and
+  level 100+ monsters, and Limit Point mode before 99 needs Limit Breaker ("New Worlds Await"). Our players start at a
+  99 cap and skip the limit-break quests, so nobody could ever earn job points.
+- Fix (Eric's choice): `modules/custom/lua/limit_job_breaker.lua` gives Limit Breaker once any job reaches 75 and Job
+  Breaker once any job reaches 99, at every login / zone change and on level up.
