@@ -8,6 +8,32 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-26
+
+### For players
+- **Summoner:** all 18 Blood Pacts that did nothing now work, including every avatar's top pacts (Impact, Volt Strike, Crag Throw, Conflag Strike, Night Terror...), Hastega II, Crystal Blessing, Earthen Armor, Heavenward Howl and Diabolos's Ruinous Omen and Ultimate Terror.
+- **Blue Mage:** the 29 missing spells from level 77 to 99 work (Magic Barrier, Barrier Tusk, Winds of Promyvion, Dark Orb, Thunder Breath, Bloodrake, Tourbillion, the other Unbridled Learning spells...). Physical Blue Magic spells now apply their added effects (e.g. Sudden Lunge's Stun), which never worked before.
+- **Bard:** the eight Carol II songs work and stack with Carol I.
+- **Dark Knight:** Endark II. **Scholar:** Animus Augeo, Animus Minuo and Adloquium can be cast; Libra shows the party's enmity; Caper Emissarius now passes your enmity to the party member (it did the opposite).
+- **Ranger:** Hover Shot is available at 95. **White Mage** Asylum and **Ranger** Decoy Shot buff you again (they targeted the monster).
+- **Puppetmaster:** with Amplifier, the automaton magic bursts skillchains. **Thief:** Aura Steal dispels, and sometimes absorbs, a buff.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none (do NOT add `ENABLE_ARMOR_UPGRADER`).
+- Other manual steps: none. New entry in `modules/init.txt` (comes with the tag): `custom/sql/job_fixes.sql`.
+- Rebuild: yes (C++ changed; no new modifiers, so not a full rebuild)
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - `modules/custom/sql/job_fixes.sql` (module SQL: Hover Shot ability row; fixes the target flags of Animus Augeo / Minuo, Adloquium, Asylum and Decoy Shot)
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-25-2
+- SMN: script the 18 Blood Pacts LSB had none for (9c3c1d7335)
+- BLU: script the 29 missing spells (77-99); fix added effects on physical spells (6ed1612cb7)
+- Job fixes: BRD Carol II, DRK Endark II, SCH, RNG Hover Shot, PUP Amplifier, THF Aura Steal (bf70e57ea0)
+
 ## patch-2026-09-25-2
 
 ### For players
