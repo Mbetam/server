@@ -1,0 +1,26 @@
+# Starts the four xi_* servers at boot. Not installed automatically: it needs sudo, so run the commands in
+# docs/custom/NOTES.md ("Servers start at boot") yourself.
+#
+# Boot-only on purpose: no Restart=, and KillMode=process with nothing left in the unit after the start script
+# exits, so systemd never restarts or kills the servers. deploy.sh, test runs and manual restarts (pkill + setsid)
+# keep working exactly as before; "systemctl stop xi-servers" does NOT stop the servers.
+#
+# Install as /etc/systemd/system/xi-servers.service
+
+[Unit]
+Description=FFXI server (xi_connect, xi_search, xi_world, xi_map), started at boot
+After=network-online.target mariadb.service
+Wants=network-online.target
+Requires=mariadb.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=mbetam
+WorkingDirectory=/home/mbetam/server
+ExecStart=/home/mbetam/server/tools/custom/start_servers.sh
+KillMode=process
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

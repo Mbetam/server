@@ -1680,3 +1680,19 @@ a Hunt Board NPC plus a `!hunt` command. Numbers are starting points in `modules
 - Tests: `scripts/tests/modules/hunts.lua` 6/6 (every level 1-99 gets 4 + 1 targets, day rollover, kill hunt pay,
   party credit, NM hunt trophy + all-done bonus, reroll), `af_upgrade.lua` 13/13 (+4 for marks + trophy, refused with
   too few marks). All `modules/` 507/507. xi_map restarted on test; log clean.
+
+## 2026-09-28 — Servers start at boot (test VM rebooted and only came back half up)
+
+The test VM rebooted at 19:20; nothing started the servers (xi_map was only up because of a restart for the NPC
+moves), so test was unreachable. Now: `tools/custom/start_servers.sh` (starts whichever of the four is not running,
+same setsid/nohup start as deploy.sh, waits for xi_map) and `tools/custom/xi-servers.service.example`.
+The unit is boot-only on purpose: Type=oneshot + RemainAfterExit, no Restart=, KillMode=process. systemd never
+restarts or kills the servers, so deploy.sh, xi_test runs and manual pkill/setsid restarts work as before, and
+`systemctl stop xi-servers` does not stop them. Verified with `systemd-analyze verify`; the script was tested by
+stopping xi_search and letting it start it again.
+Install (sudo, so Eric runs it; in a real terminal if sudo needs a password):
+    sudo cp /home/mbetam/server/tools/custom/xi-servers.service.example /etc/systemd/system/xi-servers.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable xi-servers.service
+Check after the next reboot: `systemctl status xi-servers` and `pgrep -a xi_`. Undo: `sudo systemctl disable
+xi-servers.service` and delete the file. Prod has the same gap; the same unit works there after this is deployed.
