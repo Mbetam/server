@@ -8,6 +8,27 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-28-4
+
+### For players
+- **Kill EXP raised to x2.5** (was x1.8). Capacity points from kills go up the same way. Quests, Fields/Grounds of Valor, daily hunts and Records of Eminence stay at x1.8.
+- **Healer trusts stop recasting Protectra and Shellra every minute** when a party member (like Cornelia, who stays back) is out of range. They still rebuff you when you lose them.
+
+### For the admin (prod)
+- If prod is not on patch-2026-09-28-3 yet, this tag includes it: follow its admin notes too.
+- Settings to copy by hand into prod's git-ignored `settings/map.lua`: `EXP_RATE = 2.5` (was 1.8). Leave `CAPACITY_RATE` at 1.0 and `settings/main.lua`'s EXP rates at 1.8.
+- Other manual steps: none.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-28-3
+- Healer trusts: Protectra / Shellra retry only for the master
+
 ## patch-2026-09-28-3
 
 ### For players
