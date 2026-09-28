@@ -8,6 +8,29 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-28
+
+### For players
+- **Daily hunts!** Type `!hunt` (or talk to the Hunt Board in Norg) for 5 hunts a day picked for your level: 4 "kill N of this family in this zone" hunts and 1 NM hunt. Party members in the zone share kills. Finished hunts pay EXP, gil and Hunt Marks on the spot; the NM hunt also gives a Legion trophy, and finishing all 5 gives bonus marks. New hunts at JST midnight; one reroll a day (`!hunt reroll <number>`).
+- **The Armor Upgrader is open (Norg).** Artifact, Relic and Empyrean armor go up one tier at a time for the retail materials of each step. Trade a piece on its own to see what the next step needs. Artifact and Relic +4 cost Hunt Marks and a Legion trophy.
+- **Upgrade materials now drop** where their retail content is missing: Paragon cards, Omen items and scales (Limbus, Sky, Sea, ZNMs, Dynamis Lord), Escha items (Abyssea NMs), Ra'Kazarch stones and Geas Fete items (HNMs and big bosses), Voidwatch shards and void pieces (Dynamis). Job items drop for the killer's job.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/main.lua` (Eric: turn the Upgrader on), inside the `xi.settings.main` table:
+  `ENABLE_ARMOR_UPGRADER          = true, -- custom: Armor Upgrader NPC and its material drops`
+  (This also turns on the upgrade material drops, `upgrade_drops.lua`, which shipped in patch-2026-09-26-3.)
+- Other manual steps: none. New entry in `modules/init.txt` (comes with the tag): `custom/lua/hunt_board.lua`; new command `modules/custom/commands/hunt.lua`. Restart all four processes after the settings edit (the deploy restarts them).
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-26-3
+- Daily hunts (Hunt Board, !hunt, Hunt Marks) and the +4 armor tier
+
 ## patch-2026-09-26-3
 
 ### For players
