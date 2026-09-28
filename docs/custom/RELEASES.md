@@ -8,6 +8,26 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-28-2
+
+### For players
+- The **Hunt Board** and the **Armor Upgrader** in Norg have moved to their final spots.
+
+### For the admin (prod)
+- If prod is not on patch-2026-09-28 yet, this tag includes it: follow its admin notes too (turn on `ENABLE_ARMOR_UPGRADER` in `settings/main.lua`).
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none new.
+- Other manual steps: none (NPC positions are applied when xi_map starts; the deploy restarts it).
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-28
+- Move the Hunt Board and the Armor Upgrader in Norg to Eric's spots
+
 ## patch-2026-09-28
 
 ### For players
