@@ -2,7 +2,7 @@
 -- Armor Upgrader conversation: trade one Artifact, Relic or Empyrean armor piece with the retail materials of its next
 -- step, confirm, get the next tier. Trading the piece alone lists what the next step needs.
 -- Not a module (loaded by require). The chains and gil costs are in af_upgrade_config.lua, the materials in
--- af_upgrade_materials.lua. The +4 tiers are left out for now (Eric, 2026-09-26: they come with the hunt system).
+-- af_upgrade_materials.lua. The +4 step costs Hunt Marks (daily hunts, hunt_core.lua) and a Legion trophy.
 -- Augments the Augmenter put on the piece carry over to the upgraded piece. Pieces carrying other data are refused.
 -- Everything is checked again when the player says Yes. The materials and gil are taken first, then the original piece,
 -- and the new piece is made last (AF is Rare: it can't be held twice); if anything fails, everything taken comes back.
@@ -10,23 +10,31 @@
 local config    = require('modules/custom/lua/af_upgrade_config')
 local materials = require('modules/custom/lua/af_upgrade_materials')
 local core      = require('modules/custom/lua/augment_core')
+local hunts     = require('modules/custom/lua/hunt_core')
 -----------------------------------
 
 local flow = {}
 
 local npcName  = 'Armor Upgrader'
-local sessions = {} -- one pending upgrade per player: { itemId, nextId, container, slot, augments, gil, takes }
+local sessions = {} -- one pending upgrade per player: { itemId, nextId, container, slot, augments, gil, marks, takes }
 
 -- Step key of each tier, by its place in the old set and in the Reforged set
 local oldKeys      = { nil, 'oldPlus1', 'oldPlus2' }
 local reforgedKeys = { 'reforged', 'reforgedPlus1', 'reforgedPlus2', 'reforgedPlus3', 'reforgedPlus4' }
 
--- itemId -> { next = next item id or nil, step = the step key of the next item, family = 'af' / 'relic' / 'empyrean' }
+-- itemId -> { next = next item id or nil, step = the step key of the next item, family = 'af' / 'relic' / 'empyrean',
+-- slot = 1-5 (head, body, hands, legs, feet) }
 local byItem = {}
+
+-- +4 pieces -> slot, for their materials
+local plusFourSlot = {}
 
 for family, jobs in pairs(config.chains) do
     for _, slots in pairs(jobs) do
-        for _, chain in ipairs(slots) do
+        for chainIndex, chain in ipairs(slots) do
+            -- DNC Artifact has a male and a female chain per slot
+            local slot = #slots == 10 and math.ceil(chainIndex / 2) or chainIndex
+
             local ids, keys = {}, {}
 
             for index, itemId in ipairs(chain.base) do
@@ -42,10 +50,10 @@ for family, jobs in pairs(config.chains) do
             for index, itemId in ipairs(ids) do
                 local step = keys[index + 1]
 
+                byItem[itemId] = { next = ids[index + 1], step = step, family = family, slot = slot }
+
                 if step == 'reforgedPlus4' then
-                    byItem[itemId] = { family = family } -- +3 is the top for now
-                else
-                    byItem[itemId] = { next = ids[index + 1], step = step, family = family }
+                    plusFourSlot[ids[index + 1]] = slot
                 end
             end
         end
@@ -58,6 +66,10 @@ end
 
 -- The materials of the step that makes itemId: { { id, quantity }, ... }
 flow.materialsFor = function(itemId)
+    if plusFourSlot[itemId] then
+        return { { id = config.plusFour.trophy[plusFourSlot[itemId]], quantity = 1 } }
+    end
+
     local flat = materials[itemId]
 
     if flat == nil then
@@ -78,6 +90,15 @@ flow.gilFor = function(entry)
     local family = config.gil[entry.family]
 
     return family and family[entry.step] or 0
+end
+
+-- Hunt Marks the step costs (the +4 step)
+flow.marksFor = function(entry)
+    if entry.step == 'reforgedPlus4' then
+        return config.plusFour.marks[entry.slot]
+    end
+
+    return 0
 end
 
 local function formatGil(amount)
@@ -108,7 +129,7 @@ local function say(player, message)
 end
 
 -- "8 Rem's Tale Ch.6, 1 Voidwrought Plate and 50,000 gil"
-local function describe(list, gil)
+local function describe(list, gil, marks)
     local parts = {}
 
     for _, material in ipairs(list) do
@@ -117,6 +138,10 @@ local function describe(list, gil)
 
     if gil > 0 then
         table.insert(parts, formatGil(gil) .. ' gil')
+    end
+
+    if (marks or 0) > 0 then
+        table.insert(parts, marks .. ' Hunt Marks')
     end
 
     if #parts == 1 then
@@ -152,6 +177,7 @@ local function refund(player, session, taken, gilTaken)
 
     if gilTaken then
         player:addGil(session.gil)
+        hunts.addMarks(player, session.marks)
     end
 end
 
@@ -181,6 +207,10 @@ flow.commit = function(player)
         return false, string.format('This step also costs %s gil. You do not have enough.', formatGil(session.gil))
     end
 
+    if hunts.getMarks(player) < session.marks then
+        return false, string.format('This step also costs %d Hunt Marks; you have %d. Earn them with daily hunts (!hunt).', session.marks, hunts.getMarks(player))
+    end
+
     local taken = {}
 
     for _, take in ipairs(session.takes) do
@@ -197,6 +227,13 @@ flow.commit = function(player)
         refund(player, session, taken, false)
 
         return false, 'I could not take the gil, so nothing was changed.'
+    end
+
+    if not hunts.spendMarks(player, session.marks) then
+        refund(player, session, taken, false)
+        player:addGil(session.gil)
+
+        return false, 'I could not take the Hunt Marks, so nothing was changed.'
     end
 
     if not player:delItemAt(session.itemId, 1, session.container, session.slot) then
@@ -296,8 +333,9 @@ flow.onTrade = function(player, npc, trade)
         return
     end
 
-    local list = flow.materialsFor(entry.next)
-    local gil  = flow.gilFor(entry)
+    local list  = flow.materialsFor(entry.next)
+    local gil   = flow.gilFor(entry)
+    local marks = flow.marksFor(entry)
 
     if list == nil then
         say(player, 'I do not know how to make the next step of that piece yet.')
@@ -308,7 +346,7 @@ flow.onTrade = function(player, npc, trade)
     local nextName = displayName(entry.next)
 
     if #others == 0 then
-        say(player, string.format('To make %s, trade me the piece with %s.', nextName, describe(list, gil)))
+        say(player, string.format('To make %s, trade me the piece with %s.', nextName, describe(list, gil, marks)))
 
         return
     end
@@ -336,10 +374,17 @@ flow.onTrade = function(player, npc, trade)
         slot      = piece:getSlotID(),
         augments  = augments,
         gil       = gil,
+        marks     = marks,
         takes     = takes,
     }
 
-    local cost = gil > 0 and string.format(' (and %s gil)', formatGil(gil)) or ''
+    local cost = ''
+
+    if gil > 0 then
+        cost = string.format(' (and %s gil)', formatGil(gil))
+    elseif marks > 0 then
+        cost = string.format(' (and %d Hunt Marks)', marks)
+    end
 
     local options =
     {
@@ -362,7 +407,8 @@ flow.onTrade = function(player, npc, trade)
 end
 
 flow.onTrigger = function(player, npc)
-    say(player, 'I upgrade Artifact, Relic and Empyrean armor one step at a time with the same materials as the old smiths used: up to +3.')
+    say(player, 'I upgrade Artifact, Relic and Empyrean armor one step at a time with the same materials as the old smiths used.')
+    say(player, 'Artifact and Relic +4 take Hunt Marks and a Legion trophy from the daily hunts (!hunt).')
     say(player, 'Trade me a piece on its own and I will tell you what its next step needs. Augments carry over.')
 end
 

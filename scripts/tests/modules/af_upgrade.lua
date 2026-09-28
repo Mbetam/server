@@ -1,6 +1,6 @@
 -----------------------------------
 -- The Armor Upgrader (modules/custom/lua/af_upgrade_*.lua): Artifact, Relic and Empyrean armor one tier per trade, for
--- the retail materials of each step (af_upgrade_materials.lua), up to +3. And the added material drops
+-- the retail materials of each step (af_upgrade_materials.lua); +4 for Hunt Marks and a trophy. And the added material drops
 -- (modules/custom/lua/upgrade_drops*.lua).
 -----------------------------------
 
@@ -131,7 +131,7 @@ describe('Armor Upgrader', function()
         assert(count == 335, 'expected 335 chains, got ' .. count)
     end)
 
-    it('every step up to +3 has retail materials that exist, and +4 is not offered', function()
+    it('every step has materials that exist (retail ones up to +3, a trophy for +4)', function()
         local steps = 0
 
         for family, jobs in pairs(config.chains) do
@@ -155,15 +155,13 @@ describe('Armor Upgrader', function()
             end
         end
 
-        assert(flow.lookup(config.chains.af.WAR[2].reforged[4]).next == nil, 'Pummeler\'s Lorica +3 should be the top')
-        assert(flow.lookup(config.chains.relic.WAR[2].reforged[4]).next == nil, 'Agoge Lorica +3 should be the top')
-
         local count = 0
         for _ in pairs(materials) do
             count = count + 1
         end
 
-        assert(steps == count, string.format('%d steps but %d material entries', steps, count))
+        -- +4: 22 jobs x 5 slots for Artifact (+5 female DNC) and Relic, from the trophy table instead
+        assert(steps == count + 115 + 110, string.format('%d steps but %d material entries', steps, count))
     end)
 
     it('stands in Norg and in GM Home', function()
@@ -173,7 +171,7 @@ describe('Armor Upgrader', function()
         assert(norg.entities:get('DE_Armor_Upgrader') ~= nil, 'the Upgrader should be in Norg')
     end)
 
-    it('Artifact: Sagheera\'s materials for +1, then the Reforged set climbs to +3 with no gil', function()
+    it('Artifact: Sagheera\'s materials for +1, the Reforged set to +3, then +4 for 300 Hunt Marks and a trophy', function()
         local chain = fullChain('af', 'WAR', 2) -- Fighter's Lorica ... Pummeler's Lorica +4
 
         -- Retail +1: Ecarlate Cloth, Argyro Rivet, Dark Bronze Sheet and 35 Ancient Beastcoins
@@ -188,9 +186,21 @@ describe('Armor Upgrader', function()
 
         assert(player:getItemCount(chain[#chain - 1]) == 1, 'did not reach Pummeler\'s Lorica +3')
 
-        player.actions:tradeNpc('DE_Armor_Upgrader', { chain[#chain - 1] })
-        xi.test.world:skipTime(1)
-        assert(menu == nil, 'offered to make a +4')
+        -- +4 (body): 300 Hunt Marks and a Veiled Trophy
+        local marks = require('modules/custom/lua/hunt_core')
+        assert(flow.marksFor(flow.lookup(chain[#chain - 1])) == 300, 'body +4 should cost 300 Hunt Marks')
+
+        player:setCharVar('HUNT_MARKS', 299)
+        player:addItem(3532) -- veiled_trophy
+        tradeWith(chain[#chain - 1], { 3532 })
+        assert(menu ~= nil, 'no +4 menu')
+        pick('Yes')
+        assert(player:getItemCount(chain[#chain]) == 0 and player:getItemCount(3532) == 1, 'made a +4 with 299 marks')
+
+        player:delItem(3532, 1) -- Rare: upgrade() hands out a fresh one
+        player:setCharVar('HUNT_MARKS', 350)
+        upgrade(chain[#chain - 1])
+        assert(marks.getMarks(player) == 50, 'the +4 should have taken 300 marks, left ' .. marks.getMarks(player))
     end)
 
     it('Relic: +2 takes 80 Forgotten items (both Magian trials), then goes on to the Reforged set', function()

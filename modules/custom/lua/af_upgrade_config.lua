@@ -2,7 +2,7 @@
 -- Armor Upgrader: which armor it upgrades, the gil some steps cost and where it stands. Not a module (loaded by require).
 -- Eric's choices: a single NPC for Artifact, Relic and Empyrean armor (2026-09-25), taking the retail materials of each
 -- step (2026-09-26; af_upgrade_materials.lua), with added drops where the retail content is not in LSB
--- (upgrade_drops_config.lua). The +4 tiers are left out for now; they come with the hunt system.
+-- (upgrade_drops_config.lua). The +4 tiers (2026-09-26) cost Hunt Marks from the daily hunts and a Legion trophy.
 -- Each chain is the old set (base, +1, and +2 for Relic/Empyrean) followed by the Reforged set (Reforged, +1, +2, +3,
 -- and +4 for Artifact/Relic; Empyrean ends at +3, as in retail). GEO and RUN have no old sets.
 -- Generated from item_basic (names matched per job and slot; "-1" Dynamis items skipped) and checked. Two pieces carry
@@ -20,6 +20,15 @@ config.gil =
         reforgedPlus2 =  500000,
         reforgedPlus3 = 1000000,
     },
+}
+
+-- The +4 step (Artifact and Relic), by slot (head, body, hands, legs, feet). Retail pays Apollyon / Temenos Units
+-- (20,000 / 30,000 / 15,000 / 25,000 / 10,000); here Hunt Marks at 1/100 of that, plus one Legion trophy from the daily
+-- NM hunt (hunt_config.lua).
+config.plusFour =
+{
+    marks  = { 200, 300, 150, 250, 100 },
+    trophy = { 3529, 3532, 3531, 3530, 3529 }, -- lofty, veiled, soaring, mired, lofty
 }
 
 -- The NPC's look: the Moogle model the Augmenter and the Trust Vendor use

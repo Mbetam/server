@@ -52,6 +52,7 @@ custom/lua/mark_nm_placeholders.lua
 custom/lua/jug_pet_damage.lua
 custom/lua/af_upgrade_npc.lua
 custom/lua/upgrade_drops.lua
+custom/lua/hunt_board.lua
 custom/sql/armor_stats.sql
 custom/lua/armor_sets.lua
 custom/lua/trust_refresh.lua
