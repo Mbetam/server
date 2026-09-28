@@ -8,6 +8,27 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-28-3
+
+### For players
+- Nothing in game. The server now comes back on its own after a machine reboot.
+
+### For the admin (prod)
+- If prod is not on patch-2026-09-28-2 yet, this tag includes it: follow its admin notes too (`ENABLE_ARMOR_UPGRADER = true`).
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none new.
+- Other manual steps (sudo, Eric): install the boot unit, see docs/custom/NOTES.md "Servers start at boot". Check that
+  the user and path in `tools/custom/xi-servers.service.example` (mbetam, /home/mbetam/server) match prod first.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-28-2
+- Start the four servers at boot: start_servers.sh and a boot-only systemd unit
+
 ## patch-2026-09-28-2
 
 ### For players
