@@ -1696,3 +1696,24 @@ Install (sudo, so Eric runs it; in a real terminal if sudo needs a password):
     sudo systemctl enable xi-servers.service
 Check after the next reboot: `systemctl status xi-servers` and `pgrep -a xi_`. Undo: `sudo systemctl disable
 xi-servers.service` and delete the file. Prod has the same gap; the same unit works there after this is deployed.
+
+## 2026-09-28 — Healer trusts: Protectra / Shellra retry only for the master (prod report)
+
+Prod's trust log: Yoran-Oran (UC) recast Protectra II / Shellra II every minute with Roddy, Joachim and Cornelia in
+the party. Cornelia stays out of the fight (NON_COMBAT movement), out of the -ra spells' 10-yalm range, so she never
+got Protect / Shell, and the 60 s retry from the 09-24 fix checked the whole party: endless recasts with any trust that
+hangs back. Fix in the same 6 trusts (Apururu (UC), Kupipi, Karaha-Baruha, Yoran-Oran (UC), Cherukiki, Mihli
+Aliapoh): the 60 s retry now checks only the master (`ai.t.MASTER`); the "healer lacks it herself" cast still covers
+everyone in range. The gambit system has no "within range" condition, so this is the simplest correct change.
+Test: `trust_healers.lua` "does not recast ... for a trust that never gets them" (Naji stripped of Protect / Shell
+every second for 200 s: 3 Protectras on the old scripts, at most 2 now); trust_healers 15/15.
+Not looked at (prod was unsure too): Yoran-Oran sitting at 3000 TP without a weaponskill.
+
+## 2026-09-28 — Kill EXP x2.5 (test; prod needs the same settings edit)
+
+Eric: raise the EXP rate for kills to 2.5. `settings/map.lua` `EXP_RATE` 1.8 -> 2.5 (git-ignored; prod must copy it
+by hand). That one setting also scales capacity points (charutils AddCapacityPoints x map.EXP_RATE, then
+x CAPACITY_RATE 1.0), so CP from kills is x2.5 too. Unchanged: `settings/main.lua` EXP_RATE / BOOK_EXP_RATE /
+ROE_EXP_RATE stay 1.8 (quests, FoV/GoV pages and daily hunts, RoE).
+Gotcha: `sed -i` replaces the file and the file watcher did not reload it; rewriting the file in place did
+("RELOADING ALL LUA SETTINGS FILES" in the log).

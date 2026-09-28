@@ -265,6 +265,35 @@ describe('Healer and support trusts', function()
         assert(casts(shellras) <= 3, casts(shellras) .. ' Shellras in 90 s: still spamming. ' .. dump())
     end)
 
+    -- Prod, 2026-09-28: Yoran-Oran recast Protectra II / Shellra II every minute because Cornelia stays back out of the
+    -- -ra range and never got them; the 60 s retry looked at the whole party. It now looks only at the master.
+    it('Yoran-Oran (UC) does not recast Protectra/Shellra every minute for a trust that never gets them', function()
+        local yoran, other = summon(spell.YORAN_ORAN_UC, spell.NAJI)
+
+        -- Naji loses Protect and Shell every second, like Cornelia standing out of range; the master keeps them
+        fight(200, function()
+            other:delStatusEffect(xi.effect.PROTECT)
+            other:delStatusEffect(xi.effect.SHELL)
+        end)
+
+        local function casts(ids)
+            local n = 0
+
+            for _, id in ipairs(ids) do
+                for _, count in pairs(used.spell[id] or {}) do
+                    n = n + count
+                end
+            end
+
+            return n
+        end
+
+        assert(player:hasStatusEffect(xi.effect.PROTECT) and player:hasStatusEffect(xi.effect.SHELL), 'the master should have Protect and Shell. ' .. dump())
+        -- The first casts (plus one lower tier while the higher one recasts) are fine; one more every minute is not
+        assert(casts(protectras) <= 2, casts(protectras) .. ' Protectras in 200 s: recasting for the other trust. ' .. dump())
+        assert(casts(shellras) <= 2, casts(shellras) .. ' Shellras in 200 s: recasting for the other trust. ' .. dump())
+    end)
+
     -----------------------------------
     -- Yoran-Oran (UC)
     -----------------------------------
