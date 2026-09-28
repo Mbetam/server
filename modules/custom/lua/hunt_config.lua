@@ -55,8 +55,8 @@ config.npcModel = 82
 
 config.placements =
 {
-    -- Norg, next to the Armor Upgrader
-    { zone = 'Norg', x = -24.6567, y = 1.0977, z = -37.6453, rotation = 4 },
+    -- Norg, near the Armor Upgrader. Chosen by Eric with !pos (2026-09-28).
+    { zone = 'Norg', x = -9.3516, y = 1.0977, z = -27.6831, rotation = 126 },
 
     -- GM Home, for testing
     { zone = 'GM_Home', x = 14.0, y = 0.0, z = 3.0, rotation = 128 },

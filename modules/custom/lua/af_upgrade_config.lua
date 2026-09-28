@@ -37,8 +37,8 @@ config.npcModel = 82
 -- Where the NPC stands. Stand where you want it in game, use !pos, then edit here. Rotation 0-255 (0 = east).
 config.placements =
 {
-    -- Norg, near the Augmenter and the Trust Vendor. Chosen by Eric with !pos (2026-09-25).
-    { zone = 'Norg', x = -26.6567, y = 1.0977, z = -35.6453, rotation = 4 },
+    -- Norg, near the Augmenter and the Trust Vendor. Chosen by Eric with !pos (moved 2026-09-28).
+    { zone = 'Norg', x = -20.4356, y = 1.0977, z = -29.3489, rotation = 28 },
 
     -- GM Home, for testing
     { zone = 'GM_Home', x = 12.0, y = 0.0, z = 3.0, rotation = 128 },
