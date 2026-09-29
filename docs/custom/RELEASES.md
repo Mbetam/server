@@ -8,6 +8,26 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-29-2
+
+### For players
+- **New command: `!shop1`** buys a Clear Abyssite (Voidwalker key item) for 1,000 gil from anywhere. `!Shop1` works too.
+
+### For the admin (prod)
+- If prod is not on patch-2026-09-29 yet, this tag includes it: follow its admin notes too.
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none.
+- Other manual steps: none. New command file `modules/custom/commands/shop1.lua` (the commands folder is already in `modules/init.txt`).
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-29
+- !shop1: buy a Clear Abyssite (Voidwalker) for 1,000 gil anywhere (febff92c52)
+
 ## patch-2026-09-29
 
 ### For players
