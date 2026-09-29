@@ -1,5 +1,5 @@
 -----------------------------------
--- QoL commands (modules/custom/commands/): !home, !tele, !telelist, !shop
+-- QoL commands (modules/custom/commands/): !home, !tele, !telelist, !shop, !shop1
 -----------------------------------
 
 describe('QoL commands', function()
@@ -254,6 +254,36 @@ describe('QoL commands', function()
             run('telelist')
 
             assert(said():find('no teleport points', 1, true), 'a deleted point should not be listed')
+        end)
+    end)
+
+    describe('!shop1', function()
+        before_each(function()
+            player = xi.test.world:spawnPlayer({ zone = xi.zone.WEST_RONFAURE })
+        end)
+
+        it('sells a Clear Abyssite for 1,000 gil, once', function()
+            assert(xi.commands.shop1 ~= nil and xi.commands.shop1.cmdprops.permission == 0, '!shop1 is not a command every player can use')
+            assert(xi.commands.Shop1 == xi.commands.shop1, '!Shop1 (capital S) should work too')
+            player:setGil(5000)
+
+            run('shop1')
+            assert(player:hasKeyItem(xi.keyItem.CLEAR_ABYSSITE), 'no Clear Abyssite')
+            assert(player:getGil() == 4000, 'expected 1,000 gil taken, have ' .. player:getGil())
+
+            run('shop1')
+            assert(player:getGil() == 4000, 'charged again while already holding one')
+        end)
+
+        it('refuses without the gil, and while KO\'d', function()
+            player:setGil(999)
+            run('shop1')
+            assert(not player:hasKeyItem(xi.keyItem.CLEAR_ABYSSITE) and player:getGil() == 999, 'sold without enough gil')
+
+            player:setGil(5000)
+            knockOut()
+            run('shop1')
+            assert(not player:hasKeyItem(xi.keyItem.CLEAR_ABYSSITE), 'sold while KO\'d')
         end)
     end)
 

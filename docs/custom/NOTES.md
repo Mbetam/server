@@ -1794,3 +1794,10 @@ From Eric's `jse-weapon-progression-prompt.md`; plan approved with all of my rec
 - Follow-up (Eric): the three Magian Moogles no longer run any retail Magian dialogue or trades. Talking lists the
   family's stages, each material and the NM / zone that drops it; a non-JSE trade gets "I only upgrade <family>
   weapons". Retail Magian trials are therefore off until the custom trials replace them. jse_progression 9/9.
+
+## 2026-09-29 — !shop1: buy a Clear Abyssite anywhere
+
+Eric asked for a command to buy the Voidwalker abyssite. `modules/custom/commands/shop1.lua`: 1,000 gil (Assai Nybaem's
+price), refused if already held, without the gil, or when blocked (KO, battle, event, battlefield; qol_common). Command
+names are matched exactly as typed (command_handler.cpp looks up `xi.commands[cmdName]`), so it is registered as both
+!shop1 and !Shop1. Tests in `scripts/tests/modules/qol_commands.lua` (23/23).
