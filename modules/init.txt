@@ -53,6 +53,13 @@ custom/lua/jug_pet_damage.lua
 custom/lua/af_upgrade_npc.lua
 custom/lua/upgrade_drops.lua
 custom/lua/hunt_board.lua
+custom/lua/voidwalker_drops.lua
+custom/lua/abyssea_rework.lua
+custom/lua/abyssea_pops.lua
+custom/lua/oboro_npc.lua
+custom/jse_progression/jse_chest.lua
+custom/jse_progression/jse_moogles.lua
+custom/jse_progression/jse_abyssea.lua
 custom/sql/armor_stats.sql
 custom/lua/armor_sets.lua
 custom/lua/trust_refresh.lua
