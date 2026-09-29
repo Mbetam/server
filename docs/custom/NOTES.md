@@ -1699,7 +1699,7 @@ xi-servers.service` and delete the file. Prod has the same gap; the same unit wo
 
 ## 2026-09-28 — Healer trusts: Protectra / Shellra retry only for the master (prod report)
 
-Prod's trust log: Yoran-Oran (UC) recast Protectra II / Shellra II every minute with Roddy, Joachim and Cornelia in
+Prod's trust log: Yoran-Oran (UC) recast Protectra II / Shellra II every minute with a tester, Joachim and Cornelia in
 the party. Cornelia stays out of the fight (NON_COMBAT movement), out of the -ra spells' 10-yalm range, so she never
 got Protect / Shell, and the 60 s retry from the 09-24 fix checked the whole party: endless recasts with any trust that
 hangs back. Fix in the same 6 trusts (Apururu (UC), Kupipi, Karaha-Baruha, Yoran-Oran (UC), Cherukiki, Mihli
@@ -1717,3 +1717,80 @@ x CAPACITY_RATE 1.0), so CP from kills is x2.5 too. Unchanged: `settings/main.lu
 ROE_EXP_RATE stay 1.8 (quests, FoV/GoV pages and daily hunts, RoE).
 Gotcha: `sed -i` replaces the file and the file watcher did not reload it; rewriting the file in place did
 ("RELOADING ALL LUA SETTINGS FILES" in the log).
+
+## 2026-09-28 — Voidwalker checked (works) and personal drops added
+
+Eric asked if Voidwalker works. It does (`ENABLE_VOIDWALKER = 1`, LSB default): `scripts/tests/systems/voidwalker.lua`
+buys a Clear Abyssite from Assai Nybaem (Ru'Lude Gardens, 1,000 gil), pops a hidden NM by resting next to it
+(`xi.voidwalker.onHealing`, what /heal calls), kills it and sees the 1-in-10 upgrade to Colorful. 25 field zones.
+Personal drops (Eric): `modules/custom/lua/voidwalker_drops.lua` overrides `xi.voidwalker.onMobDeath`, which the game
+calls once per party / alliance member in the zone, and gives each member their own items straight to the inventory
+(npcUtil.giveItem; a full inventory loses them). Tier = the abyssite the NM was popped with:
+T1 Clear = Pluton 20-50; T2 Colorful = Riftborn Boulder 20-50; T3 Blue / Orange / Brown / Yellow / Grey = Chunk of
+Beitetsu 20-50; boss Black = all three, 20-50 each. Tests 4/4 (party member gets their own, boss gives all three).
+Test gotcha: a Voidwalker killed in one test stays dead-not-despawned in the next; use another spawn of the same NM.
+
+## 2026-09-28 — Abyssea rework: cruor from kills, unlimited Visitant, level 80 Empyrean weapons from NMs
+
+Audit first (CONTENT_STATUS.md): Abyssea is mostly coded, but kills gave no cruor (LSB left it commented out in
+charutils.cpp: retail chain formula unknown, and it only paid on EXP-giving kills), yellow / blue proc drop bonuses are
+a TODO, a second proc of the same colour turns the proc back off (possible bug, unverified), 121 of 192 Abyssea quests
+(side quests and per-zone repeatables) are unscripted. The story, Heroes and Dominion Ops are scripted.
+Eric: fix cruor, unlimited time, level 80 weapons from named NMs. `modules/custom/lua/abyssea_rework.lua`:
+- Cruor on every kill in an Abyssea zone, to each alliance member in the zone (via `xi.mob.onMobDeathEx`), no EXP
+  needed: level x 3 (normal), level x 30 (NMs). Message CRUOR_TOTAL "Obtained N cruor. (Total: N)".
+- Visitant permanent with the real icon on zone-in (same as LSB's GM path: no duration, no tick, no countdown).
+  The Conflux Surveyor time purchase and the Sturdy Pyxis time reward would re-time it, so both are replaced with a
+  message.
+- Weapons (10% each, own roll, before the x2 drop multiplier): Briareus Almace / Kannagi; Carabosse Armageddon /
+  Masamune / Caladbolg; Glavoid Twashtar / Ukonvasara; Chloris Redemption / Rhongomiant / Verethragna; Kukulkan
+  Hvergelmir; Fistule Gambanteinn / Gandiva / Farsha; Ironclad Smiter Ochain / Daurdabla (no level 80 version: 85).
+- NM pop key items 50% (was 20%; red proc still certain; Atma rolls unchanged), via `xi.abyssea.canGiveNMKI`.
+- Tests `scripts/tests/modules/abyssea_rework.lua` 5/5; modules/ 512/512. xi_map restarted on test, log clean.
+
+## 2026-09-28 — Oboro made to work: Relic / Mythic / Empyrean 99 -> 119 -> 119 III
+
+LSB's Oboro (Port Jeuno) only said one line (`DefaultActions.lua` event 365); his "Oboro weapons" were Kupon-only.
+Eric's rules: 99 -> 119 costs 300, 119 -> 119 III (direct, no 119 II step) costs 1,000; Relic = Pluton, Mythic =
+Riftborn Boulder, Empyrean = Beitetsu. Materials stack to 99 and a trade has 8 slots (1,000 = 11 stacks), so Oboro
+stores them (char vars OBORO_PLUTON / OBORO_BOULDER / OBORO_BEITETSU, max 99,999): trade materials alone to store,
+then the weapon alone for a Yes / No menu. Files: `modules/custom/lua/oboro_config.lua` (50 chains from item_basic:
+14 Relic, 22 Mythic, 14 Empyrean; 99 and 99 II both count as 99; a 119 II goes to 119 III; Idris / Epeolatry have
+no 99 version; shields / instruments have no 119 versions), `oboro_flow.lua`, `scripts/zones/Port_Jeuno/npcs/Oboro.lua`.
+Removed Oboro's line from `scripts/zones/Port_Jeuno/DefaultActions.lua`: with both, the interaction system alternates
+between the default action and the script on every other click. Tests `scripts/tests/modules/oboro.lua` 5/5.
+Sources of the materials: Voidwalker personal drops (Pluton T1, Riftborn Boulder T2, Beitetsu T3, all three from bosses).
+
+## 2026-09-29 — JSE weapon progression (Relic / Mythic / Empyrean through Abyssea) + Abyssea pops fixed
+
+From Eric's `jse-weapon-progression-prompt.md`; plan approved with all of my recommendations. Everything is in modules.
+- **Abyssea pops (general fix, `modules/custom/lua/abyssea_pops.lua` + generated `abyssea_pops_data.lua`,
+  `tools/custom/gen_abyssea_pops.py`):** every ??? in Vunkerl, Misareaux and Uleguerand (70) had onTrade / onTrigger
+  commented out upstream: no NM there could be popped. Now retail requirements from the BG zone NM tables, each ???
+  popping the nearest spawn of its NM (spawns with no position are never loaded, skipped). xi.abyssea.qmOnTrigger
+  only pops ids in the zone's IDs table, which is rebuilt at zone load, so the id is registered right before each
+  check. Myrmecoleon (Tahrongi, retail: drag Lachrymater onto it) had no spawn: killing Lachrymater now brings it out.
+  Tuskertrap's pop item (Spotted Flyfrond) drops from nothing (not needed for JSE). My earlier "all pops sourced"
+  check only looked at pop items, not at whether the ??? scripts worked.
+- **JSE (`modules/custom/jse_progression/`):** `jse_config.lua` (52 weapons, materials, drops, difficulty),
+  `jse_progress.lua` (char vars JSE_ACTIVE_WEAPON = base item id, JSE_RELIC_DONE / JSE_MYTHIC_DONE / JSE_EMPY_DONE),
+  `jse_chest.lua` (Splintery Chest 17772781: family -> paged weapons -> confirm, 500,000 gil; checks level 99,
+  nothing in progress (a lost weapon can be bought again), family unlocked, gil; retail starter weapons kept as the
+  last option), `jse_moogles.lua` (green 17772784 Relic, orange 17772778 Mythic, blue 17772782 Empyrean: active
+  weapon + exact materials -> next stage; everything else falls through to retail Magian code), `jse_abyssea.lua`
+  (27 NM material drops: 100% + second at 50% with the x2 multiplier divided out, existing drops kept; HP / ATTP /
+  MATT x1.00 Relic, x1.15 Mythic, x1.30 Empyrean zones, megabosses x1.25 more, applied on spawn without stacking).
+  Empyrean bases are the level 80 items (no 75 exists); Daurdabla / Ochain start at 85; Gjallarhorn, Aegis,
+  Daurdabla, Ochain have no 119 and finish at 99.
+- **Oboro moved** (`modules/custom/lua/oboro_npc.lua`): a new NPC with his exact look (raw look string) in Ru'Lude
+  Gardens at X 10.5124, Y 3.1 (height; matches the chest's y 3.100), Z 116.5696, rot 126; the Port Jeuno one is
+  hidden. A 119 III finishes the family (done flag, active cleared). My earlier core edits in Port Jeuno (Oboro.lua,
+  DefaultActions line) were reverted.
+- **Gotcha:** Ru'Lude's DefaultActions gives the Splintery Chest a flavour line; with a script too, the interaction
+  framework alternates on every other click. `jse_chest.lua` removes the entry from the require-cached DefaultActions
+  table before the framework reads it (no core edit).
+- Removed the level 80 Empyrean drops from `abyssea_rework.lua` (they bypassed the chest).
+- Tests: `modules/jse_progression.lua` 8/8, `modules/abyssea_pops.lua` 5/5, `modules/oboro.lua` 6/6; modules/ 531/531.
+- Follow-up (Eric): the three Magian Moogles no longer run any retail Magian dialogue or trades. Talking lists the
+  family's stages, each material and the NM / zone that drops it; a non-JSE trade gets "I only upgrade <family>
+  weapons". Retail Magian trials are therefore off until the custom trials replace them. jse_progression 9/9.
