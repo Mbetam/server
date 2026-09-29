@@ -8,6 +8,32 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-29
+
+### For players
+- **JSE weapons (Relic, Mythic, Empyrean) in Ru'Lude Gardens.** Buy a base weapon from the Splintery Chest (500,000 gil, one at a time, level 99), upgrade it to 85 / 95 / 99 at the Magian Moogle of its family (green Relic, orange Mythic, blue Empyrean) with materials from Abyssea NMs, then Oboro takes it to 119 and 119 III. Finishing a Relic unlocks Mythics; finishing a Mythic unlocks Empyreans. Talk to a moogle for the full material list.
+- **Oboro has moved to Ru'Lude Gardens**, next to the Splintery Chest.
+- **Abyssea:** kills give cruor, Visitant status never runs out, NM pop key items drop 50% of the time, and every ??? in Vunkerl, Misareaux and Uleguerand works (they could not be popped before). Myrmecoleon (Tahrongi) appears when you defeat Lachrymater.
+- **Voidwalker NMs** give everyone in the party their own Pluton, Riftborn Boulder or Beitetsu (20-50 per kill by tier; bosses give all three).
+- The Magian Moogles in Ru'Lude no longer run retail Magian trials.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none.
+- Other manual steps: none. New entries in `modules/init.txt` (come with the tag): `custom/lua/voidwalker_drops.lua`, `custom/lua/abyssea_rework.lua`, `custom/lua/abyssea_pops.lua`, `custom/lua/oboro_npc.lua`, `custom/jse_progression/jse_chest.lua`, `custom/jse_progression/jse_moogles.lua`, `custom/jse_progression/jse_abyssea.lua`.
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+
+### Commits since patch-2026-09-28-4
+- Abyssea: cruor from kills, unlimited Visitant, 50% pop key items; fix 70 disabled pops (0d397e5f09)
+- Voidwalker: personal drops by tier (Pluton, Riftborn Boulder, Beitetsu) (783d57cca1)
+- JSE weapon progression (Relic / Mythic / Empyrean through Abyssea) and Oboro (56a95742f9)
+- Content audit: what retail content has code here, and what does not (78e90738b2)
+
 ## patch-2026-09-28-4
 
 ### For players
