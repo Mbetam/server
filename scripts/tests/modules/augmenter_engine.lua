@@ -70,10 +70,14 @@ describe('Augmenter NPC', function()
         assert(player.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in GM Home')
     end)
 
-    it('stands in Norg', function()
-        local norg = xi.test.world:spawnPlayer({ zone = xi.zone.NORG })
+    it('stands at Eric\'s spot in Western Adoulin, and no longer in Norg', function()
+        local adoulin   = xi.test.world:spawnPlayer({ zone = xi.zone.WESTERN_ADOULIN })
+        local augmenter = adoulin.entities:get('DE_Augmenter')
 
-        assert(norg.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in Norg')
+        assert(math.abs(augmenter:getXPos() - 29.4549) < 0.01 and math.abs(augmenter:getZPos() - 18.2979) < 0.01, 'the Augmenter is not at X 29.4549 Z 18.2979')
+
+        local norg = xi.test.world:spawnPlayer({ zone = xi.zone.NORG })
+        assert(not pcall(function() return norg.entities:get('DE_Augmenter') end), 'the Augmenter is still in Norg')
     end)
 
     it('only starts a conversation when an item is traded', function()

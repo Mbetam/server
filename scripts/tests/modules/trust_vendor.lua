@@ -116,12 +116,12 @@ describe('Trust Vendor', function()
         assert(player.entities:get('DE_Trust_Vendor') ~= nil, 'the Trust Vendor should be in GM Home')
     end)
 
-    it('stands in Norg next to the Augmenter, and no longer in Lower Jeuno', function()
+    it('stands in Norg, and no longer in Lower Jeuno', function()
         local norg  = xi.test.world:spawnPlayer({ zone = xi.zone.NORG })
         local jeuno = xi.test.world:spawnPlayer({ zone = xi.zone.LOWER_JEUNO })
 
+        -- (The Augmenter used to stand next to it; it moved to Western Adoulin on 2026-09-30.)
         assert(norg.entities:get('DE_Trust_Vendor') ~= nil, 'the Trust Vendor should be in Norg')
-        assert(norg.entities:get('DE_Augmenter') ~= nil, 'the Augmenter should be in Norg')
         -- entities:get raises an error when the entity is not in the zone
         assert(not pcall(function() return jeuno.entities:get('DE_Trust_Vendor') end), 'the Trust Vendor should have left Lower Jeuno')
     end)
