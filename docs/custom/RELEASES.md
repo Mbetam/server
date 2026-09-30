@@ -8,6 +8,44 @@ Keep public IPs and passwords out of this file. It is tracked in git.
 
 <!-- new releases go below this line -->
 
+## patch-2026-09-30
+
+### For players
+- **Boss arenas (Rem's Tales):** talk to the Battle Archivist in Western Adoulin, pick Tier 1-5, and you and your
+  party (within 15 yalms) go straight into your own private arena. The Arena Moogle calls the bosses one at a time
+  (30 minutes each). Everyone inside gets their own personal drops, and every boss has loot to roll for.
+  - Tier 1 (Lv125): Behemoth, Adamantoise, Fafnir, Cerberus, Hydra (Rem's Tale ch. 1-5), Khimaira (Pluton Box)
+  - Tier 2 (Lv128): Tojil, Wopket, Muyingwa, Cailimh, Dakuwaqa (ch. 6-10), Utkux (Beitetsu Box)
+  - Tier 3 (Lv130): Glassy Craver and Glassy Gorger (3-6 Paragon cards of your job), Glassy Thinker (Boulder Box)
+  - Tier 4 (Lv139): Fu, Gin, Kei, Kin, Kyou; Tier 5 (Lv139): Ou (1-3 of a random box). Retail loot to roll for.
+  Tiers 2-5 use retail HP (Ou ~1.4M) and real TP moves. Bring a group.
+- **!hangout:** anyone can warp to the hangout spot in Western Adoulin.
+- **Augmenter** moved from Norg to Western Adoulin.
+- **Voidstone Keeper** (a Mithra next to the Augmenter): one voidstone per Vana'diel day (about an hour). Unclaimed
+  ones pile up with no limit. Voidwatch itself is not in the game yet.
+
+### For the admin (prod)
+- Settings to copy by hand into prod's git-ignored `settings/*.lua`: none
+- Other manual steps (sudo, systemd, one-off commands): none. (Test has a new `mbetam_xi_test` database for xi_test;
+  prod never runs xi_test and does not need it.)
+- Rebuild: no
+- `sql/` files that `dbtool update` will re-import:
+  - none
+- Module SQL that `dbtool update` runs (new, both safe to repeat): `modules/custom/sql/htbf_arena.sql` (the arena
+  instance, 18300), `modules/custom/sql/htbf_bosses.sql` (custom boss pools, groups, resists, spell lists)
+- New custom migrations:
+  - none
+- `settings/default/` changed upstream (compare with prod's `settings/*.lua`):
+  - none
+- After deploy, check: the Battle Archivist and the Voidstone Keeper stand in Western Adoulin, and
+  `SELECT instanceid FROM instance_list WHERE instanceid = 18300;` returns a row.
+
+### Commits since patch-2026-09-29-2
+- tools/custom/run_tests.sh: run xi_test against its own database (ae342d97a8)
+- !hangout: everyone can warp to the hangout spot in Western Adoulin (ea0f261486)
+- Augmenter moves to Western Adoulin; Voidstone Keeper (Mithra) hands out voidstones (cd2ca3620e)
+- Boss arenas for Rem's Tales: 5 tiers of private boss fights from the Battle Archivist (a7decea065)
+
 ## patch-2026-09-29-2
 
 ### For players
