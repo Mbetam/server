@@ -1,0 +1,17 @@
+-----------------------------------
+-- Royal Decree
+-- Family: Caturae (Omen / Provenance)
+-- Description: AoE dark damage. Support job restricted
+-- Custom (LSB has the skill row and animation but had no script): built with modules/custom/htbf/mobskill_kit.lua from
+-- BG Wiki's description, for the boss arenas.
+-----------------------------------
+return require('modules/custom/htbf/mobskill_kit').move(
+{
+    kind = 'magical',
+    element = xi.element.DARK,
+    power = 4.5,
+    effects =
+    {
+        { xi.effect.SJ_RESTRICTION, 1, 0, 30 },
+    },
+})

@@ -1801,3 +1801,192 @@ Eric asked for a command to buy the Voidwalker abyssite. `modules/custom/command
 price), refused if already held, without the gil, or when blocked (KO, battle, event, battlefield; qol_common). Command
 names are matched exactly as typed (command_handler.cpp looks up `xi.commands[cmdName]`), so it is registered as both
 !shop1 and !Shop1. Tests in `scripts/tests/modules/qol_commands.lua` (23/23).
+
+## 2026-09-29 — Hard-mode battlefields for Rem's Tales (Tier 1 Zilart, Tier 2 Promathia)
+
+Eric: free high-tier fights, picked at an NPC, for a fresh 119 player with trusts or a duo; Rem's Tale chapters as
+personal drops; pairing 6+1, 7+2, 8+3, 9+4, 10+5. LSB has no HTBF / difficulty mode, but the mission fights are
+scripted, so hard mode reuses them. `modules/custom/htbf/`:
+- `htbf_config.lua`: 12 fights (Ark Angels HM/EV/TT/MR/GK -> Ch1..5, Divine Might / Celestial Nexus -> random Ch1-5,
+  2-3 per win; One to be Feared 6+1, Warrior's Path 7+2, Dawn 8+3, Desires of Emptiness 9+4, Century of Hardship
+  10+5, 2 each), entry positions from the zone data, scaling T1 level 125 / HP x4 / +50% attack and magic attack,
+  T2 level 128 / x5 / +75%. Hub at Eric's !pos in Ru'Lude Gardens (X 2.9559, Y 3.1, Z 114.6503, rot 121).
+- `htbf_hub.lua`: the Battle Archivist (tier -> fight -> confirm) signs up the picker and every party / alliance
+  member within 15 yalms (char var HTBF_PICK = battlefield id) and sends them to the entry point. Free.
+- `htbf_battlefield.lua`: overrides `BattlefieldMission.checkRequirements` and `Battlefield.checkRequirements`
+  (Divine Might is a quest fight on the base class, with a traded Ark Pentasphere) so signed-up players enter with
+  nothing; `Battlefield.onBattlefieldInitialize` marks the fight hard when the initiator is signed up and scales every
+  monster on each spawn (setMobLevel recalculates, so no stacking; normal fights reset ATTP / MATT);
+  `Battlefield.onBattlefieldStatusChange` (no fight overrides it; Century of Hardship overrides onBattlefieldLeave)
+  gives each player inside their chapters on WON and sends everyone back to the Archivist after the arena lets
+  them go. Winning hard mode while actually on that mission can still advance the story (left as-is).
+- Tests `scripts/tests/modules/htbf.lua` 6/6; modules/ 540/540. A temporary sweep of all 12 in hard mode: all enter
+  and are scaled; 8 run clean to the win and chapters (5 Ark Angels, Divine Might, Desires, Century). Celestial
+  Nexus (Eald'narche phase 2), One to be Feared (3 rounds), Warrior's Path (Tenzen is scripted not to die) and Dawn
+  (phase cutscenes) could not be finished by the test helper's kill-all: check those in game.
+- Test gotcha: the harness does not run player timers; the return uses `htbf.schedule`, which the test swaps.
+- Follow-up after Eric's in-game test ("they all worked"; wanted no cutscenes, got a black screen instead of the warp
+  back, wanted chapters for every round): in hard mode (1) the entry cutscene is skipped (the fight's per-player
+  "CS" var is set on sign-up, so the entry menu tells the client to skip it); (2) there is no win / loss cutscene:
+  `Battlefield.onBattlefieldLeave` sends hard-mode players straight to the Archivist (1 s timer; KO'd players are
+  left to home point). The black screen came from the warp landing between the win cutscene 32001 and the fights'
+  follow-up events; (3) multi-round fights move on without their cutscenes and every round drops the fight's
+  chapters: One to be Feared (mammets -> Omega -> Ultima: heal, spawn next; 3 drops), Celestial Nexus and Dawn
+  (32004 -> the fight's own onEventFinishBattlefield; 2 drops). Their round handlers are wrapped once and, in hard
+  mode, run with a battlefield stand-in whose getPlayers() is empty, so they do their work but start no cutscene.
+  Hard-mode wins no longer set the mission's battlefieldWin flag (no story progress). htbf.lua 9/9, modules/ 543/543.
+  Test note: Eald'narche and his Exoplates are unkillable until the fight's order is met; the test lifts that.
+
+## 2026-09-30 — Boss arenas for Rem's Tales (HTBF v2), replacing the hard-mode battlefields
+
+Eric redesigned HTBF and picked every option on a decisions page ("Boss Arena Blueprint" artifact, saved to its db as
+`decisions/htbf`): a hub zone with 4 sections, a private arena per party, a Moogle inside that spawns just the boss,
+tiers T1 125 / HP x1.5 / +15%, T2 128 / x2 / +25%, T3 130 / x3 / +35%; T1 boss n -> Ch n, T2 boss n -> Ch 5+n, T3 boss
+n -> Ch 5+n and Ch n, 2-3 of each per player; free, no cooldown, 30 minutes per boss; party / alliance and trusts;
+stay in the arena after a win; replace the v1 system; the Archivist moves to Western Adoulin (his future main hub,
+X 12.0314 Y -0.15 Z 20.3859 rot 46). He left the boss picks to Claude. v1 was never committed (nothing on prod).
+- New zones are impossible (they live in the client). Hub: Abdhaljs Isle-Purgonorgo (44, unused, no monsters).
+  Arena: Maquette Abdhaljs-Legion A (183, instanced, trusts allowed, unused), one wing (walkable x 130..190,
+  z -188..-128, height 12, from its navmesh). Instance 18300 `htbf_arena`: `modules/custom/sql/htbf_arena.sql`
+  (REPLACE, re-run by dbtool on every update) + `scripts/zones/Maquette_Abdhaljs-Legion_A/instances/htbf_arena.lua`
+  (one line: returns the module's instance object).
+- Boss copies are dynamic mobs (`instance:insertDynamicEntity` with groupId / groupZoneId). Snag: that reads
+  mob_groups / mob_pools from SQL, and since the YAML move only instance zones (and a few) are still in SQL, so the
+  Ark Angels, Omega / Ultima, Promathia, Tiamat, Kirin... cannot be copied without a core change (and their scripts
+  lean on their battlefields and pets). Nyzul Isle's SQL groups hold copies of the famous NMs, so the roster is:
+  T1 Behemoth, Adamantoise, Simurgh, Roc, Serket; T2 Fafnir, Genbu, Seiryu, Byakko, Suzaku; T3 Cerberus, Hydra,
+  Khimaira, Ash Dragon, Alexander (Waking the Colossus). Each copy borrows the fight hooks of its retail script (world
+  NM versions; the four gods from The Shrine of Ru'Avitau), loaded like the server does (captures `mixins`), never
+  onMobDeath / onMobDespawn; respawn timer cleared after insert. Alexander skips his spawn listener and engage text
+  (Nyzul Isle message ids, Alexander_Image adds).
+- `modules/custom/htbf/`: `htbf_config.lua` (all numbers and positions), `htbf_arena.lua` (plain lib: open, boss spawn
+  and scaling, chapters, Moogle / exit menus, instance object: close when empty 30 s, boss leaves after 30 min or 3 min
+  of everyone KO'd), `htbf_hub.lua` (module: Archivist in Western Adoulin, 4 floating-book markers + a return
+  Archivist on the hub, Maquette A `onInstanceZoneIn` / `onInstanceLoadFailed` send stragglers to the hub instead of
+  Mhaura). `htbf_battlefield.lua` (v1) deleted; init.txt lists `custom/sql/htbf_arena.sql` instead.
+- Hub marker positions are Claude's picks from the navmesh at the arrival height (-3): move them with Eric's !pos.
+  Models: markers 2290 (floating book), Moogles 82, arena exit 51 (homepoint crystal, not seen in game yet).
+- Tests `scripts/tests/modules/htbf.lua` 23/23: entry with a party, every one of the 15 bosses spawns at its tier
+  level, runs its borrowed hooks and drops its chapters, one boss at a time, time limit, exit, empty arena closes.
+  Harness gotchas: it only ticks zones whose own player list is non-empty, and players in an instance are not on it,
+  so nothing inside an arena gets an AI tick in tests (no death processing, no zoning out): tests call the death hook
+  and swap `arena.toHub` / `arena.despawn` / `arena.chars`. `skipTime` moves the steady clock, not `GetSystemTime`.
+- modules/: one run segfaulted in Daily hunts ("one reroll a day", a queued Lua action in the Ru'Lude Gardens tick);
+  two more full runs 557/557, and no subset reproduced it. Not tied to this change so far; watch for it.
+
+## 2026-09-30 — Arena books moved; !hangout
+
+- Eric's in-game check of the boss arenas: "looks and feels great". Tier 1 book moved to where Tier 2 was
+  (514, -3, 531); Tier 2 book to his !pos (521.0361, -2.7955, 530.4939, rot 191). Zone NPCs: needed an xi_map restart.
+- `!hangout` (and `!Hangout`), everyone: sends you to Western Adoulin X 23.6316 Y 1.0 Z -13.9023 rot 203 (Eric's
+  !pos). Same blocks as !home (KO, battle, event, battlefield, instance; qol_common). `modules/custom/commands/hangout.lua`;
+  tests in `scripts/tests/modules/qol_commands.lua` (25/25).
+
+## 2026-09-30 — Boss arenas: Cerberus pulled Eric into the void (lair guards)
+
+Eric engaged Cerberus and was teleported to a black area. The retail fight hooks guard each NM's home lair with world
+coordinates: Cerberus (Mount Zhayolm), Hydra (Wajaom) and Khimaira (Caedarva) draw an "outside" target to fixed spots
+in their own zone (the void in the arena) and root themselves (NO_MOVE); Behemoth, Fafnir, Ash Dragon use lair
+conditions too; Simurgh, Roc, Serket, Alexander draw in to themselves at range. Fix in `htbf_arena.lua`: every
+borrowed hook runs wrapped (`arenaSafe`): `utils.drawIn` is swapped for one that only pulls a target that has left
+the arena wing, to the boss, and NO_MOVE is cleared afterwards (no roster boss roots itself for another reason).
+Consequence: the range draw-ins are gone inside the arena (the Adamantoise draw_in mixin, a listener, still works).
+New test step per boss: onMobFight twice past the draw-in wait must not move the player or root the boss; without
+the fix it fails for 9 bosses (Cerberus -> (330, -89), Hydra -> (-269, -11), Khimaira -> (576, 407)). htbf.lua 23/23.
+
+## 2026-09-30 — Augmenter moved to Western Adoulin; Voidstone Keeper (Mithra)
+
+- Augmenter: Norg -> Western Adoulin X 29.4549 Y 0 Z 18.2979 rot 77 (Eric's !pos; GM Home copy kept).
+  `augmenter_npc.lua`; test `augmenter_engine.lua` checks the new spot and that Norg no longer has one.
+- `modules/custom/lua/voidstone_npc.lua`: Voidstone Keeper, a Mithra (Tih Pikeh's look, race 7 face 1; look string
+  `0x010001070F101020103010401050006000700080`) next to the Augmenter (32.45, 0, 18.30: Claude's pick, move by !pos).
+  One voidstone per Vana'diel day (VanadielUniqueDay, 57.6 real min), not per Earth day; unclaimed ones stack without
+  limit in char var VOIDSTONE_DAY (the day claims have reached; a first visit gives one). At most 6 held: the stones
+  are the six key items VOIDSTONE1..6; the rest stay banked. Test `scripts/tests/modules/voidstone_keeper.lua` 3/3.
+- Caveat told to Eric: LSB has no Voidwatch (CONTENT_STATUS: no system, VW quests unscripted), so the stones are not
+  consumed by anything yet.
+- Same day, Eric: hold as many voidstones as you want. Key items cannot stack, so the count is now char var
+  VOIDSTONE_COUNT (no limit); the Keeper hands over everything banked at once; the six VOIDSTONE key items mirror
+  min(count, 6) as a visual. Stones given as key items before the change count (held = max(var, key items)).
+  `keeper.spend(player, n)` is the hook for a future Voidwatch (never delete the key items directly).
+  voidstone_keeper.lua 4/4. Needs an xi_map restart (the NPC's trigger is bound at zone load).
+
+## 2026-09-30 — Boss arenas v3: 5 tiers, Eric's roster and drops, Archivist goes straight in
+
+Eric: difficulty back to Claude's original numbers (confirmed table below); the Adoulin Archivist offers Tier 1-5 and
+sends the party straight into the arena (Abdhaljs hub and books removed; the exit returns to the Archivist); new
+roster with personal drops and treasure-pool loot. He accepted custom builds where LSB has no data, asked Claude to
+look retail drops up on BG Wiki, and set: job cards 3-6, boxes 1-3, Adoulin materials "one or the other", Thinker a
+Boulder Box, Ou a random box; pool rates "leave as is" (fixed rates below; DROP_RATE_MULTIPLIER x2 still applies).
+- Tiers: T1 125 / HP x4 / +50% ATT+MATT; T2 128 / x5 / +75; T3 130 / x5 / +75; T4 139 / x6 / +100; T5 139 / x8 /
+  +125 plus REGEN 300 and REGAIN 100.
+- T1 (Nyzul Isle SQL copies, retail fight hooks): Behemoth Ch1 + Phoenix Feather, Adamantoise Ch2 + Malboro Fiber,
+  Fafnir Ch3 + Black Beetle Blood, Cerberus Ch4 + Damascene Cloth, Hydra Ch5 + Oxblood, Khimaira Pluton Box.
+- T2: the Unity "Wanted" NMs have no data (name-only spawns); their family little brothers do, in Rala Waterways [U]
+  SQL: Tojil <- Achuka (Gabbrath), Wopket <- Yumcax (Yggdreant), Muyingwa <- Colkhab (Bztavian), Cailimh <- Hurkan
+  (Waktza), Dakuwaqa <- Tchakka (Rockfin; its pool carries Achuka's skill list 461, so skillList 452 Rockfin), Utkux <-
+  Kumhau (Cehuetzi). Ch6-10 + one of the two Adoulin materials; Utkux Beitetsu Box.
+- T3/T4/T5: no data at all in LSB (Reisenjima Henge has name-only spawns; Omen is not implemented). Built in
+  `modules/custom/sql/htbf_bosses.sql`: pools 20001-20009, groups 900-908 in zone 183, resist 900 (Glassy) / 901
+  (Caturae, Provenance ranks), spell lists 900-905 (BG Wiki spells). Glassy Craver / Gorger / Thinker: Promyvion NM
+  models 1139 / 1133 / 1128 and the retail NM skill lists 707 / 138 / 706. Omen Caturae on the Provenance chess
+  models (Kin rook 2062, Gin knight 2061, Kei bishop 2102, Kyou pawn 2063, Fu queen 2093, Ou king 2094) with the
+  Caturae skill list 450; jobs per BG Wiki (Kyou MNK/WHM so he has MP). Base HP 20k / 30k / 50k before the tier
+  multiplier (resulting ~101k, ~180k, ~402k). Two-hours via job_special: Craver / Fu Mighty Strikes, Gin Perfect Dodge,
+  Kei Benediction, Kin Manafont, Kyou Hundred Fists, Ou Chainspell 65%; Ou also recovers once at 10% to 25%
+  (after retail's Prophylaxis). Not coded (no skill / animation in LSB): Zero Hour, Dancing Fullers, Unfaltering
+  Bravado, Ebullient Nullification, Target / Eleventh Dimension, Gardez, the Glassy "Sync" moves.
+- Loot pool (ITEM_DROPS listener on the boss; dropId 0 is an empty list LSB keeps for script-only loot, so NO_DROPS
+  is no longer set): BG Wiki's tables. Glassy: one of three gear pieces + the boss's crystal (100%). Omen: scale and
+  Moonbow material 100%, gear 10%, body 1% (Fu / Gin: extra scale 10%). Ou: Regal handpiece group 40% (Belt weighted
+  3x), Regal jewelry 60%, a scale 15%, two Moonbow / Moonlight Coral rolls 100%.
+- Custom menus: the whole menu (title + options) is one chat packet with a 150-byte text field (0x017 Mes[150]):
+  longer menus lose their last options. Menus are now short (details go to chat lines); arena.sendMenu warns over
+  149, and a test checks every menu and the reward line.
+- Tests htbf.lua 30/30 (every one of the 21 bosses: spawn, level, HP, attack bonus, casters have MP, hooks run,
+  no pulls / rooting, loot items exist, personal drops per player; Ou's rally; time limit; exit; closing).
+
+## 2026-09-30 — xi_test logs every online player out of the database (Eric stuck on "Downloading data")
+
+Eric could not zone into the boss arena: stuck on "Downloading data". The map log had no arena activity, only
+"recv_parse: Cannot load session_key for charid <his character>" every 2 s, starting 20 s after a Claude test run (also at 20:35
+after an earlier one). Cause: the map engine's startup cleanup (`src/map/map_engine.cpp`) is
+`DELETE FROM accounts_sessions WHERE IF(ip = 0 AND port = 0, true, server_addr = ip AND server_port = port)`, and
+xi_test runs with IP/port 0, so every test run deletes ALL sessions in the shared database, including live players'.
+The client stays connected until its next zone change, which then hangs. (The old belief "xi_test is fine with the
+live servers up" was wrong.) Fix for the player: fully close the client and log in again.
+Guard: `tools/custom/run_tests.sh [xi_test args]` refuses while any real character (charid < 20000000; test characters
+start at 20000000) has a session (FORCE=1 to override). Proper fix, pending Eric: a separate test database through
+the `XI_NETWORK_SQL_DATABASE` env override (creating and granting it needs sudo mysql).
+- Proper fix done the same night: Eric created `mbetam_xi_test` with sudo (CREATE DATABASE ... utf8mb4_general_ci;
+  GRANT ALL on it to mbetam@localhost). `tools/custom/run_tests.sh` now always runs xi_test with
+  XI_NETWORK_SQL_DATABASE=mbetam_xi_test (the log shows "Applying ENV VAR"); `--refresh` first copies the live
+  database over the test one (mysqldump into it, sessions cleared). Verified: a sentinel row in the live
+  accounts_sessions survived a test run. Never run ./xi_test directly any more.
+
+## 2026-09-30 — Boss arenas: retail HP, magic accuracy, and 48 missing TP-move scripts
+
+Eric (after the arena worked): boss spells and weapon skills far too weak (Ou's melee 400+, his Aero V less), and
+Ou had 400k HP where BG Wiki says ~1.4M; asked to check every NM against BG Wiki. He chose retail HP as the final HP,
+no multiplier.
+- Measured on a test character built like Eric's (a level 99 mage/ninja in 119 gear: 608 magic evasion, 37 MDB) in
+  the test DB: Ou's Aero V 301 every cast. Full-strength it was ~1,200 (Ou's INT 128 below the player's), and with 0
+  magic accuracy bonus every nuke was quarter-resisted.
+- Bigger finding: every TP move of the Caturae (all Omen bosses and Ou) and of the Adoulin Delve / Unity families
+  (Gabbrath, Yggdreant, Bztavian, Waktza, Rockfin, Cehuetzi: all of Tier 2) had a mob_skills row and animation but NO
+  script in LSB: 48 moves that did nothing. Tiers 1 and 3 were fully scripted.
+- `modules/custom/htbf/mobskill_kit.lua` builds a mob skill script from a short description (physical / magical /
+  breath / effects-only / self; effects, dispels, enmity reset, gaze, self-buffs, heal, HP gate). The 48 scripts in
+  `scripts/actions/mobskills/` (new files, not edits) are one kit call each, effects from BG Wiki's family pages; two
+  Rockfin moves BG Wiki does not describe (Pelagic Cleaver, Carcharian Verve) are approximated, and the instant-KO
+  moves (Tidal Guillotine, Marine Mayhem) are heavy damage instead. They also make these families work anywhere else
+  in the world (Provenance, Escha, Adoulin NMs).
+- Tiers gained magic accuracy and INT / MND: T1 +50 / 0, T2 +150 / +60, T3 +200 / +80, T4 +300 / +120,
+  T5 +350 / +150 (config.tiers macc / stat).
+- HP (config: `hp` per boss = final HP): Ou 1.4M, Tojil 1.2M, Dakuwaqa 1.25M, Muyingwa 750k, Wopket 800k (BG Wiki
+  400k-1.2M), Utkux 630k (485-776k), Glassy trio 750k each (500k-1M); estimated (no BG Wiki number): Cailimh 900k,
+  Kin / Gin / Kei / Kyou / Fu 600k. Tier 1 (no retail figure) keeps level-formula HP x4.
+- Result on that test character: Ou Aero V ~1,650, Fire V / Blizzard V ~1,800; Omen TP moves ~1,000-1,600; Tier 2 moves
+  ~200-1,470 (resist-dependent); melee 400-900 a hit. Glassy Craver's retail Impalement hits 9,499 (a one-shot):
+  left as LSB scripts it, flagged to Eric. Kin / Kyou Holy still ~270 (MND-based).
+- Tests htbf.lua 32/32 (new: the 48 kit scripts load; Ou gets his retail HP and the magic accuracy bonus).
