@@ -1,5 +1,5 @@
 -----------------------------------
--- QoL commands (modules/custom/commands/): !home, !tele, !telelist, !shop, !shop1
+-- QoL commands (modules/custom/commands/): !home, !tele, !telelist, !shop, !shop1, !hangout
 -----------------------------------
 
 describe('QoL commands', function()
@@ -52,7 +52,7 @@ describe('QoL commands', function()
     end
 
     it('are all registered as commands any player can use', function()
-        for _, name in ipairs({ 'home', 'tele', 'telelist', 'shop' }) do
+        for _, name in ipairs({ 'home', 'tele', 'telelist', 'shop', 'hangout', 'Hangout' }) do
             local command = xi.commands[name]
 
             assert(command ~= nil, string.format('!%s is not registered (is custom/commands/ listed in modules/init.txt?)', name))
@@ -254,6 +254,31 @@ describe('QoL commands', function()
             run('telelist')
 
             assert(said():find('no teleport points', 1, true), 'a deleted point should not be listed')
+        end)
+    end)
+
+    describe('!hangout', function()
+        before_each(function()
+            player = xi.test.world:spawnPlayer({ zone = xi.zone.WEST_RONFAURE, job = xi.job.WHM, level = 30 })
+        end)
+
+        it('sends the player to the hangout spot in Western Adoulin', function()
+            run('hangout')
+            settle()
+
+            assert(player:getZoneID() == xi.zone.WESTERN_ADOULIN, 'the player should be in Western Adoulin')
+            assert(near(player:getXPos(), 23.6316) and near(player:getZPos(), -13.9023), string.format('not at the hangout spot (%.2f, %.2f)', player:getXPos(), player:getZPos()))
+        end)
+
+        it('does nothing for a KO\'d player', function()
+            knockOut()
+
+            run('hangout')
+            local text = said()
+            settle()
+
+            assert(player:getZoneID() == xi.zone.WEST_RONFAURE, 'a KO\'d player should not be moved')
+            assert(text:find('KO', 1, true), 'the player should be told why: ' .. text)
         end)
     end)
 
