@@ -28,6 +28,12 @@ xi.settings.network =
 
     MAP_PORT = 54230,
 
+    -- Custom: for a server behind a home router without NAT loopback. zone_settings.zoneip holds the public IP, which
+    -- clients on the same LAN cannot reach. When set (the map server's LAN address, e.g. '192.168.1.20'), clients
+    -- connecting from a private address (10/8, 172.16/12, 192.168/16), and clients that logged in through this
+    -- address, are sent it instead of zoneip. Empty = off (retail behaviour).
+    LAN_ZONE_IP = '',
+
     SEARCH_PORT = 54002,
 
     -- DB queries will attempt each query once, and reconnect and retry up to `SQL_QUERY_RETRY_COUNT` times.

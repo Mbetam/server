@@ -1990,3 +1990,53 @@ no multiplier.
   ~200-1,470 (resist-dependent); melee 400-900 a hit. Glassy Craver's retail Impalement hits 9,499 (a one-shot):
   left as LSB scripts it, flagged to Eric. Kin / Kyou Holy still ~270 (MND-based).
 - Tests htbf.lua 32/32 (new: the 48 kit scripts load; Ou gets his retail HP and the magic accuracy bonus).
+
+## 2026-09-30 — Test server opened to Eric's friend (becoming the main server)
+
+Eric wants the test VM to be the main server for a friend (prod may be rebuilt later).
+- zone_settings.zoneip set to the home connection's public IP (`tools/custom/migrate.py set-zoneip <IP>`; the IP is only
+  in the database, never in a tracked file). It was the VM's LAN address, so a remote client could log in but hang at
+  the first zone. Eric now connects through the public IP too (needs NAT loopback on his router).
+- `settings/login.lua` ACCOUNT_CREATION = true (git-ignored) so the friend can create an account from the loader;
+  turn it back to false once they have one. xi_connect and xi_map restarted.
+- Eric's side: router forwards TCP 54001, 54230, 54231, 54002 and UDP 54230 to the VM (not 3306 or 54003).
+- Now that players other than Eric use test: edits hot-reload live and restarts kick players, so check sessions
+  before restarting; xi_test uses its own database (tools/custom/run_tests.sh).
+
+## 2026-10-01 — DDNS name and a zone-IP watcher
+
+Eric set up a DDNS name on his NAS for the home connection; players' loaders use it. zone_settings.zoneip must be a
+raw IP (LSB takes no hostname there) and xi_map caches it at zone load, so after a home IP change players would log in
+and then hang at their first zone change.
+- `tools/custom/zoneip_watch.sh <ddns-name>`, from Eric's user crontab every 15 minutes (log in log/zoneip_watch.log):
+  resolves the name; if the DB zoneip differs, sets it (migrate.py set-zoneip) and restarts xi_map as soon as no real
+  player is online (a pending marker in log/ until then). The name is only in the crontab line, never in the repo.
+- Bug found while testing: the restarted xi_map inherited the script's flock file descriptor, so the lock stayed held
+  and every later run exited silently (zoneip briefly stuck at a test value; restored). start_servers.sh is now called
+  with `9>&-`. Tested both directions with real restarts (nobody online), then the idle run (no output).
+
+## 2026-10-01 — LAN-aware zone address (home router without NAT loopback)
+
+Eric's modem has no NAT loopback: with zoneip = the public IP (needed by his remote friend), his own PC on the LAN
+could not reach the server at zone time. Core change (small, needed because the address is chosen in C++):
+- New setting `network.LAN_ZONE_IP` (default '' = off, in settings/default/network.lua; test sets the VM's LAN address
+  in git-ignored settings/network.lua).
+- Map (`charutils::SendToZone`): the zone-change packet (0x00B) carries LAN_ZONE_IP instead of zoneip when the
+  client's own address is private (10/8, 172.16/12, 192.168/16).
+- Login (`data_session.cpp`): a client that reached the login server through LAN_ZONE_IP gets it as the map address
+  in the character-select response.
+- Only what the client is told changes: accounts_sessions.server_addr and the internal zone lookups keep zoneip, which
+  the map server compares against to recognise its own sessions.
+- Eric's loader on the LAN uses the VM's LAN address; remote players use the DDNS name. Built, xi_connect and xi_map
+  restarted (nobody online). Prod: harmless (setting empty), but the next deploy is a C++ rebuild.
+- Test runs after this change: one full run hit the known intermittent xi_test-only segfault (a Lua timer calling a zone
+  method on a freed zone during test-character teardown; stack has nothing from SendToZone or login; seen before the
+  change too, 2026-09-30 in Daily hunts). A second full run: 571 passed, 2 failed: a BST jug pet Ready move (random;
+  passes on rerun) and trust_healers, which fails only in the same process after bst_jug_pets and passes alone (15/15,
+  twice). Order-dependent / random, unrelated to zoning; left for a later look.
+- Follow-up the same night: Eric still hung on "Downloading data", even with the login server now handing his LAN
+  client the LAN address (new log line prints the address actually sent). The map server had received no pending
+  session since 23:09. Real cause: xi_world loads zone_settings once at startup (src/world/zone_settings.h) and routes
+  each login's CharZone message to the map server by zoneip; it had not been restarted since the zoneip change at
+  23:19, so every login since then (anyone's) was routed to nothing. Restarted all four servers.
+  **Any zoneip change needs all four servers restarted** (at least xi_world and xi_map); zoneip_watch.sh now does that.

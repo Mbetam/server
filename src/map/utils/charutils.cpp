@@ -6744,6 +6744,29 @@ std::string GetConquestPointsName(CCharEntity* PChar)
     }
 }
 
+// Custom (network.LAN_ZONE_IP): the zone address to send a client. Clients on a private (LAN) address get the server's
+// LAN address instead of the public zoneip, for home routers without NAT loopback. Only the packet changes: the
+// session's server_addr keeps zoneip, which the map server uses to recognise its own sessions.
+static auto clientZoneIPP(const CCharEntity* PChar, const IPP& zoneIpp) -> IPP
+{
+    const auto lanIP = settings::get<std::string>("network.LAN_ZONE_IP");
+    if (lanIP.empty() || PChar->PSession == nullptr)
+    {
+        return zoneIpp;
+    }
+
+    const auto client    = PChar->PSession->client_ipp.getIPString();
+    const auto octet2    = [&client]() -> int
+    {
+        const auto first = client.find('.');
+        return first == std::string::npos ? -1 : std::atoi(client.c_str() + first + 1);
+    }();
+    const bool isPrivate = client.starts_with("10.") || client.starts_with("192.168.") ||
+                           (client.starts_with("172.") && octet2 >= 16 && octet2 <= 31);
+
+    return isPrivate ? IPP(str2ip(lanIP), zoneIpp.getPort()) : zoneIpp;
+}
+
 auto SendToZone(CCharEntity* PChar, const xi::ZoneId zoneId) -> bool
 {
     TracyZoneScoped;
@@ -6800,7 +6823,7 @@ auto SendToZone(CCharEntity* PChar, const xi::ZoneId zoneId) -> bool
     PChar->requestedWarp       = WarpRequest::None; // a previous warp can get us here, which could infinitely loop. So un-request warp.
 
     PChar->PSession->zone_ipp = {};
-    PChar->pushPacket<GP_SERV_COMMAND_LOGOUT>(GP_GAME_LOGOUT_STATE::ZONECHANGE, IPP(ipp));
+    PChar->pushPacket<GP_SERV_COMMAND_LOGOUT>(GP_GAME_LOGOUT_STATE::ZONECHANGE, clientZoneIPP(PChar, ipp));
 
     PChar->status = xi::Status::Disappear;
 

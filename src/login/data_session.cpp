@@ -365,6 +365,13 @@ void data_session::read_func()
                 ZonePort = rset->get<uint16>("zoneport");
 
                 characterSelectionResponse.server_ip   = ZoneIP;
+
+                // Custom (network.LAN_ZONE_IP): a client that reached the login server through the LAN address gets the
+                // LAN address for the map server too (home routers without NAT loopback). accounts_sessions keeps ZoneIP.
+                if (const auto lanIP = settings::get<std::string>("network.LAN_ZONE_IP"); !lanIP.empty() && session.serverIP == str2ip(lanIP))
+                {
+                    characterSelectionResponse.server_ip = session.serverIP;
+                }
                 characterSelectionResponse.server_port = ZonePort;
 
                 characterSelectionResponse.cache_ip   = session.serverIP; // search-server ip
@@ -383,7 +390,7 @@ void data_session::read_func()
 
                 ShowInfo(fmt::format("data_session: zoneid: {}, zoneipp: {}:{}, searchipp: {}:{}, for charid: {}",
                                      ZoneID,
-                                     ip2str(ZoneIP),
+                                     ip2str(characterSelectionResponse.server_ip),
                                      ZonePort,
                                      ip2str(characterSelectionResponse.cache_ip),
                                      characterSelectionResponse.cache_port,
