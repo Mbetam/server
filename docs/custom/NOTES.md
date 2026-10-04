@@ -2178,3 +2178,39 @@ Rughadjeen, Gessho, Halver, Mnejing (Shield Bash, Provoke, Flashbulb and Disrupt
 - Tests: trust_fixes.lua +2 (Ark HM both modes and NIN, Rahal Berserk). Module suite 585/586: Kupipi's Protectra
   count test failed once and passed 6 of the next 7 runs alone (timing-based, the trust_healers flake; Kupipi does
   not use the tank check).
+
+## 2026-10-04 — Trust fixes: the 19 casters that never cast
+
+Eric: "begin fixing the casters". Every one had an empty 27-line stub (spawn messages only), so they only meleed.
+Behaviour from BG Wiki `BGWiki:Trusts` (raw wikitext through the API); each script header now says what is retail
+and what is left out.
+- **Scripts (`scripts/actions/spells/trust/`):** D. Shantotto, Gadalar, Leonoyne, Kayeel-Payeel, Robel-Akbel,
+  Ullegore, Rosulatia, Teodor, Mumor II, Ark Angel TT, Zeid, Balamor, Ovjang, Arciela, Arciela II, King of Hearts,
+  Ygnas, Pieuje (UC), Ingrid II. Gambits for the usual things (element-limited nukes: one HIGHEST gambit per element
+  family; nukes vs the target's weakest element: BEST_AGAINST_TARGET; Stun on READYING_MS; "only while not at the top
+  of the hate list": NOT_HAS_TOP_ENMITY; buffs by job: MELEE / RANGED / CASTER; healer blocks copied from Kupipi with
+  the 2026-09-28 Protectra / Shellra rule).
+- **New library `modules/custom/lua/trust_caster_kit.lua`** (required by the scripts, not in init.txt). The engine's
+  magic burst gambit (MB_ELEMENT) only searches single-target damage spells, so -ga / -ja bursts (Teodor, Robel-Akbel,
+  King of Hearts' Firaga) and element-limited bursts (Kayeel-Payeel) run from a COMBAT_TICK listener: pick the first
+  castable spell that bursts the resonance (xi.data.element.skillchainElementTable), castSpell it. A burst / opener
+  counts only when it lands (MAGIC_USE), so an interrupted cast is tried again (max 3 per burst). Also
+  kit.openerTick (D. Shantotto opens every fight with a tier V darkness nuke). Listeners removed on despawn / death.
+  castSpell clears the spell's recast before casting, so the kit checks recast / MP / level itself.
+- **Weapon skill lists** (`modules/custom/sql/trust_casters.sql`, in init.txt, applied to the live DB): only moves
+  with a working script. Loads at xi_map start.
+- **Left out, needs Eric:** most of these trusts' TP moves are trust-unique with no mob skill script (Teodor,
+  Balamor, Rosulatia, Mumor II, Ygnas, Arciela I / II, Ingrid II, Salamander Flame, Null Blast, ...): writing them
+  means estimated numbers, as for Morimar / Lilisette II. Also unique abilities (Arciela's stances, Mumor's Firesday
+  Night Fever, Teodor's Start from Scratch, Ingrid II's Self-Aggrandizement), Ark TT's Sleepga, synergies.
+- Ingrid II: her mob_spell_lists rows end Banish III at 89 and give Holy II from 95, so at 99 she bursts with Holy II
+  (wiki: Banish line). Left as the DB has it.
+- **Tests:** `scripts/tests/modules/trust_casters.lua` (20; 8/8 clean runs). Gotchas found on the way:
+  - `addStatusEffect` without `origin` kills xi_test silently (the binding calls originEntity.getID()).
+  - xi_test's teardown segfault also swallows the last buffered stdout lines: use `stdbuf -oL -eL` to see them.
+  - The test monster's hits interrupt the trust's casts and its TP moves draw Stuns: the tests keep its hate on the
+    player (like a tank) and quiet its TP moves during burst windows.
+- Module suite 606/606. One earlier full run segfaulted inside a JSE weapon progression test (CZone::GetID from a
+  Lua entity timer during spawnPlayer), before any trust test ran; the rerun passed. Intermittent, test-only so far.
+- Audit (`tools/custom/trust_audit.py`, now counts kit bursts / openers as AI): casters that never cast 19 -> 0,
+  working 50 -> 68. Left: 29 auto-attack only, 3 WS-only, 20 with TODOs.

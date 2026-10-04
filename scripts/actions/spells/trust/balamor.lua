@@ -1,5 +1,8 @@
 -----------------------------------
 -- Trust: Balamor
+-- Retail (BG Wiki BGWiki:Trusts): DRK/BLM, HP+40%, MP+100%. Casts the Absorb-STAT spells.
+-- Left out: his TP moves (Feast of Arrows, Last Laugh, Regurgitated Swarm, Setting the Stage: trust-unique, no
+-- scripts), his dark-magic melee and the undead traits (cure damage, drain immunity).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -14,6 +17,17 @@ end
 
 spellObject.onMobSpawn = function(mob)
     xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
+
+    mob:addMod(xi.mod.HPP, 40)
+    mob:addMod(xi.mod.MPP, 100)
+
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_STR }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_DEX }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_VIT }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_AGI }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_INT }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_MND }, 60)
+    mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.ABSORB_CHR }, 60)
 end
 
 spellObject.onMobDespawn = function(mob)
