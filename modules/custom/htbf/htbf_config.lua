@@ -54,16 +54,38 @@ config.arena =
 -- macc / stat: magic accuracy and INT / MND added, so the bosses' spells and magic TP moves land against real
 -- 119 gear (without them Ou's Aero V was quarter-resisted to 301 against 608 magic evasion, with 0 bonus).
 -- regen / regain: added on top (Tier 5 only).
--- acc: melee accuracy added (Eric 2026-10-04: "acc is very low"). Measured against his RNG/NIN (evasion skill 500, 549
--- evasion) the bosses already hit 88-100% before this; what he saw miss was mostly Utsusemi shadows, which accuracy
--- does not beat.
+-- acc: (superseded by `floors` below; kept at 0) melee accuracy added on 2026-10-04.
+-- damage: attack % (no longer used for physical attack, see floors) and magic attack bonus.
 config.tiers =
 {
-    { name = 'Tier 1', level = 125, hp = 4, damage = 50,  macc = 50,  stat = 0,   acc = 50  },
-    { name = 'Tier 2', level = 128, hp = 5, damage = 75,  macc = 150, stat = 60,  acc = 100 },
-    { name = 'Tier 3', level = 130, hp = 5, damage = 75,  macc = 200, stat = 80,  acc = 150 },
-    { name = 'Tier 4', level = 139, hp = 6, damage = 100, macc = 300, stat = 120, acc = 200 },
-    { name = 'Tier 5', level = 139, hp = 8, damage = 125, macc = 350, stat = 150, acc = 250, regen = 300, regain = 100 },
+    { name = 'Tier 1', level = 125, hp = 4, damage = 50,  macc = 50,  stat = 0   },
+    { name = 'Tier 2', level = 128, hp = 5, damage = 75,  macc = 150, stat = 60  },
+    { name = 'Tier 3', level = 130, hp = 5, damage = 75,  macc = 200, stat = 80  },
+    { name = 'Tier 4', level = 139, hp = 6, damage = 100, macc = 300, stat = 120 },
+    { name = 'Tier 5', level = 139, hp = 8, damage = 125, macc = 350, stat = 150, regen = 300, regain = 100 },
+}
+
+-- Combat stat floors: each boss is raised to at least these FINAL values on spawn (a boss already above one keeps
+-- its own, e.g. Adamantoise's defense). Eric 2026-10-04: Tier 1 at least 30% harder, an iLvl 117 player should
+-- struggle there, the other tiers scaled up, real defensive stats (Khimaira had 568 Eva, 606 Def, 373 M.Eva, 0 M.Def).
+-- BG Wiki has no DEF / EVA / M.EVA numbers for these bosses or the comparable iLvl 117-119 content (Escha Zi'Tah,
+-- Reisenjima, Omen: the stat tables are empty) apart from the Omen bosses' ~1,400-1,425 evasion (Kyou, Glassy
+-- Thinker), which proved far too much here once the level gap (139 vs 99) stacks on it: an unbuffed iLvl 117 stand-in
+-- (1,150 Acc, 1,300 Att, 1,100 Def / Eva) hit Tier 4 5% of the time. So the floors were tuned by measurement
+-- against that stand-in (4-minute melee runs, docs/custom/NOTES.md 2026-10-04):
+--   Tier 1: it deals 39% less than before, the boss lands ~50% (was ~24%) and deals 2.3x the damage
+--   Tier 4: it deals 54% less, the boss lands ~93% and deals 4.6x the damage
+-- Tiers 2-3 sit between, Tier 5 a step above Tier 4. Buffs (food, songs, rolls) move the player back up.
+-- Magic evasion does not rise with the tier: the level gap already makes spells land less often, and at level 139
+-- 800 M.Eva turned an iLvl 117 mage's Fire V into 1/8 resists almost every cast. Fire V from that mage, average
+-- (with the M.Def floor): Tier 1 3,218 -> ~2,490 (750); Tier 4 2,606 -> ~1,540 (600).
+config.floors =
+{
+    { acc = 950,  att = 1050, def = 850,  eva = 850, meva = 750, mdb = 20 },
+    { acc = 975,  att = 1100, def = 900,  eva = 875, meva = 775, mdb = 25 },
+    { acc = 1000, att = 1150, def = 950,  eva = 900, meva = 775, mdb = 30 },
+    { acc = 1025, att = 1200, def = 1000, eva = 950, meva = 600, mdb = 40 },
+    { acc = 1050, att = 1250, def = 1050, eva = 975, meva = 600, mdb = 50 }, -- Ou resists fire heavily already: 650 cut Fire V ~70%
 }
 
 -- Every boss's final HP (tier multiplier or retail `hp`) is multiplied by this (Eric 2026-10-04: more HP for all)

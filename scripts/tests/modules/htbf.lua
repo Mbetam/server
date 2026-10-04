@@ -179,7 +179,7 @@ describe('Boss arenas (Rem\'s Tales)', function()
         local boss = arena.currentBoss(instance)
         assert(boss ~= nil, 'no boss spawned')
         assert(boss:getMainLvl() == 125, 'the boss is level ' .. boss:getMainLvl())
-        assert(boss:getMod(xi.mod.ATTP) >= 50, 'the boss has no +50% attack')
+        assert(boss:getStat(xi.mod.ATT) >= config.floors[1].att, 'the boss is below the Tier 1 attack floor')
         assert(instance:getLocalVar('fightEnd') > 0, 'no fight timer')
 
         arena.onMoogleTrigger(player, nil)
@@ -207,7 +207,21 @@ describe('Boss arenas (Rem\'s Tales)', function()
                 assert(mob ~= nil, 'the boss did not spawn')
                 assert(mob:getMainLvl() == config.tiers[tier].level, string.format('level %d', mob:getMainLvl()))
                 assert(mob:getMaxHP() > 1000, string.format('only %d HP', mob:getMaxHP()))
-                assert(mob:getMod(xi.mod.ATTP) >= config.tiers[tier].damage, 'no attack bonus')
+                -- Every combat stat at least its tier's floor (Eric: real defensive stats, iLvl 117 should struggle)
+                local floors = config.floors[tier]
+                local now    =
+                {
+                    acc  = mob:getACC(),
+                    att  = mob:getStat(xi.mod.ATT),
+                    def  = mob:getStat(xi.mod.DEF),
+                    eva  = mob:getEVA(),
+                    meva = mob:getMod(xi.mod.MEVA),
+                    mdb  = mob:getMod(xi.mod.MDEF),
+                }
+
+                for key, target in pairs(floors) do
+                    assert(now[key] >= target, string.format('%s %s is %d, below the tier %d floor %d', boss.name, key, now[key], tier, target))
+                end
 
                 -- The Omen bosses are casters (BG Wiki's spell lists): they need MP
                 local casters = { Kin = true, Gin = true, Kei = true, Kyou = true, Fu = true, Ou = true }
@@ -314,13 +328,13 @@ describe('Boss arenas (Rem\'s Tales)', function()
         end
     end)
 
-    it('bosses with a retail HP get it times hpScale (Ou 1.4M x 1.5), plus the tier accuracy', function()
+    it('bosses with a retail HP get it times hpScale (Ou 1.4M x 1.5), plus the tier stat floors', function()
         local instance = enterArena(player, 5)
         local ou       = arena.spawnBoss(instance, 1, player)
         -- setMaxHP sets the base; the mob's own HP bonuses add a little (Ou: +180)
         local expected = 1400000 * config.hpScale
         assert(math.abs(ou:getMaxHP() - expected) <= expected / 100, 'Ou has ' .. ou:getMaxHP() .. ' HP, expected ' .. expected)
-        assert(ou:getMod(xi.mod.ACC) >= config.tiers[5].acc, 'Ou has no accuracy bonus')
+        assert(ou:getACC() >= config.floors[5].acc and ou:getEVA() >= config.floors[5].eva, 'Ou is below his accuracy / evasion floors')
         assert(ou:getMod(xi.mod.MACC) >= config.tiers[5].macc, 'Ou has no magic accuracy bonus')
     end)
 

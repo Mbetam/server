@@ -310,6 +310,44 @@ end
 
 arena.bossScript = bossScript
 
+-- Raises a stat to at least `target`: adds the gap to its mod, then corrects once more if other mods scale it
+-- (attack and defense are multiplied by their % mods)
+local function raiseTo(mob, read, mod, target)
+    for _ = 1, 3 do
+        local current = read(mob)
+
+        if current >= target then
+            return
+        end
+
+        mob:addMod(mod, target - current)
+
+        if read(mob) == current then
+            return -- the mod does not move this stat; do not keep adding
+        end
+    end
+end
+
+local statReaders =
+{
+    acc  = { function(mob) return mob:getACC() end,               xi.mod.ACC  },
+    att  = { function(mob) return mob:getStat(xi.mod.ATT) end,    xi.mod.ATT  },
+    def  = { function(mob) return mob:getStat(xi.mod.DEF) end,    xi.mod.DEF  },
+    eva  = { function(mob) return mob:getEVA() end,               xi.mod.EVA  },
+    meva = { function(mob) return mob:getMod(xi.mod.MEVA) end,    xi.mod.MEVA },
+    mdb  = { function(mob) return mob:getMod(xi.mod.MDEF) end,    xi.mod.MDEF },
+}
+
+arena.applyFloors = function(mob, floors)
+    for key, target in pairs(floors or {}) do
+        local reader = statReaders[key]
+
+        if reader then
+            raiseTo(mob, reader[1], reader[2], target)
+        end
+    end
+end
+
 arena.scale = function(mob, tier, boss)
     local t = config.tiers[tier]
 
@@ -324,12 +362,12 @@ arena.scale = function(mob, tier, boss)
     end
 
     mob:setHP(mob:getMaxHP())
-    mob:addMod(xi.mod.ATTP, t.damage)
     mob:addMod(xi.mod.MATT, t.damage)
     mob:addMod(xi.mod.MACC, t.macc or 0)
-    mob:addMod(xi.mod.ACC, t.acc or 0)
     mob:addMod(xi.mod.INT, t.stat or 0)
     mob:addMod(xi.mod.MND, t.stat or 0)
+
+    arena.applyFloors(mob, config.floors[tier])
 
     if t.regen then
         mob:addMod(xi.mod.REGEN, t.regen)
