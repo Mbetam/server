@@ -1888,6 +1888,12 @@ bool CGambitsContainer::PartyHasTank()
     // clang-format off
         static_cast<CCharEntity*>(POwner->PMaster)->ForPartyWithTrusts([&](CBattleEntity* PMember)
         {
+            // Another tank: the asking trust itself doesn't count (a NIN trust would otherwise always see a tank)
+            if (PMember == POwner)
+            {
+                return;
+            }
+
             auto jobType = PMember->GetMJob();
 
             if (jobType == xi::Job::NIN || jobType == xi::Job::PLD || jobType == xi::Job::RUN)

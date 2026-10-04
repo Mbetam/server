@@ -14,3 +14,7 @@ UPDATE `spell_list` SET `validTargets` = 3 WHERE `spellid` IN (308, 309, 495) AN
 -- monster and put their buff on it. The client (and BG Wiki) have them as self-target -> 1. Found by comparing every
 -- ability's target flags with the client's own data (Windower resources); the other differences are intentional.
 UPDATE `abilities` SET `validTarget` = 1 WHERE `abilityId` IN (286, 325) AND `validTarget` = 4;
+
+-- Trust Ark Angel HM: LSB has WAR/NIN; retail (BG Wiki) is NIN/WAR. As WAR his tank / damage dealer switch
+-- (scripts/actions/spells/trust/aahm.lua) never saw himself as the party's ninja. Pool = trust spell id + 5000.
+UPDATE `mob_pools` SET `mJob` = 13, `sJob` = 1 WHERE `poolid` = 5992 AND `mJob` = 1 AND `sJob` = 13;

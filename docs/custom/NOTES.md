@@ -2157,3 +2157,24 @@ harder, other tiers scaled, real defensive stats, data from BG; an iLvl 117 play
   Eric took the recommendation: `tankHate.pulse` gives an engaged tank a Provoke's worth of hate (+ steal) every
   10 s (config.pulseEvery) on an entity timer; the real Provoke still shows every 30 s (a trust's recast can't be
   reset from Lua). With it: nuker case 80% (worst tank 77%), ATT 2200 melee 96-99%, no tank deaths. Test added (3).
+
+## 2026-10-04 — Tank trust audit
+
+Every tank trust's script read against its own notes, then watched in the tank_hate benchmark (it now logs weapon
+skill / mob skill ids too). Working as written: Trion, Valaineral, Curilla, Excenmille, Amchuchu, Ark EV, August,
+Rughadjeen, Gessho, Halver, Mnejing (Shield Bash, Provoke, Flashbulb and Disruptor all fire). Fixed:
+- Engine `CGambitsContainer::PartyHasTank` (gambits_container.cpp, core): counted the asking trust itself, so a NIN /
+  PLD / RUN trust always "had a tank in the party". Now only other members count, as every trust's notes say ("if
+  there are no other tanks"). Only Ark HM and Volker use PT_HAS_TANK / NOT_PT_HAS_TANK; Volker is WAR, unchanged.
+- Ark Angel HM: LSB had him WAR/NIN (mob_pools 5992); retail NIN/WAR -> modules/custom/sql/job_fixes.sql. His script
+  had the two modes swapped against its notes (DD Innin/Berserk when alone, tank Yonin/Warcry next to a tank); swapped
+  back. Benchmark as the only tank: 96-97% on him vs the ATT 2200 WAR (was 21-38% before the hate module, 68-99%
+  with it), 79% vs the 6k nuker.
+- Rahal: Berserk gambit checked the MASTER for Berserk, so he never used it while his master had Berserk -> SELF.
+- Not tanks, left alone: Volker (TODO in LSB: Warrior's Charge + WS logic) and Iron Eater (only a rescue Provoke when
+  his master is under 50% HP; no other gambits).
+- Minor, left: Gessho's notes say "highest tier debuff only" but he also casts the ichi versions while ni is on
+  recast (the engine's HIGHEST picks the best one available).
+- Tests: trust_fixes.lua +2 (Ark HM both modes and NIN, Rahal Berserk). Module suite 585/586: Kupipi's Protectra
+  count test failed once and passed 6 of the next 7 runs alone (timing-based, the trust_healers flake; Kupipi does
+  not use the tank check).

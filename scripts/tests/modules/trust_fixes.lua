@@ -1,5 +1,5 @@
 -----------------------------------
--- The 8 trusts fixed after the trust audit (docs/custom/NOTES.md): summoned for real next to a monster, and every
+-- The trusts fixed after the trust audits (docs/custom/NOTES.md): summoned for real next to a monster, and every
 -- spell, job ability and weapon skill they actually use is recorded through the engine's own listeners.
 -----------------------------------
 
@@ -334,5 +334,46 @@ describe('Trust fixes', function()
 
             assert(next(used.spell) == nil, 'cast something on Lightsday. ' .. dump())
         end)
+    end)
+    -- Tank audit (2026-10-04)
+    it('Ark Angel HM tanks alone (Yonin, Warcry) and turns damage dealer next to a tank (Innin, Berserk)', function()
+        summon(xi.magic.spell.AAHM)
+        assert(trust:getMainJob() == xi.job.NIN, 'Ark Angel HM should be NIN/WAR, is main job ' .. trust:getMainJob())
+        fight(30)
+
+        assert(used.ability[xi.jobAbility.YONIN], 'no Yonin as the only tank. ' .. dump())
+        assert(used.ability[xi.jobAbility.WARCRY], 'no Warcry as the only tank. ' .. dump())
+        assert(not used.ability[xi.jobAbility.INNIN] and not used.ability[xi.jobAbility.BERSERK], 'damage dealer mode with no other tank. ' .. dump())
+
+        player:clearTrusts()
+        xi.test.world:skipTime(2)
+        player:spawnTrust(xi.magic.spell.TRION)
+        xi.test.world:skipTime(2)
+        summon(xi.magic.spell.AAHM)
+        if trust:getTrustID() ~= xi.magic.spell.AAHM then
+            for _, member in ipairs(player:getPartyWithTrusts()) do
+                if member:isTrust() and member:getTrustID() == xi.magic.spell.AAHM then
+                    trust = member
+                end
+            end
+            used = { spell = {}, ability = {}, skill = {} }
+            trust:addListener('ABILITY_USE', 'TEST_TRUST_ABILITY', function(entity, target, ability)
+                count(used.ability, idOf(ability))
+            end)
+        end
+
+        fight(30)
+
+        assert(used.ability[xi.jobAbility.INNIN], 'no Innin next to Trion. ' .. dump())
+        assert(used.ability[xi.jobAbility.BERSERK], 'no Berserk next to Trion. ' .. dump())
+        assert(not used.ability[xi.jobAbility.YONIN], 'Yonin next to Trion. ' .. dump())
+    end)
+
+    it('Rahal uses Berserk even while his master has Berserk', function()
+        player:addStatusEffect(xi.effect.BERSERK, { power = 25, duration = 300, origin = player })
+        summon(xi.magic.spell.RAHAL)
+        fight(30)
+
+        assert(used.ability[xi.jobAbility.BERSERK], 'no Berserk. ' .. dump())
     end)
 end)

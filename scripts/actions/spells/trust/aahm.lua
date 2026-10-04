@@ -7,6 +7,8 @@
 -- Uses Provoke in both situations in order to be sub tank.
 -- Casts debuffs when does not have hate.
 -- Uses weapon skills at 1000 TP and does not try to skillchain.
+-- (2026-10-04: the tank / damage dealer conditions were swapped against the notes above; PT_HAS_TANK now means
+-- another tank, see CGambitsContainer::PartyHasTank. Job NIN/WAR: modules/custom/sql/job_fixes.sql.)
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -77,16 +79,16 @@ spellObject.onMobSpawn = function(mob)
     end
 
     if lvl >= 30 then
-        mob:addGambit(ai.t.SELF, { { ai.c.NOT_PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.BERSERK } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK })
+        mob:addGambit(ai.t.SELF, { { ai.c.PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.BERSERK } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK })
     end
 
     if lvl >= 40 then
-        mob:addGambit(ai.t.SELF, { { ai.c.NOT_PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.INNIN } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.INNIN })
-        mob:addGambit(ai.t.SELF, { { ai.c.PT_HAS_TANK,     0 }, { ai.c.NOT_STATUS, xi.effect.YONIN } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.YONIN })
+        mob:addGambit(ai.t.SELF, { { ai.c.PT_HAS_TANK,     0 }, { ai.c.NOT_STATUS, xi.effect.INNIN } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.INNIN })
+        mob:addGambit(ai.t.SELF, { { ai.c.NOT_PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.YONIN } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.YONIN })
     end
 
     if lvl >= 70 then
-        mob:addGambit(ai.t.SELF, { { ai.c.PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.WARCRY } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.WARCRY })
+        mob:addGambit(ai.t.SELF, { { ai.c.NOT_PT_HAS_TANK, 0 }, { ai.c.NOT_STATUS, xi.effect.WARCRY } }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.WARCRY })
     end
 
     mob:addGambit(ai.t.SELF,    { ai.c.NOT_STATUS,         xi.effect.MIGAWARI   }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.MIGAWARI_ICHI  })

@@ -47,7 +47,7 @@ spellObject.onMobSpawn = function(mob)
     end
 
     if lvl >= 30 then
-        mob:addGambit(ai.t.MASTER, { ai.c.NOT_STATUS, xi.effect.BERSERK }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK  })
+        mob:addGambit(ai.t.SELF,   { ai.c.NOT_STATUS, xi.effect.BERSERK }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.BERSERK  }) -- was MASTER: never used while the master had Berserk
         mob:addGambit(ai.t.SELF,   { ai.c.HPP_LT,     35                }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.SENTINEL })
     end
 

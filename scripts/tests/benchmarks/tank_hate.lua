@@ -108,8 +108,9 @@ describe('Tank trust hate', function()
                 local key = 'MA ' .. spell:getID()
                 uses[key] = (uses[key] or 0) + 1
             end)
-            tank:addListener('WEAPONSKILL_USE', 'HATE_WS', function(entity, target, wsid)
-                uses.WS = (uses.WS or 0) + 1
+            tank:addListener('WEAPONSKILL_USE', 'HATE_WS', function(entity, target, skill)
+                local key = 'WS ' .. (type(skill) == 'userdata' and skill:getID() or tostring(skill))
+                uses[key] = (uses[key] or 0) + 1
             end)
 
             local s   = arena.bossScript(boss)
