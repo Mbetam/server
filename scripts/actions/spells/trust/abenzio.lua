@@ -1,5 +1,7 @@
 -----------------------------------
 -- Trust: Abenzio
+-- Retail (BG Wiki BGWiki:Trusts): MNK/WAR Goobbue, HP+20%. No job abilities; uses his TP moves at random (Blank Gaze,
+-- Antiphase, Uppercut, Blow).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -23,6 +25,9 @@ spellObject.onMobSpawn = function(mob)
     if isWearingMandragoraGear(master) then
         xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
     end
+
+    mob:addMod(xi.mod.HPP, 20)
+    mob:setTrustTPSkillSettings(ai.tp.RANDOM, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)

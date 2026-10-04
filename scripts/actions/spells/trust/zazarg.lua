@@ -1,5 +1,7 @@
 -----------------------------------
 -- Trust: Zazarg
+-- Retail (BG Wiki BGWiki:Trusts): MNK/MNK. Focus; weapon skills as soon as he has TP (Howling Fist, Dragon Kick,
+-- Asuran Fists). Left out: Meteoric Impact (trust-unique, no script).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -14,6 +16,10 @@ end
 
 spellObject.onMobSpawn = function(mob)
     xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
+
+    mob:addGambit(ai.t.SELF, { ai.c.NOT_STATUS, xi.effect.FOCUS }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.FOCUS })
+
+    mob:setTrustTPSkillSettings(ai.tp.ASAP, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)

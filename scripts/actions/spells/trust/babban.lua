@@ -1,5 +1,7 @@
 -----------------------------------
 -- Trust: Babban
+-- Retail (BG Wiki BGWiki:Trusts): MNK/MNK Mandragora, HP-10%. No job abilities; TP moves at random.
+-- Left out: Headbutt and Photosynthesis (no skill rows), her guard / counter.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -23,6 +25,9 @@ spellObject.onMobSpawn = function(mob)
     if isWearingMandragoraGear(master) then
         xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
     end
+
+    mob:addMod(xi.mod.HPP, -10)
+    mob:setTrustTPSkillSettings(ai.tp.RANDOM, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)

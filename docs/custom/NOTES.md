@@ -2214,3 +2214,35 @@ and what is left out.
   Lua entity timer during spawnPlayer), before any trust test ran; the rerun passed. Intermittent, test-only so far.
 - Audit (`tools/custom/trust_audit.py`, now counts kit bursts / openers as AI): casters that never cast 19 -> 0,
   working 50 -> 68. Left: 29 auto-attack only, 3 WS-only, 20 with TODOs.
+
+## 2026-10-04 — Trust fixes: 24 of the 29 auto-attack-only trusts
+
+Eric: augment rules stay as they are; keep going with trusts. Behaviour from BG Wiki `BGWiki:Trusts` again; each
+script header says what is retail and what is left out.
+- **Scripts:** Selh'teus, Iroha, Iroha II, Lilisette, Zazarg, Luzaf, Najelith, Elivira, Noillurie, Lhu Mhakaracca,
+  Klara, Romaa Mihgo, Flaviria (UC), Abenzio, Babban, Lhe Lhangavo, Mayakov, Rongelouts, Maximilian, Ayame (UC),
+  Aldo (UC), Jakoh (UC), Naja (UC), Invincible Shield (UC): job abilities by gambit (Berserk / Warcry / Hasso /
+  Focus / Feint / jumps / sambas ...), Provoke when the master is under 50% where retail does it, ranged attacks for
+  Luzaf / Najelith / Elivira, Protectra / Shellra for Iroha I / II, Flare II bursts for Iroha II (caster kit), cures
+  for Noillurie, TP settings per the wiki (ASAP / hold to N / opener).
+- **Weapon skill lists** `modules/custom/sql/trust_melee.sql` (in init.txt, applied live): 63 rows, only moves with a
+  working script (player weapon skills, or the trust's own mob skill: Selh'teus 3621 / 3623, Abenzio 3355-3358, Babban
+  3351 / 3353, Naja (UC) Peacebreaker 3215 / Nott 3502, Lilisette 2444 / 2445).
+- **Lilisette:** Lilisette II's samba / waltz handling with her own retail rules (Waltz at 1500 TP for 2+ party
+  members under 75%, from 1000 TP for one under 50%), using Lilisette II's self-targeted 3312 / 3313.
+- **Selh'teus, two upstream bugs:**
+  - His mob_pools name was 'Selhteus' while his script is selh_teus.lua. The engine loads a trust's mob hooks from
+    scripts/actions/spells/trust/<pool name>.lua, so his onMobSpawn never ran. Pool renamed (only trust with this
+    mismatch; checked all 122). Displayed name is packet_name, unchanged.
+  - Rejuvenation 3622 was enemy-targeted and its script fully heals its target: it would have healed the monster.
+    Now self-targeted; the script restores HP / MP to the trust's party within 20' (the mission NPC's 1509 unchanged).
+    Party TP restore left out (amount unknown). Triggered from COMBAT_TICK when the master is under 75% or asleep, 30 s
+    cooldown.
+- **Left (need estimated mob skills, Eric's call):** Aldo, Chacharoon, Darrcuiln, Excenmille [S] (only trust-unique
+  moves, none scripted), Matsui-P (no spell or skill list at all; NIN/BLM magic burster, his own step). Missing moves
+  on scripted trusts: Iroha / Iroha II Amatsu, Sarva's Storm (Aldo / Jakoh UC), Soturi's Fury, Celidon's Torment,
+  Tachi: Mudo, Meteoric Impact, Typhonic Arrow, Temblor Blade, Cobra Clamp, Coming Up Roses, Tongue Lash, Luzaf's
+  three, Sensual / Thorn Dance, Rise From Ashes. Also left: Quick Draw, Aura Steal (no trust ability id), positional
+  Sneak / Trick Attack, Unity bonuses.
+- **Tests:** `scripts/tests/modules/trust_melee.lua` (31; 3/3 clean). Module suite 637/637.
+- Audit: auto-attack only 29 -> 5, working 68 -> 84.
