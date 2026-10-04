@@ -369,6 +369,10 @@ arena.scale = function(mob, tier, boss)
 
     arena.applyFloors(mob, config.floors[tier])
 
+    if config.magicTaken and config.magicTaken[tier] then
+        mob:addMod(xi.mod.DMGMAGIC, config.magicTaken[tier])
+    end
+
     if t.regen then
         mob:addMod(xi.mod.REGEN, t.regen)
     end

@@ -2097,3 +2097,63 @@ harder, other tiers scaled, real defensive stats, data from BG; an iLvl 117 play
 - Augmenter: "All" in the remove list (2+ augments): one confirmation with the summed removal price, the item comes
   back plain. Remove-list title shortened to "Remove?" so a full item with the longest names still fits 149 bytes.
 - Tests: htbf.lua checks every boss against its tier's floors (33/33); augmenter 56/56.
+
+## 2026-10-05 — Arena: magic defense, boss HP set by Eric, the augment finding
+
+- Config (Claude's recommendation 3, Eric agreed): magic defense floors +60 / +90 / +120 / +150 / +180 and magic
+  damage taken -15% / -20% / -25% / -30% / -35% (config.magicTaken, DMGMAGIC) for Tiers 1-5.
+- Benchmark rig `scripts/tests/benchmarks/htbf_rig.lua` (not in the modules suite): a duo (WAR + BLM stand-ins at
+  iLvl 117 / 119+REMA stat totals) with Trion, Kupipi, Ulmia, Joachim against each boss in the open, full boss AI,
+  15-min cap; log/htbf_rig.txt. Harness gotchas: trusts only fight with TrustEngageType = 1 and tickEntity on the
+  master each second (as in trust_healers.lua); don't force the boss onto a player.
+- The stand-ins mostly wiped at Tier 1 while Eric found it too easy: cloning two testers' characters (exact gear and
+  augments from the DB, local scratch only) showed why. Both are BLMs whose staff and Wayfarer set each carry
+  Mag.Acc. & Mag.Atk.Bns +20 four times: +589 / +842 magic attack, +511 / +769 magic accuracy. Fire / Thunder V on a
+  Tier 1 boss: 8,300 / 12,100 with the old floors, 5,300 / 7,700 with the new magic defense. Augment rules left for
+  Eric to decide (options given: limit stacking / halve the combined stats, tune to augmented power, or a cap).
+- Boss ledger page for Eric (artifact "Arena Boss Ledger"): every boss's final stats and the clones' results.
+  Khimaira takes little thunder: retail resist ranks (lightning 9, fire / wind 8) plus its own UDMGMAGIC -2500.
+- Eric set final HP: Tier 1 200-250k (Adamantoise 250k, Fafnir 240k, Cerberus / Hydra 230k, Behemoth 220k,
+  Khimaira 200k), Tier 2 300-350k (Dakuwaqa 350k, Tojil 345k, Cailimh 330k, Wopket 315k, Muyingwa 310k, Utkux
+  300k), Tier 4 1.4-1.6M (Kyou 1.6M, Kei 1.55M, Fu / Kin 1.5M, Gin 1.45M), Tiers 3 and 5 unchanged (Glassy 1.125M,
+  Ou 2.1M). config.hpScale 1.5 -> 1: every boss's `hp` is its final HP. Tests check each boss against it.
+- Eric, same day: magic damage taken removed again (config.magicTaken = nil); the magic defense floors stay.
+- Restart 05:00: the old xi_map (up 1h43m, ~89% CPU average) ignored SIGTERM for 5 minutes after both players had
+  logged out; a second SIGTERM did nothing, SIGKILL ended it (no sessions open, no tombstone). Cause not found yet;
+  watch for xi_map CPU staying high or slow shutdowns.
+
+## 2026-10-04 — Tank trusts: Provoke / Flash and holding hate
+
+- Eric: tank trusts don't hold hate. Checked first: Provoke and Flash work. Gambits with `ai.t.SELF` + Provoke (Trion,
+  Valaineral, Gessho...) are fine, because the gambit code aims a JA at the battle target unless the ability is
+  self-only (gambits_container.cpp).
+- Benchmark `scripts/tests/benchmarks/tank_hate.lua` (not in the modules suite; log/tank_hate.txt): a WAR at stat
+  totals, one tank trust + Kupipi, a Tier 1 arena boss (unkillable), 3 or 8 minutes. Env knobs are in its header
+  (HATE_ATT, HATE_NUKE + HATE_PASSIVE for a nuker, HATE_PLAYER_ENMITY, HATE_STEAL, HATE_RUNS, HATE_ONLY...).
+- Why they lost hate: both sides sit at the volatile cap (30000), so cumulative enmity decides. Provoke gives CE 1,
+  Flash CE 180, and every hit a tank takes removes CE (1800 x damage / max HP, enmity_container.cpp). A WAR at ATT
+  2200 built ~15000 CE in 3 min; tanks sat at 3000-8000. Stock, ATT 2200, 3 min: every tank on the boss 1-63%.
+  (At ATT 1300 the Provoke tanks held 97-99%; Curilla / Excenmille / Halver / Rahal / Gessho / Ark HM did not.)
+- `ENMITY` mod alone (+50 / +85) barely helped (it multiplies those tiny CE numbers); enmity loss reduction alone
+  neither.
+- New module `modules/custom/lua/trust_tank_hate.lua` (after trust_survival in init.txt), for Trion, Valaineral,
+  Curilla, Excenmille, Rahal, Amchuchu, Ark EV, August, Rughadjeen, Gessho, Halver, Mnejing, Ark HM:
+  - Provoke (also the automaton's) +3600 CE +1800 VE; Flash +2560 CE (twice their volatile)
+  - ENMITY_LOSS_REDUCTION +50
+  - Curilla, Excenmille, Rughadjeen, Ark EV, Halver get Provoke on cooldown (they had Flash only / Halver only
+    when someone is low)
+  - steal 25: a tank's Provoke / Flash landing while the boss is on someone else strips 25% of that one's CE and VE
+  Volker and Iron Eater left alone: damage dealers whose Provoke is a rescue (master / tank under 50% HP).
+- Results, ATT 2200 WAR, 8 min, module on: tanks on the boss 90-98% (was ~80% without steal; 1-50% stock).
+  Nuker landing 6000 every 8 s (no melee): 55-60% (steal 50: ~75%; player Enmity -50 changed nothing: one 6k nuke is
+  ~5800 CE / 17000 VE at mob level 125, so the nuker sits at both caps). Raising ENMITY_CAP to 60000 (settings
+  only): melee case 99% for 8 min, but nukers worse, so left at 30000.
+- Excenmille died once in the 8-minute runs while holding the boss (survival, not hate).
+- Tests: scripts/tests/modules/trust_tank_hate.lua (2). Module suite 582/583; Monberaux (trust_healers) failed once
+  in the full run and passed alone twice (the known order-dependent flake).
+- Follow-up (Eric asked: tank WS damage up, or Provoke more often?). Nuker 6000 every 8 s, 8 min, 13 tanks average:
+  module as above 55%; tank WS damage +100% 54%, +300% 55% (tanks WS 1-8 times in 8 min, and at the caps extra hate
+  is wasted); steal 50 69%; an extra Provoke's worth of hate every 10 s 81%, every 5 s 87%.
+  Eric took the recommendation: `tankHate.pulse` gives an engaged tank a Provoke's worth of hate (+ steal) every
+  10 s (config.pulseEvery) on an entity timer; the real Provoke still shows every 30 s (a trust's recast can't be
+  reset from Lua). With it: nuker case 80% (worst tank 77%), ATT 2200 melee 96-99%, no tank deaths. Test added (3).

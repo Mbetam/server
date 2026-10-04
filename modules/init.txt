@@ -68,6 +68,7 @@ custom/sql/armor_stats.sql
 custom/lua/armor_sets.lua
 custom/lua/trust_refresh.lua
 custom/lua/trust_survival.lua
+custom/lua/trust_tank_hate.lua
 custom/lua/ranged_ws_bonus.lua
 custom/sql/job_fixes.sql
 custom/lua/limit_job_breaker.lua

@@ -207,6 +207,11 @@ describe('Boss arenas (Rem\'s Tales)', function()
                 assert(mob ~= nil, 'the boss did not spawn')
                 assert(mob:getMainLvl() == config.tiers[tier].level, string.format('level %d', mob:getMainLvl()))
                 assert(mob:getMaxHP() > 1000, string.format('only %d HP', mob:getMaxHP()))
+
+                if boss.hp then
+                    local want = boss.hp * (config.hpScale or 1)
+                    assert(math.abs(mob:getMaxHP() - want) <= want / 100, string.format('%s has %d HP, configured %d', boss.name, mob:getMaxHP(), want))
+                end
                 -- Every combat stat at least its tier's floor (Eric: real defensive stats, iLvl 117 should struggle)
                 local floors = config.floors[tier]
                 local now    =
@@ -328,11 +333,11 @@ describe('Boss arenas (Rem\'s Tales)', function()
         end
     end)
 
-    it('bosses with a retail HP get it times hpScale (Ou 1.4M x 1.5), plus the tier stat floors', function()
+    it('every boss gets its configured final HP (Ou 2.1M), plus the tier stat floors', function()
         local instance = enterArena(player, 5)
         local ou       = arena.spawnBoss(instance, 1, player)
         -- setMaxHP sets the base; the mob's own HP bonuses add a little (Ou: +180)
-        local expected = 1400000 * config.hpScale
+        local expected = config.bosses[5][1].hp * (config.hpScale or 1)
         assert(math.abs(ou:getMaxHP() - expected) <= expected / 100, 'Ou has ' .. ou:getMaxHP() .. ' HP, expected ' .. expected)
         assert(ou:getACC() >= config.floors[5].acc and ou:getEVA() >= config.floors[5].eva, 'Ou is below his accuracy / evasion floors')
         assert(ou:getMod(xi.mod.MACC) >= config.tiers[5].macc, 'Ou has no magic accuracy bonus')
