@@ -2076,3 +2076,24 @@ much; more HP for all bosses; ranged weapon skills (archery / marksmanship) feel
   `scripts/tests/modules/ranged_ws_bonus.lua`: Sidewinder sees +25, Decimation (melee) does not.
 - xi_map restarted 02:34 (nobody online): augmenter menus + "How many?", fish-gear augments, arena ACC / HP x1.5,
   trust survival, ranged WS bonus all live.
+
+## 2026-10-04 — Arena bosses: combat stat floors; Augmenter "remove all"
+
+Eric: Tier 1 bosses too soft (his !status of a Tier 1 Khimaira: 568 Eva, 606 Def, 373 M.Eva, 0 M.Def); at least 30%
+harder, other tiers scaled, real defensive stats, data from BG; an iLvl 117 player should struggle at Tier 1.
+- BG Wiki has no DEF / EVA / M.EVA numbers for these bosses or comparable iLvl 117-119 content (empty stat tables for
+  Escha Zi'Tah's Beist / Muut, Omen bosses...), only the Omen bosses' ~1,400-1,425 evasion.
+- `config.floors` (htbf_config.lua): each boss is raised on spawn to at least acc / att / def / eva / meva / mdb
+  (arena.applyFloors; a boss already above keeps its value). The old +attack% and flat accuracy were dropped (attack
+  is now a floor; MATT, MACC, INT / MND bonuses stay).
+- Tuned by measurement against an unbuffed iLvl 117 stand-in (WAR, Eminent Axe, 1,150 Acc, 1,300 Att, 1,100 Def /
+  Eva; 4-minute melee runs) and an iLvl 117-ish BLM (capped elemental skill, MACC +400, Fire V):
+  - First try (BG's 1,425 Eva at Tier 4): that player hit Tier 4 5% of the time. Too much.
+  - Final, melee: Tier 1 (950 / 1050 / 850 / 850): the player deals 39% less, the boss lands ~50% (was ~24%) and
+    deals 2.3x the damage. Tier 4 (1025 / 1200 / 1000 / 950): the player deals 54% less, the boss lands ~93%, 4.6x.
+  - Magic: M.Eva does not rise with tier (the level gap already resists): at level 139, 800 M.Eva gave 1/8 resists
+    nearly every cast. Fire V: Tier 1 3,218 -> ~2,490 (750 / M.Def 20), Tier 3 2,158 -> 1,634 (775 / 30),
+    Tier 4 2,606 -> ~1,540 (600 / 40); Tier 5 Ou 600 / 50 (650 cut his Fire V ~70%: he resists fire already).
+- Augmenter: "All" in the remove list (2+ augments): one confirmation with the summed removal price, the item comes
+  back plain. Remove-list title shortened to "Remove?" so a full item with the longest names still fits 149 bytes.
+- Tests: htbf.lua checks every boss against its tier's floors (33/33); augmenter 56/56.

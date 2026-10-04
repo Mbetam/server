@@ -430,6 +430,80 @@ flow.commitRemove = function(player, slot)
     flow.showMain(player)
 end
 
+-- Eric (2026-10-04): remove every augment at once. The price is the sum of removing each one; the item comes back
+-- plain. Returns true and the total, or false and the message for the player.
+local function planRemoveAll(player, augments)
+    local total = 0
+
+    for slot = 1, #augments do
+        local ok, plan = core.checkRemove({ gil = math.huge, augments = augments, slot = slot })
+        if not ok then
+            return false, plan
+        end
+
+        total = total + plan.price
+    end
+
+    if player:getGil() < total then
+        return false, string.format('Removing them all costs %s gil.', formatGil(total))
+    end
+
+    return true, total
+end
+
+flow.commitRemoveAll = function(player)
+    local session = sessionOf(player)
+    if session == nil then
+        return
+    end
+
+    local current, reason = verify(player, session)
+    if current == nil then
+        say(player, session.npcName, reason)
+        flow.finish(player)
+
+        return
+    end
+
+    local ok, total = planRemoveAll(player, current)
+    if not ok then
+        say(player, session.npcName, total)
+        flow.showMain(player)
+
+        return
+    end
+
+    local done, problem = swap(player, session, {}, total)
+    if not done then
+        say(player, session.npcName, problem)
+        flow.finish(player)
+
+        return
+    end
+
+    say(player, session.npcName, string.format('Done! I removed all %d augments from your %s. That was %s gil.', #current, session.itemName, formatGil(total)))
+
+    flow.showMain(player)
+end
+
+local function confirmRemoveAllMenu(player)
+    local session   = sessionOf(player)
+    local ok, total = planRemoveAll(player, session.augments)
+
+    if not ok then
+        say(player, session.npcName, total)
+        flow.showMain(player)
+
+        return
+    end
+
+    send(player, menuFor(string.format('Remove all %d augments for %s gil?', #session.augments, formatGil(total)),
+    {
+        { 'Yes, remove all', function(playerArg) flow.commitRemoveAll(playerArg) end },
+        { 'No, go back',     function(playerArg) flow.showMain(playerArg) end },
+    }))
+end
+
 local function confirmRemoveMenu(player, slot)
     local session  = sessionOf(player)
     local ok, plan = core.checkRemove({ gil = player:getGil(), augments = session.augments, slot = slot })
@@ -467,9 +541,13 @@ local function removeMenu(player)
         end
     end
 
+    if #session.augments > 1 then
+        table.insert(options, { 'All', function(playerArg) confirmRemoveAllMenu(playerArg) end })
+    end
+
     table.insert(options, { 'Back', function(playerArg) flow.showMain(playerArg) end })
 
-    send(player, menuFor('Remove which?', options))
+    send(player, menuFor('Remove?', options))
 end
 
 -----------------------------------

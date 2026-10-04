@@ -723,6 +723,24 @@ describe('Augmenter: removing an augment', function()
         assert(player.gil == 10000000 - 15000, 'the gil taken was wrong: ' .. player.gil)
     end)
 
+    it('removes every augment at once for the sum of their prices (offered from two augments up)', function()
+        local player = bagWith(makePlayer(), augmentExdata(twoAugments))
+
+        trade(player, 1)
+        pick(player, 'Remove an augment')
+        pick(player, 'All')
+        assert(player.menu.title == 'Remove all 2 augments for 20,000 gil?', player.menu.title)
+        pick(player, 'Yes, remove all')
+
+        assert(augmentIds(theOnlyItem(player)) == '', 'the item should be plain: ' .. augmentIds(theOnlyItem(player)))
+        assert(player.gil == 10000000 - 20000, 'the gil taken was wrong: ' .. player.gil)
+
+        local single = bagWith(makePlayer(), augmentExdata({ { id = 146, value = 0 } }))
+        trade(single, 1)
+        pick(single, 'Remove an augment')
+        assert(not hasLabel(single, 'All'), 'with one augment, removing it is the same as removing all')
+    end)
+
     it('gives back a plain item when the last augment is removed', function()
         local player = bagWith(makePlayer(), augmentExdata({ { id = 146, value = 0 } }))
 
