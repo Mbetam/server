@@ -2040,3 +2040,39 @@ could not reach the server at zone time. Core change (small, needed because the 
   each login's CharZone message to the map server by zoneip; it had not been restarted since the zoneip change at
   23:19, so every login since then (anyone's) was routed to nothing. Restarted all four servers.
   **Any zoneip change needs all four servers restarted** (at least xi_world and xi_map); zoneip_watch.sh now does that.
+
+## 2026-10-04 — Augmenter menus, augmentable gear, arena accuracy / HP, ranged WS check
+
+Eric: make every equipable item augmentable; a bow with augments could not have them removed; arena bosses miss too
+much; more HP for all bosses; ranged weapon skills (archery / marksmanship) feel weak.
+- **Bow:** the remove logic was fine (reproduced on a test copy: removal worked). The remove menu was ~184 bytes and
+  custom menus go out in one chat packet with a 150-byte text field, so the client got a cut-off menu. Same for the
+  stat pages (~181 bytes with six long names + Next/Previous/Back). `augmenter_flow.lua`: remove list without prices
+  (the confirmation shows the price), title "Remove which?"; stat pages packed by bytes (short title "Stats 1/9",
+  buttons Next / Prev / Back); `send` warns over 149 bytes. Tests check every stat page and a full item of the
+  longest stat names.
+- **Augmentable gear:** a sweep of all 15,527 equipable items (add with an augment, read it back): 14,858 already
+  worked. Fixed (core, `src/map/items/exdata.cpp`): gear that can also be fished up (Copper / Silver Ring, Mythril
+  Sword / Dagger, Rusty set, Fish Scale Shield) was given fish exdata and lost augments; equipment now keeps augment
+  exdata. Left as is, because their exdata does a job the client reads: 575 charged items (charges / recast), 50
+  trial weapons (trial progress), 32 crafting escutcheons (crafting progress), 2 serialized fishing rods. After: 14,868.
+- **Arena accuracy:** measured on a copy of Eric's RNG/NIN (evasion skill 500, 549 evasion): bosses already hit
+  88-100% (level 125-139 vs 99). Misses in game are mostly Utsusemi shadows. Added anyway: tier ACC +50 / +100 /
+  +150 / +200 / +250.
+- **Arena HP:** config.hpScale = 1.5 on every boss's final HP (Ou 2.1M).
+- **Ranged WS:** not broken. On a level 99 dummy, Eric's setup: Empyreal Arrow 2,720 / 8,404 (1000 / 3000 TP),
+  Detonator 2,689 / 8,339, Sidewinder ~5,300, vs Decimation (axe) 2,048 / 2,279. On a level 125 arena boss everything
+  drops to a third or half (level correction + DEF; melee worse: Decimation 387). Possible buff left to Eric.
+- Augmenter, same day: after the bonus, "How many?" (1 up to the item's free slots and the per-stat limit); one
+  confirmation with the total price, one swap, one payment (`planAdd` runs core.checkAdd for each copy in turn).
+- Tougher trusts (Eric chose Claude's recommendation): `modules/custom/lua/trust_survival.lua`, after xi.trust.spawn
+  like trust_refresh: flat HP bonus = max HP at summon (about x2; x2.1 for Trion, whose own HP% scales it too),
+  DMG -2500 (-25% damage taken), Regen 1% of max HP per tick. Melee only, no healing, Tier 1 Behemoth / Tier 4 Fu:
+  Trion 13 -> 45 s / 10 -> 33 s, Zeid II 13 -> 33 / 8 -> 25, Shantotto 2 -> 25 / 5 -> 10, Kupipi 8 -> 10 / 5 -> 8.
+  Tests `scripts/tests/modules/trust_survival.lua`.
+- Ranged weapon skills +25% (Eric said yes to the offered bonus without naming a size; +25% is the lower option
+  offered, one number in `modules/custom/lua/ranged_ws_bonus.lua`): while xi.weaponskills.doRangedWeaponskill runs,
+  the attacker carries ALL_WSDMG_ALL_HITS +25 (removed right after, also on error). Test
+  `scripts/tests/modules/ranged_ws_bonus.lua`: Sidewinder sees +25, Decimation (melee) does not.
+- xi_map restarted 02:34 (nobody online): augmenter menus + "How many?", fish-gear augments, arena ACC / HP x1.5,
+  trust survival, ranged WS bonus all live.
