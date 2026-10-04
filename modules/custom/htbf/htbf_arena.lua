@@ -315,16 +315,19 @@ arena.scale = function(mob, tier, boss)
 
     mob:setMobLevel(t.level)
 
+    local scale = config.hpScale or 1
+
     if boss and boss.hp then
-        mob:setMaxHP(boss.hp)
+        mob:setMaxHP(math.floor(boss.hp * scale))
     else
-        mob:setMaxHP(math.floor(mob:getMaxHP() * t.hp))
+        mob:setMaxHP(math.floor(mob:getMaxHP() * t.hp * scale))
     end
 
     mob:setHP(mob:getMaxHP())
     mob:addMod(xi.mod.ATTP, t.damage)
     mob:addMod(xi.mod.MATT, t.damage)
     mob:addMod(xi.mod.MACC, t.macc or 0)
+    mob:addMod(xi.mod.ACC, t.acc or 0)
     mob:addMod(xi.mod.INT, t.stat or 0)
     mob:addMod(xi.mod.MND, t.stat or 0)
 

@@ -314,11 +314,13 @@ describe('Boss arenas (Rem\'s Tales)', function()
         end
     end)
 
-    it('bosses with a retail HP get exactly that HP (Ou 1.4M), Tier 1 keeps the multiplier', function()
+    it('bosses with a retail HP get it times hpScale (Ou 1.4M x 1.5), plus the tier accuracy', function()
         local instance = enterArena(player, 5)
         local ou       = arena.spawnBoss(instance, 1, player)
         -- setMaxHP sets the base; the mob's own HP bonuses add a little (Ou: +180)
-        assert(math.abs(ou:getMaxHP() - 1400000) <= 14000, 'Ou has ' .. ou:getMaxHP() .. ' HP')
+        local expected = 1400000 * config.hpScale
+        assert(math.abs(ou:getMaxHP() - expected) <= expected / 100, 'Ou has ' .. ou:getMaxHP() .. ' HP, expected ' .. expected)
+        assert(ou:getMod(xi.mod.ACC) >= config.tiers[5].acc, 'Ou has no accuracy bonus')
         assert(ou:getMod(xi.mod.MACC) >= config.tiers[5].macc, 'Ou has no magic accuracy bonus')
     end)
 

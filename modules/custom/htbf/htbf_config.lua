@@ -54,14 +54,20 @@ config.arena =
 -- macc / stat: magic accuracy and INT / MND added, so the bosses' spells and magic TP moves land against real
 -- 119 gear (without them Ou's Aero V was quarter-resisted to 301 against 608 magic evasion, with 0 bonus).
 -- regen / regain: added on top (Tier 5 only).
+-- acc: melee accuracy added (Eric 2026-10-04: "acc is very low"). Measured against his RNG/NIN (evasion skill 500, 549
+-- evasion) the bosses already hit 88-100% before this; what he saw miss was mostly Utsusemi shadows, which accuracy
+-- does not beat.
 config.tiers =
 {
-    { name = 'Tier 1', level = 125, hp = 4, damage = 50,  macc = 50,  stat = 0   },
-    { name = 'Tier 2', level = 128, hp = 5, damage = 75,  macc = 150, stat = 60  },
-    { name = 'Tier 3', level = 130, hp = 5, damage = 75,  macc = 200, stat = 80  },
-    { name = 'Tier 4', level = 139, hp = 6, damage = 100, macc = 300, stat = 120 },
-    { name = 'Tier 5', level = 139, hp = 8, damage = 125, macc = 350, stat = 150, regen = 300, regain = 100 },
+    { name = 'Tier 1', level = 125, hp = 4, damage = 50,  macc = 50,  stat = 0,   acc = 50  },
+    { name = 'Tier 2', level = 128, hp = 5, damage = 75,  macc = 150, stat = 60,  acc = 100 },
+    { name = 'Tier 3', level = 130, hp = 5, damage = 75,  macc = 200, stat = 80,  acc = 150 },
+    { name = 'Tier 4', level = 139, hp = 6, damage = 100, macc = 300, stat = 120, acc = 200 },
+    { name = 'Tier 5', level = 139, hp = 8, damage = 125, macc = 350, stat = 150, acc = 250, regen = 300, regain = 100 },
 }
+
+-- Every boss's final HP (tier multiplier or retail `hp`) is multiplied by this (Eric 2026-10-04: more HP for all)
+config.hpScale = 1.5
 
 -----------------------------------
 -- Items
