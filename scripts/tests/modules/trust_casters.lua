@@ -1,5 +1,5 @@
 -----------------------------------
--- The 19 caster trusts that never cast (trust audit; fixed 2026-10-04): each one is summoned for real next to a
+-- The 19 caster trusts that never cast, and Matsui-P (trust audit; fixed 2026-10-04): each one is summoned for real next to a
 -- monster and every spell, job ability and TP move it uses is recorded through the engine's own listeners.
 -- Magic bursts: a skillchain resonance is put on the monster (what a closed skillchain leaves) and the burst is checked.
 -----------------------------------
@@ -122,6 +122,12 @@ describe('Caster trusts', function()
     -- A burst check: wait for the trust to finish its current cast, stop the monster's TP moves (a Stun would take the
     -- window), open the window and fight through it. `used` then holds only what happened in the window.
     local function burstWindow(skillchain, seconds)
+        -- Healers rightly cure ailments before bursting: clear what the monster put on the player
+        for _, effect in ipairs({ xi.effect.BLINDNESS, xi.effect.POISON, xi.effect.PARALYSIS, xi.effect.SILENCE }) do
+            player:delStatusEffect(effect)
+            trust:delStatusEffect(effect)
+        end
+
         trust:setMP(trust:getMaxMP())
         mob:setMobAbilityEnabled(false)
 
@@ -159,7 +165,7 @@ describe('Caster trusts', function()
         local dark = spellsOfElement(xi.element.ICE) + spellsOfElement(xi.element.EARTH) + spellsOfElement(xi.element.WATER)
         assert(dark >= 1, 'no ice / earth / water nuke. ' .. dump())
         assert(dark == total(used.spell), 'cast an element other than ice / earth / water. ' .. dump())
-        assert(usedAny(used.skill, { 102, 103, 98 }), 'no Guillotine / Cross Reaper / Shadow of Death. ' .. dump())
+        assert(usedAny(used.skill, { 102, 103, 98, 3264 }), 'no scythe weapon skill. ' .. dump())
     end)
 
     it('Gadalar keeps Blaze Spikes up and casts Firaga', function()
@@ -399,6 +405,21 @@ describe('Caster trusts', function()
 
         burstWindow(xi.skillchainType.TRANSFIXION) -- light
         assert(used.spell[xi.magic.spell.HOLY_II], 'no Holy II burst on Transfixion. ' .. dump())
+    end)
+
+    it('Matsui-P keeps shadows and Innin up, nukes with ninjutsu, and bursts', function()
+        summon(xi.magic.spell.MATSUI_P)
+        fight(40)
+
+        assert(usedAny(used.spell, { xi.magic.spell.UTSUSEMI_ICHI, xi.magic.spell.UTSUSEMI_NI, xi.magic.spell.UTSUSEMI_SAN }), 'no Utsusemi. ' .. dump())
+        assert(used.ability[xi.jobAbility.INNIN], 'no Innin. ' .. dump())
+        assert(usedAny(used.spell, {
+            xi.magic.spell.KATON_SAN, xi.magic.spell.HYOTON_SAN, xi.magic.spell.HUTON_SAN,
+            xi.magic.spell.DOTON_SAN, xi.magic.spell.RAITON_SAN, xi.magic.spell.SUITON_SAN,
+        }), 'no elemental ninjutsu. ' .. dump())
+
+        burstWindow(xi.skillchainType.INDURATION) -- ice
+        assert(spellsOfElement(xi.element.ICE) >= 1, 'no ice burst on Induration. ' .. dump())
     end)
 
     it('caster trusts can be released mid-fight (their burst listeners go with them)', function()

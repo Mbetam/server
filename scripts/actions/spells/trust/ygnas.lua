@@ -3,8 +3,8 @@
 -- Retail (BG Wiki BGWiki:Trusts): WHM/PLD, HP+10%, MP+10%, Cure Potency +50%, Fast Cast +50%. Cure VI on anyone under
 -- 45% HP; Cure III (his most MP-efficient cure) on the tank under 75% and anyone else under 66%; Protectra / Shellra,
 -- -na spells, Erase, Haste; does not engage and stays out of range.
--- Left out: Regain and his TP moves (Deific Gambol, Phototropic Blessing / Wrath, Sacred Caper: no scripts), the
--- Cure-to-MP conversion, the Arciela synergy.
+-- Regain 30; holds TP to 3000 (Deific Gambol, Sacred Caper: trust-unique, estimated numbers). Left out: Phototropic
+-- Blessing / Wrath (no skill rows), the Cure-to-MP conversion, the Arciela synergy.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -24,6 +24,7 @@ spellObject.onMobSpawn = function(mob)
     mob:addMod(xi.mod.MPP, 10)
     mob:addMod(xi.mod.CURE_POTENCY, 50)
     mob:addMod(xi.mod.FASTCAST, 50)
+    mob:addMod(xi.mod.REGAIN, 30)
 
     mob:addGambit(ai.t.PARTY, { ai.c.HPP_LT, 45 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURE })
     mob:addGambit(ai.t.TANK, { ai.c.HPP_LT, 75 }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.CURE_III })
@@ -48,6 +49,8 @@ spellObject.onMobSpawn = function(mob)
 
     mob:setAutoAttackEnabled(false)
     mob:setMobMod(xi.mobMod.TRUST_DISTANCE, xi.trust.movementType.NO_MOVE)
+
+    mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 3000)
 end
 
 spellObject.onMobDespawn = function(mob)

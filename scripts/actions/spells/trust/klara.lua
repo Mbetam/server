@@ -1,7 +1,7 @@
 -----------------------------------
 -- Trust: Klara
 -- Retail (BG Wiki BGWiki:Trusts): WAR/WAR. Berserk, Warcry; Provoke when the player is under 50% HP; weapon skills as
--- soon as she has TP (Fast Blade, Vorpal Blade, Savage Blade). Left out: Temblor Blade (no script).
+-- soon as she has TP (Fast Blade, Vorpal Blade, Savage Blade). Temblor Blade too (AoE; estimated numbers).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

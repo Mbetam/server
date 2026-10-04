@@ -2,7 +2,7 @@
 -- Trust: Najelith
 -- Retail (BG Wiki BGWiki:Trusts): RNG/RNG. Holds position and shoots (melees too if in range); Barrage, Double Shot;
 -- holds TP to about 1500 for skillchains, tends to Cyclone (Cyclone, Sidewinder, Empyreal Arrow).
--- Left out: Typhonic Arrow (trust-unique, no script), his enhanced critical hit rate.
+-- Typhonic Arrow too (conal; estimated numbers). Left out: his enhanced critical hit rate.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

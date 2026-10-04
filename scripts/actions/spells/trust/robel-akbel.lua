@@ -3,7 +3,7 @@
 -- Retail (BG Wiki BGWiki:Trusts): BLM/SMN. Avoids elements the target resists (here: the target's weakest element);
 -- magic bursts skillchains with -aja spells; casts Stun in response to enemy TP moves; stands in place after
 -- engaging. Weapon skills at 2000 TP, no skillchain attempts (Spirit Taker).
--- Left out: Null Blast and Quietus Sphere (no scripts), the "just enough tier to kill" choice, the Kayeel-Payeel and
+-- Null Blast too (estimated numbers). Left out: Quietus Sphere (no skill row), the "just enough tier to kill" choice, the Kayeel-Payeel and
 -- Karaha-Baruha synergies.
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')

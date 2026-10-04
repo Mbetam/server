@@ -2,8 +2,8 @@
 -- Trust: Rosulatia
 -- Retail (BG Wiki BGWiki:Trusts): BLM/DRK, HP+30%, MP+100%. Casts only earth magic (Stone I-V) and stops casting while
 -- she is at the top of the enmity list; no magic bursts.
--- Left out: her TP moves (Baneful Blades, Dryad Kiss, Matriarchal Fiat, Wildwood Indignation: trust-unique, no
--- scripts) and her special melee attacks.
+-- TP moves at random: Baneful Blades, Matriarchal Fiat, Wildwood Indignation (trust-unique, estimated numbers).
+-- Left out: Depraved Dandia and Dryad Kiss (no skill rows), her special melee attacks.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -23,6 +23,8 @@ spellObject.onMobSpawn = function(mob)
     mob:addMod(xi.mod.MPP, 100)
 
     mob:addGambit(ai.t.TARGET, { ai.c.NOT_HAS_TOP_ENMITY, 0 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.STONE }, 15)
+
+    mob:setTrustTPSkillSettings(ai.tp.RANDOM, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)

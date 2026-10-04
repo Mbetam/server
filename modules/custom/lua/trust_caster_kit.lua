@@ -64,7 +64,7 @@ kit.burstTick = function(mob, spells, perChain)
     local target    = mob:getTarget()
     local resonance = kit.resonance(target)
 
-    if not resonance or kit.isBusy(mob) then
+    if not resonance then
         return false
     end
 
@@ -75,6 +75,13 @@ kit.burstTick = function(mob, spells, perChain)
         mob:setLocalVar('[Kit]BurstKey', key)
         mob:setLocalVar('[Kit]BurstCount', 0)
         mob:setLocalVar('[Kit]BurstTries', 0)
+        mob:setLocalVar('[Kit]BurstPending', 0)
+    end
+
+    -- Busy (a gambit got this tick first): castSpell still queues the burst right after the current action, but only
+    -- one queued burst at a time
+    if kit.isBusy(mob) and mob:getLocalVar('[Kit]BurstPending') ~= 0 then
+        return false
     end
 
     if
@@ -129,6 +136,47 @@ kit.openerTick = function(mob, spells)
     return false
 end
 
+-- A conditional TP move: while `condition(mob)` holds, the trust has a gambit for mob skill `skillId`, ahead of its other
+-- gambits (addGambit's custom `first` argument, gambits_container.cpp) (retry `retry` s,
+-- which is its cooldown); otherwise the gambit is removed. From COMBAT_TICK only (changing gambits there is safe, see
+-- the trust notes). Needed because useMobAbility is dropped when the trust is mid-cast, and a caster almost always is
+-- when its COMBAT_TICK runs (right after its gambits started the next cast); a gambit fires when the trust is free.
+local skillGambits = {} -- [entity id .. name] = gambit id
+
+kit.skillWhen = function(mob, name, skillId, retry, condition)
+    kit.onCombatTick(mob, name, function(mobArg)
+        local key    = mobArg:getID() .. name
+        local wanted = condition(mobArg)
+
+        if wanted and not skillGambits[key] then
+            skillGambits[key] = mobArg:addGambit(ai.t.SELF, { ai.c.ALWAYS, 0 }, { ai.r.MS, ai.s.SPECIFIC, skillId }, retry, true)
+        elseif not wanted and skillGambits[key] then
+            mobArg:removeGambit(skillGambits[key])
+            skillGambits[key] = nil
+        end
+    end)
+end
+
+-- Party members within `range` of the trust: how many are under `hpp` % HP, and whether one is asleep
+kit.partyHurt = function(mob, hpp, range)
+    local hurt, asleep = 0, false
+    local master       = mob:getMaster()
+
+    for _, member in ipairs(master and master:getPartyWithTrusts() or {}) do
+        if member:isAlive() and mob:checkDistance(member) <= (range or 15) then
+            if member:getHPP() < hpp then
+                hurt = hurt + 1
+            end
+
+            if member:hasStatusEffect(xi.effect.SLEEP_I) or member:hasStatusEffect(xi.effect.SLEEP_II) then
+                asleep = true
+            end
+        end
+    end
+
+    return hurt, asleep
+end
+
 -- Adds a COMBAT_TICK listener under `name`, removed again when the trust despawns or dies (the trust scripts call
 -- kit.cleanup from onMobDespawn / onMobDeath). COMBAT_TICK only comes from the trust controller (see the trust notes on
 -- TICK listeners crashing the server).
@@ -156,6 +204,8 @@ kit.cleanup = function(mob, name)
         mob:removeListener(name)
         mob:removeListener(name .. '_LANDED')
     end
+
+    skillGambits[mob:getID() .. name] = nil
 end
 
 return kit

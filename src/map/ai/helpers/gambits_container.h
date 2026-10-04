@@ -299,7 +299,7 @@ public:
     ~CGambitsContainer() = default;
 
     auto NewGambitIdentifier(const Gambit_t& gambit) const -> std::string;
-    auto AddGambit(const Gambit_t& gambit) -> std::string;
+    auto AddGambit(const Gambit_t& gambit, bool first = false) -> std::string;
     void RemoveGambit(const std::string& id);
     void RemoveAllGambits();
     auto Tick(timer::time_point tick) -> Task<void>;

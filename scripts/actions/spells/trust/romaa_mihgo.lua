@@ -2,7 +2,7 @@
 -- Trust: Romaa Mihgo
 -- Retail (BG Wiki BGWiki:Trusts): THF/WAR. Feint; Sneak Attack and Trick Attack (not combined with weapon skills);
 -- weapon skills as soon as she has TP (Fast Blade, Vorpal Blade, Savage Blade).
--- Left out: Aura Steal (no trust ability id), the positioning checks for Sneak / Trick Attack, Cobra Clamp (no script).
+-- Left out: Aura Steal (no trust ability id), the positioning checks for Sneak / Trick Attack. Cobra Clamp too (Stun, Paralyze; estimated numbers).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

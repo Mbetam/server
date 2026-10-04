@@ -3,7 +3,7 @@
 -- Retail (BG Wiki BGWiki:Trusts): BLM/DRK. Opens fights with tier V nukes, then melees; nukes now and then while she
 -- is not at the top of the enmity list and never magic bursts. Only darkness-aligned elements (ice, earth, water),
 -- whatever the target is weak to. Weapon skills at 1000 TP: Guillotine, Cross Reaper, Shadow of Death.
--- Left out: Salvation Scythe (trust-unique, no mob skill script).
+-- Salvation Scythe too (Poison, Bio, Paralyze, Slow; estimated numbers).
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')
 

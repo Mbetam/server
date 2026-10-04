@@ -2,7 +2,7 @@
 -- Trust: Gadalar
 -- Retail (BG Wiki BGWiki:Trusts): BLM/BLM, MP+25%, Magic Attack Bonus+25. Keeps Blaze Spikes up and favours
 -- Firaga III; recovers MP when hit; weapon skills as soon as he has TP (Spinning Scythe, Spiral Hell, Vorpal Scythe).
--- Left out: Salamander Flame (trust-unique, no mob skill script), Rughadjeen's +25 MAB synergy.
+-- Salamander Flame too (AoE fire + Dia III; trust-unique, estimated numbers). Left out: Rughadjeen's +25 MAB synergy.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

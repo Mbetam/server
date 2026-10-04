@@ -16319,7 +16319,7 @@ void CLuaBaseEntity::trustPartyMessage(uint32 message_id) const
 }
 
 /************************************************************************
- *  Function: addGambit(targetSelector, conditionsTable, actionsTable, retry)
+ *  Function: addGambit(targetSelector, conditionsTable, actionsTable, retry, first)
  *  conditionsTable: { condition, arg1 }
  *  actionsTable: { reactionType, selector, selectorArg }
  *  Purpose  : Adds a behavior to the gambit system with an arbitrary number of predicates and reactions
@@ -16331,10 +16331,10 @@ void CLuaBaseEntity::trustPartyMessage(uint32 message_id) const
  *            trust:addGambit(ai.t.TARGET, { ai.c.NOT_STATUS, xi.effect.FLASH }, {
  *                  { ai.r.JA, ai.s.SPECIFIC, xi.ja.DIVINE_EMBLEM },
  *                  { ai.r.MA, ai.s.SPECIFIC, xi.magic.spellFamily.FLASH } })
- *  Notes   : Adds a behavior to the gambit system
+ *  Notes   : Adds a behavior to the gambit system; first = true puts it ahead of the others (custom, 2026-10-04)
  ************************************************************************/
 
-std::string CLuaBaseEntity::addGambit(uint16 targ, const sol::table& predicates, const sol::table& reactions, const sol::object& retry)
+std::string CLuaBaseEntity::addGambit(uint16 targ, const sol::table& predicates, const sol::table& reactions, const sol::object& retry, const sol::object& first)
 {
     const auto* PTrust = dynamic_cast<CTrustEntity*>(m_PBaseEntity);
     if (!PTrust)
@@ -16449,7 +16449,7 @@ std::string CLuaBaseEntity::addGambit(uint16 targ, const sol::table& predicates,
     g.target_selector = targetSelector;
     g.identifier      = controller->m_GambitsContainer->NewGambitIdentifier(g);
 
-    return controller->m_GambitsContainer->AddGambit(g);
+    return controller->m_GambitsContainer->AddGambit(g, first != sol::lua_nil && first.as<bool>());
 }
 
 /************************************************************************

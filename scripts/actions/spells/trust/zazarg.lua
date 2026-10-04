@@ -1,7 +1,7 @@
 -----------------------------------
 -- Trust: Zazarg
 -- Retail (BG Wiki BGWiki:Trusts): MNK/MNK. Focus; weapon skills as soon as he has TP (Howling Fist, Dragon Kick,
--- Asuran Fists). Left out: Meteoric Impact (trust-unique, no script).
+-- Asuran Fists). Meteoric Impact too (estimated numbers).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

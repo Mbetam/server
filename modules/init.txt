@@ -73,4 +73,6 @@ custom/lua/ranged_ws_bonus.lua
 custom/sql/job_fixes.sql
 custom/sql/trust_casters.sql
 custom/sql/trust_melee.sql
+custom/sql/trust_unique_moves.sql
+custom/sql/trust_matsui_p.sql
 custom/lua/limit_job_breaker.lua

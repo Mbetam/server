@@ -52,7 +52,7 @@ auto CGambitsContainer::NewGambitIdentifier(const Gambit_t& gambit) const -> std
 
 // Validate gambit before it's inserted into the gambit list
 // Check levels, etc.
-std::string CGambitsContainer::AddGambit(const Gambit_t& gambit)
+std::string CGambitsContainer::AddGambit(const Gambit_t& gambit, bool first)
 {
     TracyZoneScoped;
 
@@ -77,8 +77,20 @@ std::string CGambitsContainer::AddGambit(const Gambit_t& gambit)
     // Make a modifiable copy, assign a new identifier and store it
     Gambit_t stored   = gambit;
     stored.identifier = NewGambitIdentifier(stored);
-    gambits.emplace_back(std::move(stored));
-    return gambits.back().identifier;
+    const auto id     = stored.identifier;
+
+    // first: checked before every other gambit (a behaviour added mid-fight, e.g. a conditional heal, would otherwise
+    // rarely get a turn behind a caster's always-ready gambits)
+    if (first)
+    {
+        gambits.insert(gambits.begin(), std::move(stored));
+    }
+    else
+    {
+        gambits.emplace_back(std::move(stored));
+    }
+
+    return id;
 }
 
 void CGambitsContainer::RemoveGambit(const std::string& id)

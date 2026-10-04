@@ -4,7 +4,8 @@
 -- melee jobs, Flurry II on RNG / COR, Refresh II on mages and herself; Slow, Paralyze, Addle, Dispel; often double
 -- magic bursts with tier V / IV nukes and nukes otherwise (here: the target's weakest element).
 -- Left out: Ascension / Descension (light / dark modes that limit her elements), Protect / Shell (not in her spell
--- list), her TP moves (Expunge Magic ... Naakual's Vengeance: no scripts).
+-- list). Her TP moves have estimated numbers (Expunge Magic, Harmonic Displacement, Darkest Hour, Sight Unseen,
+-- Unceasing Dread, Dignified Awe; Naakual's Vengeance at low HP, every 5 minutes).
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')
 
@@ -80,15 +81,24 @@ spellObject.onMobSpawn = function(mob)
     kit.onCombatTick(mob, 'ARCIELA_II_BURST', function(mobArg)
         kit.burstTick(mobArg, burstSpells, 2)
     end)
+
+
+    -- Naakual's Vengeance: restores her own HP and MP at low HP, every 5 minutes at most
+    kit.skillWhen(mob, 'ARCIELA_II_NAAKUAL', 3705, 300, function(mobArg)
+        return mobArg:getHPP() < 30
+    end)
+    mob:setTrustTPSkillSettings(ai.tp.ASAP, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)
     kit.cleanup(mob, 'ARCIELA_II_BURST')
+    kit.cleanup(mob, 'ARCIELA_II_NAAKUAL')
     xi.trust.message(mob, xi.trust.messageOffset.DESPAWN)
 end
 
 spellObject.onMobDeath = function(mob)
     kit.cleanup(mob, 'ARCIELA_II_BURST')
+    kit.cleanup(mob, 'ARCIELA_II_NAAKUAL')
     xi.trust.message(mob, xi.trust.messageOffset.DEATH)
 end
 

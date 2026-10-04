@@ -1,8 +1,8 @@
 -----------------------------------
 -- Trust: Teodor
 -- Retail (BG Wiki BGWiki:Trusts): BLM/DRK, HP+35%, MP+50%. Only uses his elemental magic to magic burst, with -ja and
--- -ga spells. Left out: Start from Scratch and his TP moves (Sinner's Cross, Ravenous Assault, Frenzied Thrust, Open
--- Coffin, Hemocladis: trust-unique, no scripts), his special melee attacks.
+-- -ga spells. TP moves at random (Sinner's Cross, Ravenous Assault, Frenzied Thrust, Open Coffin, Hemocladis:
+-- trust-unique, estimated numbers). Left out: Start from Scratch and the Hemocladis aura, his special melee attacks.
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')
 
@@ -55,6 +55,8 @@ spellObject.onMobSpawn = function(mob)
     kit.onCombatTick(mob, 'TEODOR_BURST', function(mobArg)
         kit.burstTick(mobArg, burstSpells, 1)
     end)
+
+    mob:setTrustTPSkillSettings(ai.tp.RANDOM, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)

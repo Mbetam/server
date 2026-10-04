@@ -1,7 +1,7 @@
 -----------------------------------
 -- Trust: Luzaf
 -- Retail (BG Wiki BGWiki:Trusts): COR/NIN. Dual wields and shoots; Triple Shot; holds up to 2500 TP for skillchains.
--- Left out: Quick Draw by enemy weakness, Bisection, Akimbo Shot and Grisly Horizon (no scripts): Leaden Salute only.
+-- Bisection, Akimbo Shot, Leaden Salute, Grisly Horizon (three with estimated numbers). Left out: Quick Draw.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

@@ -1,7 +1,7 @@
 -----------------------------------
 -- Trust: Rongelouts
 -- Retail (BG Wiki BGWiki:Trusts): WAR/WAR. Berserk, Aggressor, Warcry; weapon skills as soon as he has TP (Red Lotus
--- Blade, Savage Blade, Seraph Blade). Left out: Tongue Lash (no script), Beastmen Killer, the longer Warcry.
+-- Blade, Savage Blade, Seraph Blade). Tongue Lash too (AoE Terror; estimated). Left out: Beastmen Killer, the longer Warcry.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

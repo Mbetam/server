@@ -799,7 +799,7 @@ public:
     void   clearTrusts();
     uint32 getTrustID();
     void   trustPartyMessage(uint32 message_id) const;
-    auto   addGambit(uint16 targ, const sol::table& predicates, const sol::table& reactions, const sol::object& retry) -> std::string;
+    auto   addGambit(uint16 targ, const sol::table& predicates, const sol::table& reactions, const sol::object& retry, const sol::object& first) -> std::string;
     void   removeGambit(const std::string& id);
     void   removeAllGambits();
     void   setTrustTPSkillSettings(uint16 trigger, uint16 select, const sol::object& value);

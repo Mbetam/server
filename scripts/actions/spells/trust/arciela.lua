@@ -2,9 +2,11 @@
 -- Trust: Arciela
 -- Retail (BG Wiki BGWiki:Trusts): RDM/PLD, MP+20%, the support Arciela. Haste and Refresh only on the player and
 -- herself (player first; Haste II from level 96); Protect / Shell; Slow and Paralyze; stays in place after engaging.
--- Left out: Bellatrix of Light / Shadows stances, Addle and Dispel (not in her spell list), her TP moves (Guiding
--- Light, Illustrious Aid, Dynastic Gravitas: no scripts) and her Regain.
+-- Regain 25; Guiding Light and Dynastic Gravitas at random, Illustrious Aid when 2+ party members are under 75% HP
+-- (trust-unique, estimated numbers). Left out: Bellatrix of Light / Shadows stances, Addle and Dispel (not in her list).
 -----------------------------------
+local kit = require('modules/custom/lua/trust_caster_kit')
+
 ---@type TSpellTrust
 local spellObject = {}
 
@@ -20,6 +22,7 @@ spellObject.onMobSpawn = function(mob)
     xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
 
     mob:addMod(xi.mod.MPP, 20)
+    mob:addMod(xi.mod.REGAIN, 25)
 
     mob:addGambit(ai.t.MASTER, { ai.c.NOT_STATUS, xi.effect.HASTE }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.HASTE })
     mob:addGambit(ai.t.MASTER, {
@@ -35,13 +38,22 @@ spellObject.onMobSpawn = function(mob)
     mob:addGambit(ai.t.TARGET, { ai.c.NOT_STATUS, xi.effect.PARALYSIS }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.PARALYZE }, 60)
 
     mob:setMobMod(xi.mobMod.TRUST_DISTANCE, xi.trust.movementType.NO_MOVE)
+
+
+    -- Illustrious Aid when 2+ party members are under 75% HP (30 s cooldown)
+    kit.skillWhen(mob, 'ARCIELA_AID', 3452, 30, function(mobArg)
+        return (kit.partyHurt(mobArg, 75)) >= 2
+    end)
+    mob:setTrustTPSkillSettings(ai.tp.RANDOM, ai.s.RANDOM)
 end
 
 spellObject.onMobDespawn = function(mob)
+    kit.cleanup(mob, 'ARCIELA_AID')
     xi.trust.message(mob, xi.trust.messageOffset.DESPAWN)
 end
 
 spellObject.onMobDeath = function(mob)
+    kit.cleanup(mob, 'ARCIELA_AID')
     xi.trust.message(mob, xi.trust.messageOffset.DEATH)
 end
 

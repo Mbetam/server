@@ -3466,8 +3466,9 @@ end
 ---@param conditions table
 ---@param reactions table
 ---@param retry integer?
+---@param first boolean? -- custom: ahead of the other gambits
 ---@return string
-function CBaseEntity:addGambit(targ, conditions, reactions, retry)
+function CBaseEntity:addGambit(targ, conditions, reactions, retry, first)
 end
 
 ---@param id string

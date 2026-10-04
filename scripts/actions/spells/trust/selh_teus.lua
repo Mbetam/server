@@ -34,7 +34,8 @@ spellObject.onMobSpawn = function(mob)
             master and
             master:isAlive() and
             (master:getHPP() < 75 or master:hasStatusEffect(xi.effect.SLEEP_I) or master:hasStatusEffect(xi.effect.SLEEP_II)) and
-            now >= mobArg:getLocalVar('[Selhteus]NextRejuvenation')
+            now >= mobArg:getLocalVar('[Selhteus]NextRejuvenation') and
+            mobArg:getCurrentAction() ~= 3 -- not mid weapon skill: the mob skill would be dropped
         then
             mobArg:setLocalVar('[Selhteus]NextRejuvenation', now + 30)
             mobArg:useMobAbility(REJUVENATION)

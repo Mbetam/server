@@ -3,7 +3,7 @@
 -- Retail (BG Wiki BGWiki:Trusts): BLM/DRK, HP+30%, MP+300% (about 5000 MP at i119). Single-target nukes I-V and
 -- Comet; casts Stun to interrupt enemy TP moves. TP moves Envoutement, Memento Mori (magic attack boost) and Silence
 -- Seal. Nukes go for the target's weakest element (retail: not documented which he picks).
--- Left out: Bored to Tears (no script), "Memento Mori right before Comet" (Comet is on a 60 s gambit instead).
+-- Bored to Tears (Slow) too (estimated). Left out: "Memento Mori right before Comet" (Comet is on a 60 s gambit instead).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

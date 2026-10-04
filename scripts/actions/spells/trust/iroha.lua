@@ -1,7 +1,8 @@
 -----------------------------------
 -- Trust: Iroha
 -- Retail (BG Wiki BGWiki:Trusts): SAM/BLM, MP+50%. Protectra V / Shellra V; Hagakure, Hasso, Meditate, Third Eye.
--- Left out: her Amatsu weapon skills (trust-unique, no scripts), the solo skillchain, Blessing of Phoenix (Reraise).
+-- Holds up to 2500 TP to close skillchains (Amatsu: Hanadoki, Choun, Fuga, Gachirin: trust-unique, estimated numbers).
+-- Left out: the solo skillchain, Blessing of Phoenix (Reraise).
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -26,6 +27,8 @@ spellObject.onMobSpawn = function(mob)
     mob:addGambit(ai.t.MASTER, { ai.c.NOT_STATUS, xi.effect.PROTECT }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.PROTECTRA }, 60)
     mob:addGambit(ai.t.SELF, { ai.c.NOT_STATUS, xi.effect.SHELL }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.SHELLRA })
     mob:addGambit(ai.t.MASTER, { ai.c.NOT_STATUS, xi.effect.SHELL }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.SHELLRA }, 60)
+
+    mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 2500)
 end
 
 spellObject.onMobDespawn = function(mob)

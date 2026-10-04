@@ -2246,3 +2246,35 @@ script header says what is retail and what is left out.
   Sneak / Trick Attack, Unity bonuses.
 - **Tests:** `scripts/tests/modules/trust_melee.lua` (31; 3/3 clean). Module suite 637/637.
 - Audit: auto-attack only 29 -> 5, working 68 -> 84.
+
+## 2026-10-04 — Trust-unique moves (estimated numbers) and the last five auto-attack trusts
+
+Eric: "yes write the trust" (estimated numbers for trust-unique moves, as for Morimar / Lilisette II).
+- **Moves:** 66 new mob skill scripts in scripts/actions/mobskills/, each marked with what is estimated. Skillchain
+  properties from the BG Wiki trust page (the skill pages mostly say "unknown" or don't exist), AoE / self target
+  where the wiki says so: `modules/custom/sql/trust_unique_moves.sql` (mob_skills updates + weapon skill lists).
+  Shared helper `modules/custom/lua/trust_move_kit.lua` (estimated physical / ranged / magical move, drain, party).
+  - Aldo, Chacharoon, Darrcuiln, Excenmille [S]: their whole kits (Stag's Call: party Haste / Attack / MAB 3 min).
+  - Iroha / Iroha II Amatsu + Rise From Ashes, Teodor, Balamor, Rosulatia, Ygnas, Arciela I / II (Guiding Light,
+    Illustrious Aid, Dynastic Gravitas, Naakual's Vengeance ...), Ingrid II, Meteoric Impact, Typhonic Arrow,
+    Temblor Blade, Cobra Clamp, Coming Up Roses, Tongue Lash, Luzaf's three, Justicebreaker, Salamander Flame,
+    Null Blast, Salvation Scythe, Sixth Element, Bored to Tears.
+  - Not possible (no mob_skills row, so no client animation id): Sarva's Storm, Soturi's Fury, Celidon's Torment,
+    Tachi: Mudo, Quietus Sphere, Spine Chiller, Depraved Dandia, Dryad Kiss, Phototropic Blessing / Wrath, all of
+    Mumor II's moves, Thorn Dance; Sensual Dance (exists, but a positional party gaze buff) left.
+- **Matsui-P:** LSB gave him no spell list and no skill list. New lists 906 / 1118 (`trust_matsui_p.sql`) and a
+  script: shadows, Innin, Stun, Futae + bursts (caster kit), ninjutsu San first, Sange / Migawari / Kakka / Myoshu,
+  Burn / Yurin / Aisha, blades with TP held to 3000.
+- **Conditional heals** (Rise From Ashes: 3+ party members under 75% or one asleep; Illustrious Aid: 2+ under 75%;
+  Naakual's Vengeance: her HP under 30%, 5 min): `kit.skillWhen` (caster kit) adds a gambit for the move while the
+  condition holds and removes it otherwise. Two things were needed:
+  - useMobAbility is dropped when the trust is mid-cast, and a caster almost always is when its COMBAT_TICK runs
+    (gambits run first), so a gambit is used instead; and the skills got the no-TP-cost flag (0x004).
+  - **Core change** (gambits_container.cpp/.h, lua_base_entity.cpp/.h, spec): `addGambit(..., retry, first)` inserts
+    the gambit ahead of the others. Appended last, a caster's always-ready gambits never let it fire. Small diff;
+    COMBAT_TICK fires after the gambit loop, so changing the list there is safe.
+- **Test gotchas:** a forced mob skill must wait until the trust is free (not casting / WS / mob skill / ability);
+  physical moves can simply miss (retry); a conditional move waits for the current cast (allow ~20 s).
+- Tests: `trust_unique_moves.lua` (14), trust_melee +4 trusts (37), trust_casters + Matsui-P (21). Module suite
+  658/658. Audit: auto-attack only 5 -> 0, working 84 -> 91; left: Mildaurion, Ark MR, Ark GK (no AI), Aldo (UC)
+  (his only weapon skill has no row), the 20 with TODOs.

@@ -2,7 +2,7 @@
 -- Trust: Ovjang
 -- Retail (BG Wiki BGWiki:Trusts): RDM/BLM (Stormwaker frame), MP+20%. Prioritises Dispel; Slow, Paralyze, Silence;
 -- single-target nukes I-IV (here: the target's weakest element); holds TP until 1500 to close skillchains
--- (Knockout, Slapstick). Left out: Sixth Element (no script), the Nashmeira synergy.
+-- (Knockout, Slapstick). Sixth Element too (estimated numbers). Left out: the Nashmeira synergy.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}

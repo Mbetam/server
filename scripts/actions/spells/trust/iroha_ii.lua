@@ -2,7 +2,8 @@
 -- Trust: Iroha II
 -- Retail (BG Wiki BGWiki:Trusts): SAM/WHM, HP-5%, MP+250%. Protectra V / Shellra V; Hasso, Meditate, Third Eye;
 -- magic bursts fire-based skillchains with a near-instant Flare II.
--- Left out: her Amatsu weapon skills and Rise From Ashes (trust-unique, no scripts), the 4-step Light self-skillchain.
+-- Holds TP to close skillchains (Amatsu: Kyori, Hanadoki, Suien, Gachirin); Rise From Ashes when 3+ party members are
+-- under 75% HP or one is asleep (trust-unique moves, estimated numbers). Left out: the 4-step Light self-skillchain.
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')
 
@@ -40,15 +41,26 @@ spellObject.onMobSpawn = function(mob)
     kit.onCombatTick(mob, 'IROHA_II_BURST', function(mobArg)
         kit.burstTick(mobArg, burstSpells, 1)
     end)
+
+
+    -- Rise From Ashes when 3+ party members are under 75% HP or one is asleep (30 s cooldown)
+    kit.skillWhen(mob, 'IROHA_II_RISE', 3738, 30, function(mobArg)
+        local hurt, asleep = kit.partyHurt(mobArg, 75)
+
+        return hurt >= 3 or asleep
+    end)
+    mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 2500)
 end
 
 spellObject.onMobDespawn = function(mob)
     kit.cleanup(mob, 'IROHA_II_BURST')
+    kit.cleanup(mob, 'IROHA_II_RISE')
     xi.trust.message(mob, xi.trust.messageOffset.DESPAWN)
 end
 
 spellObject.onMobDeath = function(mob)
     kit.cleanup(mob, 'IROHA_II_BURST')
+    kit.cleanup(mob, 'IROHA_II_RISE')
     xi.trust.message(mob, xi.trust.messageOffset.DEATH)
 end
 

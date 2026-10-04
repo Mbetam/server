@@ -36,15 +36,16 @@ describe('Melee trusts', function()
 
         assert(trust, 'the trust was not summoned')
 
-        used = { spell = {}, ability = {}, skill = {} }
+        used = { spell = {}, ability = {}, skill = {}, damage = {} }
         trust:addListener('MAGIC_USE', 'TEST_MELEE_MAGIC', function(entity, target, spell)
             count(used.spell, idOf(spell))
         end)
         trust:addListener('ABILITY_USE', 'TEST_MELEE_ABILITY', function(entity, target, ability)
             count(used.ability, idOf(ability))
         end)
-        trust:addListener('WEAPONSKILL_USE', 'TEST_MELEE_WS', function(entity, target, skill)
+        trust:addListener('WEAPONSKILL_USE', 'TEST_MELEE_WS', function(entity, target, skill, tp, action, damage)
             count(used.skill, idOf(skill))
+            used.damage[idOf(skill)] = math.max(used.damage[idOf(skill)] or 0, damage or 0)
         end)
     end
 
@@ -59,7 +60,7 @@ describe('Melee trusts', function()
     end
 
     local function reset()
-        used = { spell = {}, ability = {}, skill = {} }
+        used = { spell = {}, ability = {}, skill = {}, damage = {} }
     end
 
     local function usedAny(tbl, ids)
@@ -76,7 +77,7 @@ describe('Melee trusts', function()
         local parts = {}
 
         for kind, tbl in pairs(used) do
-            for id, n in pairs(tbl) do
+            for id, n in pairs(kind ~= 'damage' and tbl or {}) do
                 table.insert(parts, string.format('%s %d x%d', kind, id, n))
             end
         end
@@ -100,29 +101,34 @@ describe('Melee trusts', function()
     -- player TP to give (openers wait for a party member's TP)
     local cases =
     {
-        { 'Zazarg', 'ZAZARG', { 'FOCUS' }, { 7, 8, 9 } },
-        { 'Luzaf', 'LUZAF', { 'TRIPLE_SHOT' }, { 3253 } },
-        { 'Najelith', 'NAJELITH', { 'BARRAGE', 'DOUBLE_SHOT' }, { 20, 196, 199 } },
+        { 'Zazarg', 'ZAZARG', { 'FOCUS' }, { 7, 8, 9, 3240 } },
+        { 'Luzaf', 'LUZAF', { 'TRIPLE_SHOT' }, { 3252, 3253, 3254, 3255 } },
+        { 'Najelith', 'NAJELITH', { 'BARRAGE', 'DOUBLE_SHOT' }, { 20, 196, 199, 3239 } },
         { 'Elivira', 'ELIVIRA', { 'BERSERK', 'BARRAGE' }, { 216, 212, 214, 209 } },
         { 'Noillurie', 'NOILLURIE', { 'HASSO' }, { 148, 150, 151, 152, 153 } },
         { 'Lhu Mhakaracca', 'LHU_MHAKARACCA', { 'BERSERK', 'AGGRESSOR' }, { 68, 69, 73, 72 } },
-        { 'Klara', 'KLARA', { 'BERSERK', 'WARCRY' }, { 32, 40, 42 } },
-        { 'Romaa Mihgo', 'ROMAA_MIHGO', { 'FEINT', 'SNEAK_ATTACK' }, { 32, 40, 42 } },
+        { 'Klara', 'KLARA', { 'BERSERK', 'WARCRY' }, { 32, 40, 42, 3296 } },
+        { 'Romaa Mihgo', 'ROMAA_MIHGO', { 'FEINT', 'SNEAK_ATTACK' }, { 32, 40, 42, 3297 } },
         { 'Flaviria (UC)', 'FLAVIRIA_UC', { 'BERSERK', 'JUMP' }, { 118, 120 } },
         { 'Abenzio', 'ABENZIO', {}, { 3355, 3356, 3357, 3358 } },
         { 'Babban', 'BABBAN', {}, { 3351, 3353 } },
         { 'Lhe Lhangavo', 'LHE_LHANGAVO', { 'FOCUS', 'IMPETUS' }, { 4, 5, 8, 9 } },
-        { 'Mayakov', 'MAYAKOV', { 'SABER_DANCE' }, { 32, 41, 40 } },
-        { 'Rongelouts', 'RONGELOUTS', { 'BERSERK', 'AGGRESSOR', 'WARCRY' }, { 34, 42, 37 } },
+        { 'Mayakov', 'MAYAKOV', { 'SABER_DANCE' }, { 32, 41, 40, 3454 } },
+        { 'Rongelouts', 'RONGELOUTS', { 'BERSERK', 'AGGRESSOR', 'WARCRY' }, { 34, 42, 37, 3486 } },
         { 'Maximilian', 'MAXIMILIAN', {}, { 32, 40, 41 }, 1500 },
         { 'Ayame (UC)', 'AYAME_UC', { 'HASSO' }, { 148, 149, 152, 155 } },
         { 'Aldo (UC)', 'ALDO_UC', { 'BULLY', 'SNEAK_ATTACK' }, {} },
         { 'Jakoh (UC)', 'JAKOH_UC', { 'FEINT', 'CONSPIRATOR' }, { 23, 25 } },
-        { 'Naja (UC)', 'NAJA_UC', {}, { 3215, 168, 3502, 169 }, 1000 },
+        { 'Naja (UC)', 'NAJA_UC', {}, { 3215, 168, 3502, 169, 3503 }, 1000 },
         { 'Invincible Shield (UC)', 'INVINCIBLE_SHIELD_UC', { 'PROVOKE', 'AGGRESSOR', 'WARCRY' }, { 86, 88 } },
-        { 'Iroha', 'IROHA', { 'HASSO' }, {} },
+        { 'Iroha', 'IROHA', { 'HASSO' }, { 3556, 3558, 3559, 3560 } },
         { "Selh'teus", 'SELHTEUS', {}, { 3621, 3623 } },
         { 'Lilisette', 'LILISETTE', {}, { 2444, 2445 } },
+        -- Trust-unique moves written with estimated numbers (2026-10-04)
+        { 'Aldo', 'ALDO', { 'BULLY', 'SNEAK_ATTACK' }, { 3283, 3284, 3285, 3286 } },
+        { 'Chacharoon', 'CHACHAROON', {}, { 3440, 3441, 3442 } },
+        { 'Darrcuiln', 'DARRCUILN', {}, { 3684, 3685, 3686, 3687, 3688 } },
+        { 'Excenmille [S]', 'EXCENMILLE_S', {}, { 3292, 3293, 3294, 3295 } },
     }
 
     for _, case in ipairs(cases) do
@@ -149,6 +155,45 @@ describe('Melee trusts', function()
             end
         end)
     end
+
+    it('the new trust-unique attack moves deal damage', function()
+        local damaging =
+        {
+            ALDO         = { 3283, 3284, 3285, 3286 },
+            DARRCUILN    = { 3684, 3685, 3686, 3687, 3688 },
+            EXCENMILLE_S = { 3292, 3293, 3294, 3295 },
+        }
+
+        for key, ids in pairs(damaging) do
+            summon(xi.magic.spell[key])
+
+            for _ = 1, 6 do
+                trust:setTP(3000) -- Aldo holds TP to 2000
+                fight(6)
+            end
+
+            local hit = false
+            for _, id in ipairs(ids) do
+                if (used.damage[id] or 0) > 0 then
+                    hit = true
+                end
+            end
+
+            assert(hit, key .. ': none of its moves did damage. ' .. dump())
+            player:clearTrusts()
+            xi.test.world:skipTime(4)
+        end
+    end)
+
+    it("Excenmille [S]'s Stag's Call gives the party Haste, Attack and Magic Attack", function()
+        summon(xi.magic.spell.EXCENMILLE_S)
+        fight(10)
+
+        assert(used.skill[3291], "no Stag's Call. " .. dump())
+        assert(player:hasStatusEffect(xi.effect.HASTE), 'the master has no Haste')
+        assert(player:hasStatusEffect(xi.effect.ATTACK_BOOST), 'the master has no Attack boost')
+        assert(player:hasStatusEffect(xi.effect.MAGIC_ATK_BOOST), 'the master has no Magic Attack boost')
+    end)
 
     it("Selh'teus uses Rejuvenation when his master drops to yellow HP", function()
         summon(xi.magic.spell.SELHTEUS)

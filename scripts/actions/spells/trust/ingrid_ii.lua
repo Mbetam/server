@@ -2,8 +2,8 @@
 -- Trust: Ingrid II
 -- Retail (BG Wiki BGWiki:Trusts): WHM/WAR. Only casts to magic burst, with the Banish line / Holy; Cursna.
 -- Spell levels come from her mob_spell_lists rows (they hand Banish III over to Holy II at 95).
--- Left out: Self-Aggrandizement and her TP moves (Merciless Strike, Inexorable Strike, Ruthlessness: no scripts),
--- Undead Killer.
+-- Holds up to 2500 TP to close skillchains (Merciless Strike, Moonlight, Inexorable Strike, Ruthlessness: trust-unique
+-- ones with estimated numbers). Left out: Self-Aggrandizement, Undead Killer.
 -----------------------------------
 local kit = require('modules/custom/lua/trust_caster_kit')
 
@@ -36,6 +36,8 @@ spellObject.onMobSpawn = function(mob)
     kit.onCombatTick(mob, 'INGRID_II_BURST', function(mobArg)
         kit.burstTick(mobArg, burstSpells, 1)
     end)
+
+    mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 2500)
 end
 
 spellObject.onMobDespawn = function(mob)

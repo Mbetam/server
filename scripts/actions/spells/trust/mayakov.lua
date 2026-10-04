@@ -2,7 +2,7 @@
 -- Trust: Mayakov
 -- Retail (BG Wiki BGWiki:Trusts): DNC/WAR. Saber Dance on engaging and kept up; Haste Samba with a healer in the party,
 -- otherwise Drain Samba; Feather Step and Climactic Flourish; holds up to 2000 TP (Fast Blade, Swift Blade, Vorpal
--- Blade). Left out: Coming Up Roses (no script), the Daze-level and finishing-move bookkeeping.
+-- Blade). Coming Up Roses too (estimated numbers). Left out: the Daze-level and finishing-move bookkeeping.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
