@@ -124,8 +124,8 @@ with migrate.MySQL() as db:
             continue
         src = open(path).read()
         code = '\n'.join(l for l in src.splitlines() if not l.strip().startswith('--'))
-        # Gambits, plus AI run from Lua through modules/custom/lua/trust_caster_kit.lua (magic bursts, openers)
-        r['gambits'] = len(re.findall(r'addGambit\(', code)) + len(re.findall(r'kit\.(?:burstTick|openerTick)\(', code))
+        # Gambits, plus AI run from Lua through the trust kits (caster kit: bursts, openers, skillWhen; song kit)
+        r['gambits'] = len(re.findall(r'addGambit\(', code)) + len(re.findall(r'kit\.(?:burstTick|openerTick|skillWhen)\(|songs\.tick\(', code))
         r['uses_MA'] = bool(re.search(r'ai\.r\.MA\b', code))
         r['uses_WS'] = bool(re.search(r'ai\.r\.WS\b|tp_select|setTrustTPSkillSettings|ai\.r\.MS\b', code))
         comments = [l.strip() for l in src.splitlines() if re.search(r'TODO|FIXME|not implemented|unimplemented|NYI|placeholder|missing|verify|capture', l, re.I)]

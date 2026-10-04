@@ -2278,3 +2278,26 @@ Eric: "yes write the trust" (estimated numbers for trust-unique moves, as for Mo
 - Tests: `trust_unique_moves.lua` (14), trust_melee +4 trusts (37), trust_casters + Matsui-P (21). Module suite
   658/658. Audit: auto-attack only 5 -> 0, working 84 -> 91; left: Mildaurion, Ark MR, Ark GK (no AI), Aldo (UC)
   (his only weapon skill has no row), the 20 with TODOs.
+
+## 2026-10-04 — Trusts: Ark MR / GK, Iron Eater, Mildaurion, and the bard trusts
+
+- **Ark Angel MR:** Sneak / Trick Attack at 1000+ TP, then Calamity right away through `kit.skillWhen` (TP moves
+  are tried before gambits, so a plain TP setting would weapon skill first); otherwise holds TP to 3000.
+- **Ark Angel GK:** Hasso, Jump, High Jump (top enmity), Konzen-ittai (player at 1000 TP), Sekkanoki / Hagakure at
+  2000 TP, Meditate; holds to 3000. **Iron Eater:** Berserk, Restraint, Double Attack / Store TP, TP held to 3000.
+  **Mildaurion:** opens skillchains once the player has 1500 TP (was 1000), Double Attack.
+- **Bards** (`modules/custom/lua/trust_song_kit.lua`; the LSB TODO "BRD trusts need a major overhaul"): each bard keeps
+  two of its own songs on the party, picked by retail priority, skipping songs another bard provides.
+  - Joachim: Paeon (his HP < 90%), Ballad (his MP < 75%), Victory > Advancing March, Blade > Sword Madrigal, then
+    Minuet / Minne; waits for his songs to expire. Cures, Erase, -na, Elegy. His spell list lacked Minuet, Minne and
+    Erase: `modules/custom/sql/trust_bards.sql`.
+  - Ulmia: Ballad for the party member lowest on MP (< 75% with 3+ MP users, < 33% otherwise), else both Marches,
+    else both Madrigals, else Minuets; refreshes 20 s before expiry. Bards have no MP of their own.
+  - Gotcha: addBardSong stores the singer's id in a uint16 sub type, so only its low 16 bits survive
+    (17188864 -> 18432). The kit compares `id % 65536`; comparing the full id made Joachim recast March in a loop.
+  - Left out: Pianissimo single-target songs (Scherzo, Prelude, player Ballad), Paeon twice, MP-usage-rate tracking.
+- Tests: `trust_bards.lua` (9; 3/3 alone). Full module suite 667/667. Seen once in a full run: Joachim with no songs
+  at all after 50 s (passed alone, in the trust_ files together and in 2 further full runs); the test now prints every
+  song on the player and his casts if it happens again. Also seen again: the JSE "NM drops: Ovni" xi_test segfault
+  (CZone::GetID from a Lua entity timer during the next test's spawnPlayer), before any trust test; test-only so far.
+- Audit: working 91 -> 95; partial with TODOs 20 -> 18 (bards done). Left: those 18, and moves with no skill row.

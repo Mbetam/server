@@ -75,4 +75,5 @@ custom/sql/trust_casters.sql
 custom/sql/trust_melee.sql
 custom/sql/trust_unique_moves.sql
 custom/sql/trust_matsui_p.sql
+custom/sql/trust_bards.sql
 custom/lua/limit_job_breaker.lua

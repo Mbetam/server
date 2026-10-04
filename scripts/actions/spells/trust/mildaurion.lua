@@ -1,5 +1,7 @@
 -----------------------------------
 -- Trust: Mildaurion
+-- Retail (BG Wiki BGWiki:Trusts): PLD/SAM, MP+100% (unused), Double Attack. No job abilities: opens skillchains with a
+-- random weapon skill once the player has 1500 TP (Light Blade, Stellar Burst, Great Wheel, Vortex).
 -- https://ffxiclopedia.fandom.com/wiki/Trust:_Mildaurion
 -- https://www.bg-wiki.com/ffxi/Cipher:_Mildaurion
 -- From wikis:
@@ -33,7 +35,10 @@ spellObject.onMobSpawn = function(mob)
 
     mob:addMod(xi.mod.MPP, 100)
 
-    mob:setTrustTPSkillSettings(ai.tp.OPENER, ai.s.RANDOM)
+    mob:addMod(xi.mod.DOUBLE_ATTACK, 10) -- retail: possesses Double Attack (amount estimated)
+
+    -- Retail: opens skillchains once the player has 1500 TP (closes others' if she can, else uses one at 3000)
+    mob:setTrustTPSkillSettings(ai.tp.OPENER, ai.s.RANDOM, 1500)
 end
 
 spellObject.onMobDespawn = function(mob)
