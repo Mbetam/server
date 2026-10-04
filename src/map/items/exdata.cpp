@@ -48,7 +48,9 @@ auto getType(const CItem* item) -> Type
         return Type::Linkshell;
     }
 
-    if (fishingutils::IsFish(item))
+    // Custom: equipment that can also be fished up (Copper Ring, Silver Ring, Mythril Sword, Rusty Cap...) keeps
+    // equipment exdata, so it can carry augments; its fish size / weight data was never shown for gear anyway.
+    if (fishingutils::IsFish(item) && !item->isType(ITEM_EQUIPMENT))
     {
         return Type::Fish;
     }

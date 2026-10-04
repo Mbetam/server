@@ -184,7 +184,7 @@ local function hasLabel(player, wanted)
 end
 
 -- Clicks an option in the current menu
-local function pick(player, label)
+local function rawPick(player, label)
     assert(player.menu ~= nil, 'no menu is open')
 
     for _, option in ipairs(player.menu.options) do
@@ -197,6 +197,16 @@ local function pick(player, label)
     end
 
     error('no option "' .. label .. '" in the menu; the options are: ' .. table.concat(labels(player), ' | '))
+end
+
+-- Picks an option. After a bonus ('+2 (50,000 gil)') the Augmenter asks how many: these tests add one at a time
+-- unless they use rawPick, so the count menu is answered with 1 here.
+local function pick(player, label)
+    rawPick(player, label)
+
+    if label:sub(1, 1) == '+' and player.menu and player.menu.title:find('^How many') then
+        rawPick(player, player.menu.options[1][1])
+    end
 end
 
 local npc = { getPacketName = function() return 'Augmenter' end }
@@ -340,24 +350,28 @@ describe('Augmenter: choosing a stat and a bonus', function()
         pick(player, 'Add an augment')
     end)
 
-    it('lists the stats six to a page', function()
-        assert(#labels(player) == 6 + 2, 'page 1 should have six stats plus Next page and Back: ' .. table.concat(labels(player), ' | '))
-        assert(hasLabel(player, 'Dual Wield') and hasLabel(player, 'Next page'))
-        assert(not hasLabel(player, 'Previous page'), 'the first page has no previous page')
-        assert(player.menu.title:find('page 1 of 3', 1, true))
+    it('lists the stats a page at a time, each page within the menu packet limit', function()
+        assert(hasLabel(player, 'Dual Wield') and hasLabel(player, 'Next'), table.concat(labels(player), ' | '))
+        assert(not hasLabel(player, 'Prev'), 'the first page has no previous page')
+        assert(player.menu.title:find('Stats 1/', 1, true), player.menu.title)
+        assert(flow.menuLength(player.menu) <= flow.menuLimit, 'page 1 is ' .. flow.menuLength(player.menu) .. ' bytes')
     end)
 
     it('reaches every stat by paging', function()
         local seen = {}
 
-        for _ = 1, 3 do
+        for _ = 1, 10 do
+            assert(flow.menuLength(player.menu) <= flow.menuLimit, player.menu.title .. ' is ' .. flow.menuLength(player.menu) .. ' bytes')
+
             for _, label in ipairs(labels(player)) do
                 seen[label] = true
             end
 
-            if hasLabel(player, 'Next page') then
-                pick(player, 'Next page')
+            if not hasLabel(player, 'Next') then
+                break
             end
+
+            pick(player, 'Next')
         end
 
         for _, stat in ipairs(config.stats) do
@@ -370,12 +384,12 @@ describe('Augmenter: choosing a stat and a bonus', function()
     end)
 
     it('goes back a page', function()
-        pick(player, 'Next page')
-        assert(hasLabel(player, 'Previous page'))
+        pick(player, 'Next')
+        assert(hasLabel(player, 'Prev'))
 
-        pick(player, 'Previous page')
+        pick(player, 'Prev')
 
-        assert(hasLabel(player, 'Dual Wield'), 'Previous page should return to page 1')
+        assert(hasLabel(player, 'Dual Wield'), 'Prev should return to page 1')
     end)
 
     it('offers each bonus with its price', function()
@@ -527,6 +541,40 @@ describe('Augmenter: adding an augment', function()
         assert(player.gil == goldAfter, 'a finished conversation must not charge again')
     end)
 
+    it('adds the same augment several times in one go: asks how many, charges the total once', function()
+        local player = bagWith(makePlayer())
+
+        trade(player, 1)
+        rawPick(player, 'Add an augment')
+        rawPick(player, 'Dual Wield')
+        rawPick(player, '+1 (10,000 gil)')
+
+        assert(player.menu.title == 'How many Dual Wield +1?', player.menu.title)
+        assert(hasLabel(player, '4 (40,000 gil)') and not hasLabel(player, '5 (50,000 gil)'), table.concat(labels(player), ' | '))
+        assert(flow.menuLength(player.menu) <= flow.menuLimit, 'the count menu is ' .. flow.menuLength(player.menu) .. ' bytes')
+
+        rawPick(player, '4 (40,000 gil)')
+        assert(player.menu.title == 'Add 4 x Dual Wield +1 for 40,000 gil?', player.menu.title)
+        rawPick(player, 'Yes, augment it')
+
+        assert(augmentIds(theOnlyItem(player)) == '146:0,146:0,146:0,146:0', 'expected four Dual Wield +1: ' .. augmentIds(theOnlyItem(player)))
+        assert(player.gil == 10000000 - 40000, 'the gil taken was wrong: ' .. player.gil)
+    end)
+
+    it('offers only as many as the item can still take, and none it cannot afford', function()
+        local player = bagWith(makePlayer({ gil = 25000 }), augmentExdata({ { id = 146, value = 0 } }))
+
+        trade(player, 1)
+        rawPick(player, 'Add an augment')
+        rawPick(player, 'Dual Wield')
+        rawPick(player, '+1 (10,000 gil)')
+
+        assert(hasLabel(player, '3 (30,000 gil)') and not hasLabel(player, '4 (40,000 gil)'), 'one slot is used, so 3 at most: ' .. table.concat(labels(player), ' | '))
+
+        rawPick(player, '3 (30,000 gil)')
+        assert(player.gil == 25000 and augmentIds(theOnlyItem(player)) == '146:0', 'three cost 30,000 and the player has 25,000: nothing may change')
+    end)
+
     it('refuses to offer what the player cannot afford', function()
         local player = bagWith(makePlayer({ gil = 5000 }))
 
@@ -628,14 +676,38 @@ end)
 describe('Augmenter: removing an augment', function()
     local twoAugments = { { id = 146, value = 2 }, { id = 144, value = 0 } } -- Dual Wield +3 (tier 3), Triple Attack +1 (tier 1)
 
-    it('lists each augment with its removal price', function()
+    it('lists each augment (the price is on the confirmation)', function()
         local player = bagWith(makePlayer(), augmentExdata(twoAugments))
 
         trade(player, 1)
         pick(player, 'Remove an augment')
 
-        assert(hasLabel(player, '1: Dual Wield +3 (15,000 gil)'), table.concat(labels(player), ' | '))
-        assert(hasLabel(player, '2: Triple Attack +1% (5,000 gil)'), table.concat(labels(player), ' | '))
+        assert(hasLabel(player, '1: Dual Wield +3'), table.concat(labels(player), ' | '))
+        assert(hasLabel(player, '2: Triple Attack +1%'), table.concat(labels(player), ' | '))
+    end)
+
+    it('a full item with the longest stat names still fits the menu packet (a 4-augment bow could not be fixed)', function()
+        local longest = {}
+        for _, stat in ipairs(config.stats) do
+            if not stat.retired and #stat.ranges == 1 then
+                table.insert(longest, stat)
+            end
+        end
+        table.sort(longest, function(a, b) return #a.name > #b.name end)
+
+        -- Each at its top-tier bonus (the stored value is the bonus minus the range's base)
+        local list = {}
+        for slot = 1, config.slotsPerItem do
+            local stat = longest[((slot - 1) % #longest) + 1]
+            table.insert(list, { id = stat.ranges[1].id, value = stat.amounts[#stat.amounts] - stat.ranges[1].base })
+        end
+
+        local player = bagWith(makePlayer(), augmentExdata(list))
+
+        trade(player, 1)
+        assert(flow.menuLength(player.menu) <= flow.menuLimit, 'main menu: ' .. flow.menuLength(player.menu))
+        pick(player, 'Remove an augment')
+        assert(flow.menuLength(player.menu) <= flow.menuLimit, 'remove list: ' .. flow.menuLength(player.menu) .. ' bytes: ' .. table.concat(labels(player), ' | '))
     end)
 
     it('removes the chosen augment and keeps the other', function()
@@ -643,7 +715,7 @@ describe('Augmenter: removing an augment', function()
 
         trade(player, 1)
         pick(player, 'Remove an augment')
-        pick(player, '1: Dual Wield +3 (15,000 gil)')
+        pick(player, '1: Dual Wield +3')
         assert(player.menu.title == 'Remove Dual Wield +3 for 15,000 gil?', player.menu.title)
         pick(player, 'Yes, remove it')
 
@@ -656,7 +728,7 @@ describe('Augmenter: removing an augment', function()
 
         trade(player, 1)
         pick(player, 'Remove an augment')
-        pick(player, '1: Dual Wield +1 (5,000 gil)')
+        pick(player, '1: Dual Wield +1')
         pick(player, 'Yes, remove it')
 
         local item = theOnlyItem(player)
@@ -668,7 +740,7 @@ describe('Augmenter: removing an augment', function()
 
         trade(player, 1)
         pick(player, 'Remove an augment')
-        pick(player, '1: Dual Wield +1 (5,000 gil)')
+        pick(player, '1: Dual Wield +1')
 
         assert(said(player):find('costs 5000', 1, true), said(player))
         assert(player.gil == 1000 and augmentIds(theOnlyItem(player)) == '146:0', 'nothing should change')

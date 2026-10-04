@@ -32,7 +32,7 @@ describe('Augmenter NPC', function()
     local menu = nil
 
     -- Clicks an option in the most recent menu, the way a player would
-    local function pick(label)
+    local function rawPick(label)
         assert(menu ~= nil, 'no menu is open')
 
         local options = {}
@@ -49,6 +49,15 @@ describe('Augmenter NPC', function()
         end
 
         error('no option "' .. label .. '" in the menu; the options are: ' .. table.concat(options, ' | '))
+    end
+
+    -- After a bonus the Augmenter asks how many: these tests add one at a time, so that is answered with 1
+    local function pick(label)
+        rawPick(label)
+
+        if label:sub(1, 1) == '+' and menu and menu.title:find('^How many') then
+            rawPick(menu.options[1][1])
+        end
     end
 
     before_each(function()
@@ -109,6 +118,14 @@ describe('Augmenter NPC', function()
 
         local augments = core.readItem(player:findItem(ring))
         assert(#augments == 1 and augments[1].id == 146 and augments[1].value == 1, 'the ring should carry Dual Wield +2')
+    end)
+
+    it('gear that can also be fished up (Copper Ring) keeps augments: it is no longer stored as a fish', function()
+        local copperRing = 13454
+        player:addItem({ id = copperRing, exdata = core.buildExdata({ { id = 146, value = 1 } }) })
+
+        local augments, reason = core.readItem(player:findItem(copperRing))
+        assert(augments and #augments == 1 and augments[1].id == 146, 'the Copper Ring lost its augment: ' .. tostring(reason))
     end)
 
     it('adds an augment to a traded ring, takes the gil, and the augment works', function()

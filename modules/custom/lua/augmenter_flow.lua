@@ -64,7 +64,26 @@ flow.setMenuSender = function(sender)
     sendMenu = sender or defaultSender
 end
 
+-- The whole menu (title and options, each quoted) goes to the client in one chat packet with a 150-byte text field
+-- (0x017 Mes[150]); anything longer is cut off and the menu breaks: on 2026-10-04 a bow with four augments could not
+-- have any removed, because its remove list was ~184 bytes. Keep every menu within flow.menuLimit.
+flow.menuLimit = 149
+
+flow.menuLength = function(menu)
+    local length = #menu.title + 2
+
+    for _, option in ipairs(menu.options) do
+        length = length + #option[1] + 2
+    end
+
+    return length
+end
+
 local function send(player, menu)
+    if flow.menuLength(menu) > flow.menuLimit then
+        print(string.format('[augmenter] menu "%s" is %d bytes, over %d: its last options will be cut off', menu.title, flow.menuLength(menu), flow.menuLimit))
+    end
+
     sendMenu(player, menu)
 end
 
@@ -154,7 +173,35 @@ end
 -- Adding an augment
 -----------------------------------
 
-flow.commitAdd = function(player, key, tier)
+-- Checks adding `count` copies of the same stat and bonus, one after the other, as core.checkAdd would for each.
+-- Returns true and { price (total), amount, list (the new augment list) }, or false and the message for the player.
+local function planAdd(player, augments, key, tier, count)
+    local list  = augments
+    local total = 0
+    local amount
+
+    for _ = 1, count do
+        local ok, plan = core.checkAdd({ level = player:getMainLvl(), gil = player:getGil() - total, augments = list, key = key, tier = tier })
+        if not ok then
+            return false, plan
+        end
+
+        list   = core.withAdded(list, plan.id, plan.value)
+        total  = total + plan.price
+        amount = plan.amount
+    end
+
+    return true, { price = total, amount = amount, list = list }
+end
+
+-- How many of this stat the item can still take in one go: its free slots, and the per-stat limit
+local function maxCount(augments, key)
+    return math.max(0, math.min(config.slotsPerItem - #augments, config.maxPerStat - core.countOf(augments, key)))
+end
+
+flow.commitAdd = function(player, key, tier, count)
+    count = count or 1
+
     local session = sessionOf(player)
     if session == nil then
         return
@@ -168,7 +215,7 @@ flow.commitAdd = function(player, key, tier)
         return
     end
 
-    local ok, plan = core.checkAdd({ level = player:getMainLvl(), gil = player:getGil(), augments = current, key = key, tier = tier })
+    local ok, plan = planAdd(player, current, key, tier, count)
     if not ok then
         say(player, session.npcName, plan)
         flow.showMain(player)
@@ -176,7 +223,8 @@ flow.commitAdd = function(player, key, tier)
         return
     end
 
-    local done, problem = swap(player, session, core.withAdded(current, plan.id, plan.value), plan.price)
+    -- All of them in one swap and one payment
+    local done, problem = swap(player, session, plan.list, plan.price)
     if not done then
         say(player, session.npcName, problem)
         flow.finish(player)
@@ -184,17 +232,20 @@ flow.commitAdd = function(player, key, tier)
         return
     end
 
-    local stat = core.stat(key)
-    say(player, session.npcName, string.format('Done! Your %s now has %s %s. That was %s gil.', session.itemName, stat.name, bonusText(stat, plan.amount), formatGil(plan.price)))
+    local stat  = core.stat(key)
+    local times = count > 1 and string.format('%d x ', count) or ''
+    say(player, session.npcName, string.format('Done! Your %s now has %s%s %s. That was %s gil.', session.itemName, times, stat.name, bonusText(stat, plan.amount), formatGil(plan.price)))
 
     -- Straight back to the first menu: add the next augment without trading the item again
     flow.showMain(player)
 end
 
-local function confirmAddMenu(player, key, tier)
-    local session      = sessionOf(player)
-    local ok, plan     = core.checkAdd({ level = player:getMainLvl(), gil = player:getGil(), augments = session.augments, key = key, tier = tier })
-    local stat         = core.stat(key)
+local function confirmAddMenu(player, key, tier, count)
+    count = count or 1
+
+    local session  = sessionOf(player)
+    local ok, plan = planAdd(player, session.augments, key, tier, count)
+    local stat     = core.stat(key)
 
     if not ok then
         say(player, session.npcName, plan)
@@ -203,14 +254,47 @@ local function confirmAddMenu(player, key, tier)
         return
     end
 
-    send(player, menuFor(string.format('Add %s %s for %s gil?', stat.name, bonusText(stat, plan.amount), formatGil(plan.price)),
+    local times = count > 1 and string.format('%d x ', count) or ''
+
+    send(player, menuFor(string.format('Add %s%s %s for %s gil?', times, stat.name, bonusText(stat, plan.amount), formatGil(plan.price)),
     {
-        { 'Yes, augment it', function(playerArg) flow.commitAdd(playerArg, key, tier) end },
+        { 'Yes, augment it', function(playerArg) flow.commitAdd(playerArg, key, tier, count) end },
         { 'No, go back',     function(playerArg) flow.showMain(playerArg) end },
     }))
 end
 
-local function tierMenu(player, key)
+local tierMenu -- defined below; the count menu's Back goes to it
+
+-- Eric (2026-10-04): the same augment several times in one go. After the bonus, ask how many (1 up to what the item
+-- can still take); the confirmation shows the total price. Skipped when only one fits.
+local function countMenu(player, key, tier)
+    local session = sessionOf(player)
+    local most    = maxCount(session.augments, key)
+
+    if most <= 1 then
+        confirmAddMenu(player, key, tier, 1)
+
+        return
+    end
+
+    local stat    = core.stat(key)
+    local amount  = stat.amounts[core.effectiveTier(key, tier)]
+    local options = {}
+
+    for count = 1, most do
+        table.insert(options,
+        {
+            string.format('%d (%s gil)', count, formatGil(core.price(core.effectiveTier(key, tier)) * count)),
+            function(playerArg) confirmAddMenu(playerArg, key, tier, count) end,
+        })
+    end
+
+    table.insert(options, { 'Back', function(playerArg) tierMenu(playerArg, key) end })
+
+    send(player, menuFor(string.format('How many %s %s?', stat.name, bonusText(stat, amount)), options))
+end
+
+tierMenu = function(player, key)
     local session  = sessionOf(player)
     local stat     = core.stat(key)
     local unlocked = core.tierForLevel(player:getMainLvl())
@@ -224,7 +308,7 @@ local function tierMenu(player, key)
             table.insert(options,
             {
                 string.format('%s (%s gil)', bonusText(stat, stat.amounts[tier]), formatGil(core.price(tier))),
-                function(playerArg) confirmAddMenu(playerArg, key, tier) end,
+                function(playerArg) countMenu(playerArg, key, tier) end,
             })
         end
     end
@@ -252,35 +336,58 @@ local function availableStats(session)
     return list
 end
 
+-- Splits the stats into pages that fit the menu packet: at most statsPerPage each, and never more bytes than the limit
+-- leaves after the title ('Stats 1/9') and the three buttons (Next, Prev, Back)
+local function statPages(stats)
+    local budget = flow.menuLimit - (#'Stats 10/10' + 2) - (#'Next' + 2) - (#'Prev' + 2) - (#'Back' + 2)
+    local pages  = { {} }
+    local used   = 0
+
+    for _, stat in ipairs(stats) do
+        local cost    = #stat.name + 2
+        local current = pages[#pages]
+
+        if #current >= statsPerPage or used + cost > budget then
+            current = {}
+            table.insert(pages, current)
+            used = 0
+        end
+
+        table.insert(current, stat)
+        used = used + cost
+    end
+
+    return pages
+end
+
+flow.statPages = statPages
+
 flow.showStats = function(player, page)
     local session = sessionOf(player)
     if session == nil then
         return
     end
 
-    local stats = availableStats(session)
-    local pages = math.max(1, math.ceil(#stats / statsPerPage))
-    page        = math.max(1, math.min(page, pages))
+    local pages = statPages(availableStats(session))
+    page        = math.max(1, math.min(page, #pages))
 
     local options = {}
 
-    for index = (page - 1) * statsPerPage + 1, math.min(page * statsPerPage, #stats) do
-        local stat = stats[index]
-
+    for _, stat in ipairs(pages[page]) do
         table.insert(options, { stat.name, function(playerArg) tierMenu(playerArg, stat.key) end })
     end
 
-    if page < pages then
-        table.insert(options, { 'Next page', function(playerArg) flow.showStats(playerArg, page + 1) end })
+    if page < #pages then
+        table.insert(options, { 'Next', function(playerArg) flow.showStats(playerArg, page + 1) end })
     end
 
     if page > 1 then
-        table.insert(options, { 'Previous page', function(playerArg) flow.showStats(playerArg, page - 1) end })
+        table.insert(options, { 'Prev', function(playerArg) flow.showStats(playerArg, page - 1) end })
     end
 
     table.insert(options, { 'Back', function(playerArg) flow.showMain(playerArg) end })
 
-    send(player, menuFor(string.format('Choose a stat (page %d of %d)', page, pages), options))
+    send(player, menuFor(string.format('Stats %d/%d', page, #pages), options))
 end
 
 -----------------------------------
@@ -348,13 +455,13 @@ local function removeMenu(player)
     local options = {}
 
     for slot, line in ipairs(core.describe(session.augments)) do
-        -- Price shown whatever the player's gil, so they can see what it would cost
-        local ok, plan = core.checkRemove({ gil = math.huge, augments = session.augments, slot = slot })
+        -- Checked whatever the player's gil; the price is on the confirmation (no room for it here: menu packet limit)
+        local ok = core.checkRemove({ gil = math.huge, augments = session.augments, slot = slot })
 
         if ok then
             table.insert(options,
             {
-                string.format('%d: %s +%d%s (%s gil)', slot, line.name, line.amount, line.unit, formatGil(plan.price)),
+                string.format('%d: %s +%d%s', slot, line.name, line.amount, line.unit),
                 function(playerArg) confirmRemoveMenu(playerArg, slot) end,
             })
         end
@@ -362,7 +469,7 @@ local function removeMenu(player)
 
     table.insert(options, { 'Back', function(playerArg) flow.showMain(playerArg) end })
 
-    send(player, menuFor('Which augment should I remove?', options))
+    send(player, menuFor('Remove which?', options))
 end
 
 -----------------------------------
