@@ -1,6 +1,8 @@
 -----------------------------------
 -- Trust: Nashmeira II
 -----------------------------------
+local kit = require('modules/custom/lua/trust_caster_kit')
+
 ---@type TSpellTrust
 local spellObject = {}
 
@@ -21,10 +23,19 @@ spellObject.onMobSpawn = function(mob)
         [xi.magic.spell.PRISHE_II] = xi.trust.messageOffset.TEAMWORK_5,
     })
 
-    mob:addGambit(ai.t.PARTY, { ai.c.HPP_LT, 75 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURE })
-    -- TODO: Should only use Curaga when *3* or more party members are below 75%
-    -- Setting the Curaga threshold a bit lower here to prevent a priority conflict with regular Cure gambit, above.
-    mob:addGambit(ai.t.PARTY, { ai.c.HPP_LT, 50 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURAGA })
+    -- Curaga when 3+ party members are under 75% HP or one is asleep (retail), ahead of single Cures (caster kit)
+    -- Cure / Curaga by how many are hurt (retail: Curaga for 3+ under 75% or one asleep): both are managed here so a
+    -- single Cure can't jump in first when three members drop at once
+    kit.gambitWhen(mob, 'NASHMEIRA_II_CURAGA', ai.t.SELF, { ai.c.ALWAYS, 0 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURAGA }, 0, function(mobArg)
+        local hurt, asleep = kit.partyHurt(mobArg, 75)
+
+        return hurt >= 3 or asleep
+    end)
+    kit.gambitWhen(mob, 'NASHMEIRA_II_CURE', ai.t.PARTY, { ai.c.HPP_LT, 75 }, { ai.r.MA, ai.s.HIGHEST, xi.magic.spellFamily.CURE }, 0, function(mobArg)
+        local hurt, asleep = kit.partyHurt(mobArg, 75)
+
+        return hurt >= 1 and hurt < 3 and not asleep
+    end)
 
     mob:addGambit(ai.t.PARTY, { ai.c.STATUS, xi.effect.POISON }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.POISONA })
     mob:addGambit(ai.t.PARTY, { ai.c.STATUS, xi.effect.PARALYSIS }, { ai.r.MA, ai.s.SPECIFIC, xi.magic.spell.PARALYNA })
@@ -48,10 +59,14 @@ spellObject.onMobSpawn = function(mob)
 end
 
 spellObject.onMobDespawn = function(mob)
+    kit.cleanup(mob, 'NASHMEIRA_II_CURAGA')
+    kit.cleanup(mob, 'NASHMEIRA_II_CURE')
     xi.trust.message(mob, xi.trust.messageOffset.DESPAWN)
 end
 
 spellObject.onMobDeath = function(mob)
+    kit.cleanup(mob, 'NASHMEIRA_II_CURAGA')
+    kit.cleanup(mob, 'NASHMEIRA_II_CURE')
     xi.trust.message(mob, xi.trust.messageOffset.DEATH)
 end
 

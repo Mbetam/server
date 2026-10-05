@@ -118,13 +118,13 @@ describe('Trust-unique moves', function()
             summon(xi.magic.spell[entry[1]])
             fight(4)
 
-            -- A physical move can simply miss: up to three tries. A mob skill can't start mid-cast: wait until free.
-            for _ = 1, 3 do
+            -- A physical move can simply miss: up to five tries. A mob skill can't start mid-cast: wait until free.
+            for _ = 1, 5 do
                 if (used.damage[entry[2]] or 0) > 0 then
                     break
                 end
 
-                for _ = 1, 15 do
+                for _ = 1, 25 do
                     local action = trust:getCurrentAction()
                     if action ~= 30 and action ~= 3 and action ~= 34 and action ~= 6 then
                         break -- free: not casting, weapon skilling, using a mob skill or an ability

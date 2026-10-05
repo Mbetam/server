@@ -2,7 +2,7 @@
 -- Trust: Invincible Shield UC
 -- Retail (BG Wiki BGWiki:Trusts): WAR/COR, Damage Taken -20%. A damage dealer who Provokes: Provoke, Aggressor,
 -- Restraint, Retaliation, Warcry, then Blood Rage once Warcry ends; holds up to 1500 TP for skillchains (Raging Rush,
--- Steel Cyclone). Left out: Soturi's Fury (no skill row), Tomahawk, Savagery, Unity HP bonus.
+-- Steel Cyclone). Left out: Soturi's Fury (no skill row), Tomahawk, Savagery. Unity HP bonus at its maximum.
 -- Note: his mob_pools spell list (367) is a white mage list; he casts nothing in retail, so it is not used.
 -----------------------------------
 ---@type TSpellTrust
@@ -20,6 +20,7 @@ spellObject.onMobSpawn = function(mob)
     xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
 
     mob:addMod(xi.mod.DMG, -2000)
+    mob:addMod(xi.mod.HPP, 30) -- BG Wiki: HP+20% to +30% by Unity rank; the maximum (no ranking system yet)
 
     mob:addGambit(ai.t.TARGET, { ai.c.ALWAYS, 0 }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.PROVOKE })
     mob:addGambit(ai.t.SELF, { ai.c.NOT_STATUS, xi.effect.AGGRESSOR }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.AGGRESSOR })

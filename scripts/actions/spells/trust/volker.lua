@@ -3,7 +3,7 @@
 -- If there is a NIN, PLD, or RUN in the party, behaves as a damage dealer: Uses Aggressor, Berserk.
 -- If there are no other tanks in the party, behaves as a tank: Uses Defender, Retaliation.
 -- Uses Provoke in either role to maintain enmity as a tank or off-tank.
--- Uses weapon skills at 2000 TP with Warrior's Charge if it's available; does not try to skillchain. (TODO)
+-- Uses weapon skills at 2000 TP with Warrior's Charge if it's available; does not try to skillchain.
 -----------------------------------
 ---@type TSpellTrust
 local spellObject = {}
@@ -35,7 +35,10 @@ spellObject.onMobSpawn = function(mob)
 
     mob:addGambit(ai.t.MASTER, { ai.c.HPP_LT, 50 }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.PROVOKE })
 
-    -- TODO: Add Warriors Charge + WS Logic
+    -- Warrior's Charge, then a weapon skill at 2000 TP, no skillchain attempts. TP moves are tried before gambits, so
+    -- the Charge goes up from 1500 TP and is ready for the weapon skill.
+    mob:addGambit(ai.t.SELF, { ai.c.TP_GTE, 1500 }, { ai.r.JA, ai.s.SPECIFIC, xi.ja.WARRIORS_CHARGE })
+    mob:setTrustTPSkillSettings(ai.tp.CLOSER_UNTIL_TP, ai.s.RANDOM, 2000)
 end
 
 spellObject.onMobDespawn = function(mob)

@@ -39,7 +39,11 @@ zoneIds = dict((k.lower(), int(v)) for k, v in re.findall(r'^\s+([A-Z0-9_]+)\s*=
 
 
 def title(key):
-    return ' '.join(w.capitalize() if w not in ('of', 'the', 'de') else w for w in key.split('_')).replace(' S', ' [S]') if not key.endswith('_s') else title(key[:-2]) + ' [S]'
+    # Past-era zones end in _s and get a trailing [S] (e.g. Batallia Downs [S]); no other word is touched
+    # (was: .replace(' S', ' [S]'), which turned "Maze of Shakhrami" into "Maze of [S]hakhrami").
+    if key.endswith('_s'):
+        return title(key[:-2]) + ' [S]'
+    return ' '.join(w.capitalize() if w not in ('of', 'the', 'de') else w for w in key.split('_'))
 
 
 def as_list(value):

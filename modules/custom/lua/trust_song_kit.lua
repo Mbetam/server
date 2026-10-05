@@ -5,7 +5,9 @@
 -- leaves out songs another bard already provides, and either waits for its songs to expire (Joachim) or refreshes them
 -- shortly before they do (Ulmia). "NOT_STATUS MARCH" style gambits would recast over their own songs in a loop.
 -- Songs store their singer: addBardSong puts the bard's id (low 16 bits) in the effect's sub type, the engine
--- keeps two songs per singer per target and drops the oldest (ApplyBardEffect). The master stands in for the party.
+-- keeps two songs per singer per target and drops the oldest (ApplyBardEffect). The bard itself stands in for the
+-- party: its songs always land on itself, while the master can be out of song range (a melee player at the monster,
+-- the bard a few yalms back); counting the master's songs made the bard re-sing in that case.
 -----------------------------------
 
 local songs = {}
@@ -63,11 +65,14 @@ songs.on = function(member)
     return list
 end
 
--- Does someone other than `bard` provide a song of this effect on `member`?
+-- Does someone other than `bard` provide a song of this effect, on `member` (the master) or on the bard itself?
+-- Either can be out of the other bard's song range, so both are checked.
 songs.othersHave = function(bard, member, effectId)
-    for _, s in ipairs(songs.on(member)) do
-        if s[1] == effectId and s[3] ~= songs.singer(bard) then
-            return true
+    for _, target in ipairs({ member, bard }) do
+        for _, s in ipairs(songs.on(target)) do
+            if s[1] == effectId and s[3] ~= songs.singer(bard) then
+                return true
+            end
         end
     end
 
@@ -97,7 +102,7 @@ songs.tick = function(bard, wanted, recastBefore)
     local mine = {}
     local count = 0
 
-    for _, s in ipairs(songs.on(master)) do
+    for _, s in ipairs(songs.on(bard)) do
         if s[3] == songs.singer(bard) and s[4] > (recastBefore or 0) * 1000 then
             mine[s[1] * 100 + s[2]] = true
             count = count + 1

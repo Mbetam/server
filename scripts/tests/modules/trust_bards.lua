@@ -50,11 +50,12 @@ describe('Bard trusts and the last melee trusts', function()
         end
     end
 
-    -- Songs on the master from `singer`: list of "effect:tier"
+    -- Songs from `singer` on the singer itself (always in its own song range; the master can be a few yalms too far):
+    -- list of "effect:tier"
     local function songsFrom(singer)
         local list = {}
 
-        for _, effect in ipairs(player:getStatusEffects()) do
+        for _, effect in ipairs(singer:getStatusEffects()) do
             local id = effect:getEffectType()
 
             if id >= xi.effect.REQUIEM and id <= xi.effect.NOCTURNE and effect:getSubType() == singer:getID() % 65536 then
@@ -153,7 +154,7 @@ describe('Bard trusts and the last melee trusts', function()
         xi.test.world:skipTime(2)
         local kupipi = trustOf(xi.magic.spell.KUPIPI)
         kupipi:setMP(math.floor(kupipi:getMaxMP() * 0.2))
-        player:delStatusEffect(xi.effect.MARCH) -- free a slot, as an expiring song would
+        ulmia:delStatusEffect(xi.effect.MARCH) -- free a slot (her songs are counted on herself), as an expiring song would
 
         fight(30)
         assert(has(songsFrom(ulmia), xi.effect.BALLAD, 3) or used.spell[xi.magic.spell.MAGES_BALLAD_III], 'no Ballad III. ' .. dump())

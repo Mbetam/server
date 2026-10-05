@@ -157,6 +157,22 @@ kit.skillWhen = function(mob, name, skillId, retry, condition)
     end)
 end
 
+-- Like kit.skillWhen, for any gambit: while `condition(mob)` holds, the trust has gambit (target, predicates, reaction,
+-- retry) ahead of its others; removed otherwise. E.g. Nashmeira II's Curaga only when 3+ party members are hurt.
+kit.gambitWhen = function(mob, name, target, predicates, reaction, retry, condition)
+    kit.onCombatTick(mob, name, function(mobArg)
+        local key    = mobArg:getID() .. name
+        local wanted = condition(mobArg)
+
+        if wanted and not skillGambits[key] then
+            skillGambits[key] = mobArg:addGambit(target, predicates, reaction, retry, true)
+        elseif not wanted and skillGambits[key] then
+            mobArg:removeGambit(skillGambits[key])
+            skillGambits[key] = nil
+        end
+    end)
+end
+
 -- Party members within `range` of the trust: how many are under `hpp` % HP, and whether one is asleep
 kit.partyHurt = function(mob, hpp, range)
     local hurt, asleep = 0, false

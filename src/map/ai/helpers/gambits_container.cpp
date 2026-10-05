@@ -428,11 +428,13 @@ auto CGambitsContainer::Tick(timer::time_point tick) -> Task<void>
             }
             else if (action.select == G_SELECT::STORM_MOB_WEAKNESS)
             {
-                return POwner->SpellContainer->StormDayAgainstTargetWeakness(resolvedTarget);
+                // Custom fix (2026-10-04): the enemy's weakness, not the storm's own target (the caster herself)
+                return POwner->SpellContainer->StormDayAgainstTargetWeakness(POwner->GetBattleTarget());
             }
             else if (action.select == G_SELECT::HELIX_MOB_WEAKNESS)
             {
-                return POwner->SpellContainer->StormDayAgainstTargetWeakness(resolvedTarget);
+                // Custom fix (2026-10-04): was StormDayAgainstTargetWeakness, which returns a storm, not a helix
+                return POwner->SpellContainer->HelixAgainstTargetWeakness(POwner->GetBattleTarget());
             }
             else if (action.select == G_SELECT::RANDOM)
             {
@@ -683,7 +685,7 @@ auto CGambitsContainer::Tick(timer::time_point tick) -> Task<void>
                     }
                     else if (action.select == G_SELECT::STORM_MOB_WEAKNESS)
                     {
-                        auto spell_id = POwner->SpellContainer->StormDayAgainstTargetWeakness(target);
+                        auto spell_id = POwner->SpellContainer->StormDayAgainstTargetWeakness(POwner->GetBattleTarget());
                         if (spell_id.has_value())
                         {
                             controller->Cast(POwner->entityId(), spell_id.value());
@@ -692,7 +694,7 @@ auto CGambitsContainer::Tick(timer::time_point tick) -> Task<void>
                     }
                     else if (action.select == G_SELECT::HELIX_MOB_WEAKNESS)
                     {
-                        auto spell_id = POwner->SpellContainer->StormDayAgainstTargetWeakness(target);
+                        auto spell_id = POwner->SpellContainer->HelixAgainstTargetWeakness(POwner->GetBattleTarget());
                         if (spell_id.has_value())
                         {
                             controller->Cast(target->entityId(), spell_id.value());

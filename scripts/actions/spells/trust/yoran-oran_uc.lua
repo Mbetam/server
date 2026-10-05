@@ -16,13 +16,13 @@ end
 spellObject.onMobSpawn = function(mob)
     xi.trust.message(mob, xi.trust.messageOffset.SPAWN)
 
-    -- TODO: UC trusts are supposed to get bonuses depending on unity ranking. Needs research.
-    -- TODO: Custom spawn messages if Unity ranking is higher.
-    -- TODO: Figure out what level of Fast Cast he has.
+    -- Unity rank bonus: set to the maximum (Eric, 2026-10-04: no ranking system yet). Rank spawn messages left out.
+    -- Fast Cast: amount unknown (BG Wiki: "Fast Cast"); +30 as the other trusts with Fast Cast here (estimate)
 
     mob:addMod(xi.mod.CURE_POTENCY, 50)
     mob:addMod(xi.mod.REGAIN, 50)
-    mob:addMod(xi.mod.MPP, 15) -- TODO: This is supposed to increase with Unity rank, but I don't believe that's implemented so it is set to the minimum.
+    mob:addMod(xi.mod.FASTCAST, 30)
+    mob:addMod(xi.mod.MPP, 25) -- BG Wiki: MP+15% to +25% by Unity rank; the maximum
 
     -- Retail: Nott (level 50) turns his TP into MP. Low priority, same rule as Apururu (UC).
     mob:addGambit(ai.t.SELF, { { ai.c.MPP_LT, 51 }, { ai.c.LVL_GTE, 50 }, { ai.c.TP_GTE, 1000 } }, { ai.r.MS, ai.s.SPECIFIC, xi.mobSkill.NOTT })

@@ -19,24 +19,24 @@ data.kills =
     { zone = 107, family =  81, name = 'Flock Bat', zoneName = 'South Gustaberg', low = 1, high = 3 }, -- 25 spawns
     { zone = 100, family =  10, name = 'Worm', zoneName = 'West Ronfaure', low = 1, high = 5 }, -- 50 spawns
     { zone = 100, family =  81, name = 'Flock Bat', zoneName = 'West Ronfaure', low = 1, high = 5 }, -- 40 spawns
-    { zone = 115, family = 146, name = 'Mandragora', zoneName = 'West [S]arutabaruta', low = 1, high = 5 }, -- 49 spawns
-    { zone = 115, family = 181, name = 'Bee', zoneName = 'West [S]arutabaruta', low = 1, high = 8 }, -- 39 spawns
+    { zone = 115, family = 146, name = 'Mandragora', zoneName = 'West Sarutabaruta', low = 1, high = 5 }, -- 49 spawns
+    { zone = 115, family = 181, name = 'Bee', zoneName = 'West Sarutabaruta', low = 1, high = 8 }, -- 39 spawns
     { zone = 172, family =  81, name = 'Flock Bat', zoneName = 'Zeruhn Mines', low = 1, high = 2 }, -- 9 spawns
     { zone = 101, family =  50, name = 'Rabbit', zoneName = 'East Ronfaure', low = 2, high = 5 }, -- 100 spawns
     { zone = 101, family =  16, name = 'Pugil', zoneName = 'East Ronfaure', low = 2, high = 5 }, -- 24 spawns
-    { zone = 116, family =  50, name = 'Rabbit', zoneName = 'East [S]arutabaruta', low = 2, high = 5 }, -- 78 spawns
+    { zone = 116, family =  50, name = 'Rabbit', zoneName = 'East Sarutabaruta', low = 2, high = 5 }, -- 78 spawns
     { zone = 106, family =  10, name = 'Worm', zoneName = 'North Gustaberg', low = 2, high = 5 }, -- 82 spawns
     { zone = 106, family =  11, name = 'Crab', zoneName = 'North Gustaberg', low = 2, high = 5 }, -- 8 spawns
     { zone = 107, family =  10, name = 'Worm', zoneName = 'South Gustaberg', low = 2, high = 4 }, -- 82 spawns
     { zone = 100, family =  50, name = 'Rabbit', zoneName = 'West Ronfaure', low = 2, high = 5 }, -- 113 spawns
-    { zone = 115, family =  50, name = 'Rabbit', zoneName = 'West [S]arutabaruta', low = 2, high = 5 }, -- 66 spawns
-    { zone = 115, family =  11, name = 'Crab', zoneName = 'West [S]arutabaruta', low = 2, high = 3 }, -- 11 spawns
-    { zone = 116, family =  78, name = 'Bird', zoneName = 'East [S]arutabaruta', low = 3, high = 4 }, -- 41 spawns
-    { zone = 116, family =  74, name = 'Yagudo', zoneName = 'East [S]arutabaruta', low = 3, high = 6 }, -- 47 spawns
-    { zone = 116, family = 174, name = 'Hound', zoneName = 'East [S]arutabaruta', low = 3, high = 8 }, -- 10 spawns
-    { zone = 116, family = 178, name = 'Skeleton', zoneName = 'East [S]arutabaruta', low = 3, high = 8 }, -- 19 spawns
-    { zone = 116, family =  58, name = 'Goblin', zoneName = 'East [S]arutabaruta', low = 3, high = 6 }, -- 37 spawns
-    { zone = 116, family =  11, name = 'Crab', zoneName = 'East [S]arutabaruta', low = 3, high = 5 }, -- 33 spawns
+    { zone = 115, family =  50, name = 'Rabbit', zoneName = 'West Sarutabaruta', low = 2, high = 5 }, -- 66 spawns
+    { zone = 115, family =  11, name = 'Crab', zoneName = 'West Sarutabaruta', low = 2, high = 3 }, -- 11 spawns
+    { zone = 116, family =  78, name = 'Bird', zoneName = 'East Sarutabaruta', low = 3, high = 4 }, -- 41 spawns
+    { zone = 116, family =  74, name = 'Yagudo', zoneName = 'East Sarutabaruta', low = 3, high = 6 }, -- 47 spawns
+    { zone = 116, family = 174, name = 'Hound', zoneName = 'East Sarutabaruta', low = 3, high = 8 }, -- 10 spawns
+    { zone = 116, family = 178, name = 'Skeleton', zoneName = 'East Sarutabaruta', low = 3, high = 8 }, -- 19 spawns
+    { zone = 116, family =  58, name = 'Goblin', zoneName = 'East Sarutabaruta', low = 3, high = 6 }, -- 37 spawns
+    { zone = 116, family =  11, name = 'Crab', zoneName = 'East Sarutabaruta', low = 3, high = 5 }, -- 33 spawns
     { zone = 140, family = 126, name = 'Lizard', zoneName = 'Ghelsba Outpost', low = 3, high = 5 }, -- 18 spawns
     { zone = 140, family =  77, name = 'Bat', zoneName = 'Ghelsba Outpost', low = 3, high = 6 }, -- 21 spawns
     { zone = 140, family =  16, name = 'Pugil', zoneName = 'Ghelsba Outpost', low = 3, high = 6 }, -- 15 spawns
@@ -50,16 +50,16 @@ data.kills =
     { zone = 143, family =  50, name = 'Rabbit', zoneName = 'Palborough Mines', low = 3, high = 6 }, -- 54 spawns
     { zone = 107, family =  77, name = 'Bat', zoneName = 'South Gustaberg', low = 3, high = 5 }, -- 12 spawns
     { zone = 107, family =  67, name = 'Quadav', zoneName = 'South Gustaberg', low = 3, high = 7 }, -- 47 spawns
-    { zone = 115, family =  78, name = 'Bird', zoneName = 'West [S]arutabaruta', low = 3, high = 5 }, -- 38 spawns
-    { zone = 115, family =  58, name = 'Goblin', zoneName = 'West [S]arutabaruta', low = 3, high = 5 }, -- 22 spawns
+    { zone = 115, family =  78, name = 'Bird', zoneName = 'West Sarutabaruta', low = 3, high = 5 }, -- 38 spawns
+    { zone = 115, family =  58, name = 'Goblin', zoneName = 'West Sarutabaruta', low = 3, high = 5 }, -- 22 spawns
     { zone = 172, family =  11, name = 'Crab', zoneName = 'Zeruhn Mines', low = 3, high = 78 }, -- 9 spawns
     { zone = 101, family = 143, name = 'Funguar', zoneName = 'East Ronfaure', low = 4, high = 6 }, -- 15 spawns
     { zone = 101, family = 182, name = 'Beetle', zoneName = 'East Ronfaure', low = 4, high = 7 }, -- 22 spawns
     { zone = 101, family =  63, name = 'Orc', zoneName = 'East Ronfaure', low = 4, high = 8 }, -- 30 spawns
     { zone = 101, family =  77, name = 'Bat', zoneName = 'East Ronfaure', low = 4, high = 6 }, -- 22 spawns
     { zone = 101, family =  58, name = 'Goblin', zoneName = 'East Ronfaure', low = 4, high = 8 }, -- 41 spawns
-    { zone = 116, family = 146, name = 'Mandragora', zoneName = 'East [S]arutabaruta', low = 4, high = 5 }, -- 60 spawns
-    { zone = 116, family = 186, name = 'Crawler', zoneName = 'East [S]arutabaruta', low = 4, high = 6 }, -- 45 spawns
+    { zone = 116, family = 146, name = 'Mandragora', zoneName = 'East Sarutabaruta', low = 4, high = 5 }, -- 60 spawns
+    { zone = 116, family = 186, name = 'Crawler', zoneName = 'East Sarutabaruta', low = 4, high = 6 }, -- 45 spawns
     { zone = 140, family = 143, name = 'Funguar', zoneName = 'Ghelsba Outpost', low = 4, high = 6 }, -- 13 spawns
     { zone = 145, family = 181, name = 'Bee', zoneName = 'Giddeus', low = 4, high = 13 }, -- 56 spawns
     { zone = 145, family =  16, name = 'Pugil', zoneName = 'Giddeus', low = 4, high = 11 }, -- 12 spawns
@@ -74,14 +74,14 @@ data.kills =
     { zone = 107, family =  78, name = 'Bird', zoneName = 'South Gustaberg', low = 4, high = 6 }, -- 42 spawns
     { zone = 100, family =  63, name = 'Orc', zoneName = 'West Ronfaure', low = 4, high = 7 }, -- 55 spawns
     { zone = 100, family =  77, name = 'Bat', zoneName = 'West Ronfaure', low = 4, high = 6 }, -- 26 spawns
-    { zone = 115, family = 186, name = 'Crawler', zoneName = 'West [S]arutabaruta', low = 4, high = 6 }, -- 41 spawns
-    { zone = 115, family =  74, name = 'Yagudo', zoneName = 'West [S]arutabaruta', low = 4, high = 6 }, -- 41 spawns
-    { zone = 115, family = 174, name = 'Hound', zoneName = 'West [S]arutabaruta', low = 4, high = 6 }, -- 5 spawns
-    { zone = 115, family = 178, name = 'Skeleton', zoneName = 'West [S]arutabaruta', low = 4, high = 8 }, -- 15 spawns
+    { zone = 115, family = 186, name = 'Crawler', zoneName = 'West Sarutabaruta', low = 4, high = 6 }, -- 41 spawns
+    { zone = 115, family =  74, name = 'Yagudo', zoneName = 'West Sarutabaruta', low = 4, high = 6 }, -- 41 spawns
+    { zone = 115, family = 174, name = 'Hound', zoneName = 'West Sarutabaruta', low = 4, high = 6 }, -- 5 spawns
+    { zone = 115, family = 178, name = 'Skeleton', zoneName = 'West Sarutabaruta', low = 4, high = 8 }, -- 15 spawns
     { zone = 191, family = 126, name = 'Lizard', zoneName = 'Dangruf Wadi', low = 5, high = 89 }, -- 39 spawns
     { zone = 191, family =  58, name = 'Goblin', zoneName = 'Dangruf Wadi', low = 5, high = 87 }, -- 119 spawns
     { zone = 101, family = 178, name = 'Skeleton', zoneName = 'East Ronfaure', low = 5, high = 7 }, -- 15 spawns
-    { zone = 116, family =  16, name = 'Pugil', zoneName = 'East [S]arutabaruta', low = 5, high = 7 }, -- 33 spawns
+    { zone = 116, family =  16, name = 'Pugil', zoneName = 'East Sarutabaruta', low = 5, high = 7 }, -- 33 spawns
     { zone = 140, family =  63, name = 'Orc', zoneName = 'Ghelsba Outpost', low = 5, high = 13 }, -- 169 spawns
     { zone = 145, family =  74, name = 'Yagudo', zoneName = 'Giddeus', low = 5, high = 15 }, -- 283 spawns
     { zone = 106, family =  52, name = 'Sheep', zoneName = 'North Gustaberg', low = 5, high = 8 }, -- 22 spawns
@@ -104,10 +104,10 @@ data.kills =
     { zone = 107, family = 178, name = 'Skeleton', zoneName = 'South Gustaberg', low = 6, high = 7 }, -- 16 spawns
     { zone = 107, family =  11, name = 'Crab', zoneName = 'South Gustaberg', low = 6, high = 7 }, -- 16 spawns
     { zone = 191, family =  11, name = 'Crab', zoneName = 'Dangruf Wadi', low = 7, high = 92 }, -- 21 spawns
-    { zone = 116, family = 181, name = 'Bee', zoneName = 'East [S]arutabaruta', low = 7, high = 8 }, -- 39 spawns
+    { zone = 116, family = 181, name = 'Bee', zoneName = 'East Sarutabaruta', low = 7, high = 8 }, -- 39 spawns
     { zone = 106, family = 126, name = 'Lizard', zoneName = 'North Gustaberg', low = 7, high = 8 }, -- 22 spawns
     { zone = 166, family =   8, name = 'Slime', zoneName = 'Ranguemont Pass', low = 7, high = 30 }, -- 7 spawns
-    { zone = 116, family =  22, name = 'Bomb', zoneName = 'East [S]arutabaruta', low = 8, high = 10 }, -- 6 spawns
+    { zone = 116, family =  22, name = 'Bomb', zoneName = 'East Sarutabaruta', low = 8, high = 10 }, -- 6 spawns
     { zone = 141, family =  63, name = 'Orc', zoneName = 'Fort Ghelsba', low = 8, high = 17 }, -- 170 spawns
     { zone = 141, family =  77, name = 'Bat', zoneName = 'Fort Ghelsba', low = 8, high = 10 }, -- 20 spawns
     { zone = 140, family =  64, name = 'Orcish Warmachine', zoneName = 'Ghelsba Outpost', low = 8, high = 10 }, -- 12 spawns
@@ -122,7 +122,7 @@ data.kills =
     { zone = 107, family =  22, name = 'Bomb', zoneName = 'South Gustaberg', low = 8, high = 10 }, -- 7 spawns
     { zone = 117, family = 174, name = 'Hound', zoneName = 'Tahrongi Canyon', low = 8, high = 11 }, -- 10 spawns
     { zone = 117, family =  74, name = 'Yagudo', zoneName = 'Tahrongi Canyon', low = 8, high = 15 }, -- 24 spawns
-    { zone = 115, family =  22, name = 'Bomb', zoneName = 'West [S]arutabaruta', low = 8, high = 10 }, -- 5 spawns
+    { zone = 115, family =  22, name = 'Bomb', zoneName = 'West Sarutabaruta', low = 8, high = 10 }, -- 5 spawns
     { zone = 142, family =  81, name = 'Flock Bat', zoneName = 'Yughott Grotto', low = 8, high = 11 }, -- 27 spawns
     { zone = 108, family =  58, name = 'Goblin', zoneName = 'Konschtat Highlands', low = 9, high = 14 }, -- 43 spawns
     { zone = 108, family =  67, name = 'Quadav', zoneName = 'Konschtat Highlands', low = 9, high = 14 }, -- 31 spawns
@@ -145,7 +145,7 @@ data.kills =
     { zone = 117, family = 146, name = 'Mandragora', zoneName = 'Tahrongi Canyon', low = 10, high = 11 }, -- 61 spawns
     { zone = 117, family = 178, name = 'Skeleton', zoneName = 'Tahrongi Canyon', low = 10, high = 13 }, -- 27 spawns
     { zone = 117, family = 181, name = 'Bee', zoneName = 'Tahrongi Canyon', low = 10, high = 12 }, -- 60 spawns
-    { zone =  95, family = 146, name = 'Mandragora', zoneName = 'West [S]arutabaruta [S]', low = 10, high = 12 }, -- 33 spawns
+    { zone =  95, family = 146, name = 'Mandragora', zoneName = 'West Sarutabaruta [S]', low = 10, high = 12 }, -- 33 spawns
     { zone = 191, family =  50, name = 'Rabbit', zoneName = 'Dangruf Wadi', low = 11, high = 90 }, -- 40 spawns
     { zone =  81, family =  81, name = 'Flock Bat', zoneName = 'East Ronfaure [S]', low = 11, high = 13 }, -- 12 spawns
     { zone =  81, family =  50, name = 'Rabbit', zoneName = 'East Ronfaure [S]', low = 11, high = 15 }, -- 29 spawns
@@ -163,7 +163,7 @@ data.kills =
     { zone = 117, family = 186, name = 'Crawler', zoneName = 'Tahrongi Canyon', low = 12, high = 13 }, -- 19 spawns
     { zone = 117, family =  58, name = 'Goblin', zoneName = 'Tahrongi Canyon', low = 12, high = 14 }, -- 26 spawns
     { zone = 103, family =  81, name = 'Flock Bat', zoneName = 'Valkurm Dunes', low = 12, high = 15 }, -- 19 spawns
-    { zone =  95, family =  50, name = 'Rabbit', zoneName = 'West [S]arutabaruta [S]', low = 12, high = 93 }, -- 69 spawns
+    { zone =  95, family =  50, name = 'Rabbit', zoneName = 'West Sarutabaruta [S]', low = 12, high = 93 }, -- 69 spawns
     { zone = 142, family = 126, name = 'Lizard', zoneName = 'Yughott Grotto', low = 12, high = 15 }, -- 9 spawns
     { zone =  81, family =  77, name = 'Bat', zoneName = 'East Ronfaure [S]', low = 13, high = 15 }, -- 12 spawns
     { zone = 102, family =  11, name = 'Crab', zoneName = 'La Theine Plateau', low = 13, high = 14 }, -- 10 spawns
@@ -176,7 +176,7 @@ data.kills =
     { zone = 108, family = 173, name = 'Ghost', zoneName = 'Konschtat Highlands', low = 15, high = 16 }, -- 5 spawns
     { zone = 102, family =  22, name = 'Bomb', zoneName = 'La Theine Plateau', low = 15, high = 17 }, -- 4 spawns
     { zone = 102, family = 173, name = 'Ghost', zoneName = 'La Theine Plateau', low = 15, high = 16 }, -- 6 spawns
-    { zone = 198, family =  81, name = 'Flock Bat', zoneName = 'Maze of [S]hakhrami', low = 15, high = 85 }, -- 56 spawns
+    { zone = 198, family =  81, name = 'Flock Bat', zoneName = 'Maze of Shakhrami', low = 15, high = 85 }, -- 56 spawns
     { zone = 119, family = 150, name = 'Sapling', zoneName = 'Meriphataud Mountains', low = 15, high = 16 }, -- 72 spawns
     { zone = 119, family =  81, name = 'Flock Bat', zoneName = 'Meriphataud Mountains', low = 15, high = 16 }, -- 23 spawns
     { zone =  88, family =  78, name = 'Bird', zoneName = 'North Gustaberg [S]', low = 15, high = 18 }, -- 34 spawns
@@ -186,7 +186,7 @@ data.kills =
     { zone = 109, family =  81, name = 'Flock Bat', zoneName = 'Pashhow Marshlands', low = 15, high = 16 }, -- 66 spawns
     { zone = 117, family = 173, name = 'Ghost', zoneName = 'Tahrongi Canyon', low = 15, high = 16 }, -- 10 spawns
     { zone = 117, family =  22, name = 'Bomb', zoneName = 'Tahrongi Canyon', low = 15, high = 17 }, -- 5 spawns
-    { zone =  95, family = 181, name = 'Bee', zoneName = 'West [S]arutabaruta [S]', low = 15, high = 17 }, -- 43 spawns
+    { zone =  95, family = 181, name = 'Bee', zoneName = 'West Sarutabaruta [S]', low = 15, high = 17 }, -- 43 spawns
     { zone = 142, family =  77, name = 'Bat', zoneName = 'Yughott Grotto', low = 15, high = 18 }, -- 19 spawns
     { zone = 118, family = 146, name = 'Mandragora', zoneName = 'Buburimu Peninsula', low = 16, high = 19 }, -- 57 spawns
     { zone = 118, family =  50, name = 'Rabbit', zoneName = 'Buburimu Peninsula', low = 16, high = 17 }, -- 38 spawns
@@ -196,7 +196,7 @@ data.kills =
     { zone = 104, family =  63, name = 'Orc', zoneName = 'Jugner Forest', low = 16, high = 22 }, -- 31 spawns
     { zone = 104, family = 178, name = 'Skeleton', zoneName = 'Jugner Forest', low = 16, high = 22 }, -- 14 spawns
     { zone = 104, family =  58, name = 'Goblin', zoneName = 'Jugner Forest', low = 16, high = 22 }, -- 19 spawns
-    { zone = 198, family =  58, name = 'Goblin', zoneName = 'Maze of [S]hakhrami', low = 16, high = 34 }, -- 87 spawns
+    { zone = 198, family =  58, name = 'Goblin', zoneName = 'Maze of Shakhrami', low = 16, high = 34 }, -- 87 spawns
     { zone = 119, family =  58, name = 'Goblin', zoneName = 'Meriphataud Mountains', low = 16, high = 22 }, -- 47 spawns
     { zone = 119, family = 178, name = 'Skeleton', zoneName = 'Meriphataud Mountains', low = 16, high = 23 }, -- 18 spawns
     { zone = 109, family =  58, name = 'Goblin', zoneName = 'Pashhow Marshlands', low = 16, high = 22 }, -- 31 spawns
@@ -221,13 +221,13 @@ data.kills =
     { zone = 108, family = 103, name = 'Elemental', zoneName = 'Konschtat Highlands', low = 18, high = 20 }, -- 6 spawns
     { zone = 108, family =  27, name = 'Evil Weapon', zoneName = 'Konschtat Highlands', low = 18, high = 19 }, -- 5 spawns
     { zone = 102, family = 103, name = 'Elemental', zoneName = 'La Theine Plateau', low = 18, high = 20 }, -- 8 spawns
-    { zone = 198, family =  10, name = 'Worm', zoneName = 'Maze of [S]hakhrami', low = 18, high = 30 }, -- 38 spawns
+    { zone = 198, family =  10, name = 'Worm', zoneName = 'Maze of Shakhrami', low = 18, high = 30 }, -- 38 spawns
     { zone = 193, family = 150, name = 'Sapling', zoneName = 'Ordelles Caves', low = 18, high = 88 }, -- 52 spawns
     { zone = 193, family =   5, name = 'Leech', zoneName = 'Ordelles Caves', low = 18, high = 88 }, -- 36 spawns
     { zone = 109, family = 178, name = 'Skeleton', zoneName = 'Pashhow Marshlands', low = 18, high = 24 }, -- 12 spawns
     { zone = 117, family = 103, name = 'Elemental', zoneName = 'Tahrongi Canyon', low = 18, high = 19 }, -- 8 spawns
     { zone = 103, family = 178, name = 'Skeleton', zoneName = 'Valkurm Dunes', low = 18, high = 23 }, -- 36 spawns
-    { zone =  95, family = 186, name = 'Crawler', zoneName = 'West [S]arutabaruta [S]', low = 18, high = 21 }, -- 35 spawns
+    { zone =  95, family = 186, name = 'Crawler', zoneName = 'West Sarutabaruta [S]', low = 18, high = 21 }, -- 35 spawns
     { zone = 118, family =  11, name = 'Crab', zoneName = 'Buburimu Peninsula', low = 19, high = 22 }, -- 18 spawns
     { zone = 104, family =  11, name = 'Crab', zoneName = 'Jugner Forest', low = 19, high = 20 }, -- 22 spawns
     { zone = 104, family =  16, name = 'Pugil', zoneName = 'Jugner Forest', low = 19, high = 20 }, -- 22 spawns
@@ -246,7 +246,7 @@ data.kills =
     { zone = 196, family = 143, name = 'Funguar', zoneName = 'Gusgen Mines', low = 20, high = 32 }, -- 21 spawns
     { zone = 104, family =  52, name = 'Sheep', zoneName = 'Jugner Forest', low = 20, high = 21 }, -- 43 spawns
     { zone = 173, family =  10, name = 'Worm', zoneName = 'Korroloka Tunnel', low = 20, high = 25 }, -- 37 spawns
-    { zone = 198, family =  77, name = 'Bat', zoneName = 'Maze of [S]hakhrami', low = 20, high = 88 }, -- 69 spawns
+    { zone = 198, family =  77, name = 'Bat', zoneName = 'Maze of Shakhrami', low = 20, high = 88 }, -- 69 spawns
     { zone = 119, family = 188, name = 'Fly', zoneName = 'Meriphataud Mountains', low = 20, high = 21 }, -- 57 spawns
     { zone = 109, family = 188, name = 'Fly', zoneName = 'Pashhow Marshlands', low = 20, high = 21 }, -- 52 spawns
     { zone = 103, family = 188, name = 'Fly', zoneName = 'Valkurm Dunes', low = 20, high = 22 }, -- 53 spawns
@@ -271,15 +271,15 @@ data.kills =
     { zone = 104, family = 182, name = 'Beetle', zoneName = 'Jugner Forest', low = 22, high = 23 }, -- 47 spawns
     { zone = 104, family = 174, name = 'Hound', zoneName = 'Jugner Forest', low = 22, high = 23 }, -- 16 spawns
     { zone = 173, family =  81, name = 'Flock Bat', zoneName = 'Korroloka Tunnel', low = 22, high = 26 }, -- 60 spawns
-    { zone = 198, family = 186, name = 'Crawler', zoneName = 'Maze of [S]hakhrami', low = 22, high = 88 }, -- 61 spawns
-    { zone = 198, family = 178, name = 'Skeleton', zoneName = 'Maze of [S]hakhrami', low = 22, high = 35 }, -- 69 spawns
+    { zone = 198, family = 186, name = 'Crawler', zoneName = 'Maze of Shakhrami', low = 22, high = 88 }, -- 61 spawns
+    { zone = 198, family = 178, name = 'Skeleton', zoneName = 'Maze of Shakhrami', low = 22, high = 35 }, -- 69 spawns
     { zone = 119, family = 174, name = 'Hound', zoneName = 'Meriphataud Mountains', low = 22, high = 26 }, -- 5 spawns
     { zone = 119, family = 182, name = 'Beetle', zoneName = 'Meriphataud Mountains', low = 22, high = 23 }, -- 14 spawns
     { zone = 109, family = 186, name = 'Crawler', zoneName = 'Pashhow Marshlands', low = 22, high = 23 }, -- 25 spawns
     { zone = 110, family =  81, name = 'Flock Bat', zoneName = 'Rolanberry Fields', low = 22, high = 23 }, -- 75 spawns
     { zone = 103, family =   5, name = 'Leech', zoneName = 'Valkurm Dunes', low = 22, high = 25 }, -- 29 spawns
-    { zone =  95, family =  78, name = 'Bird', zoneName = 'West [S]arutabaruta [S]', low = 22, high = 25 }, -- 32 spawns
-    { zone =  95, family =  11, name = 'Crab', zoneName = 'West [S]arutabaruta [S]', low = 22, high = 25 }, -- 19 spawns
+    { zone =  95, family =  78, name = 'Bird', zoneName = 'West Sarutabaruta [S]', low = 22, high = 25 }, -- 32 spawns
+    { zone =  95, family =  11, name = 'Crab', zoneName = 'West Sarutabaruta [S]', low = 22, high = 25 }, -- 19 spawns
     { zone = 105, family = 150, name = 'Sapling', zoneName = 'Batallia Downs', low = 23, high = 24 }, -- 81 spawns
     { zone = 118, family = 173, name = 'Ghost', zoneName = 'Buburimu Peninsula', low = 23, high = 25 }, -- 12 spawns
     { zone =   2, family = 142, name = 'Flytrap', zoneName = 'Carpenters Landing', low = 23, high = 33 }, -- 54 spawns
@@ -295,7 +295,7 @@ data.kills =
     { zone = 118, family =  16, name = 'Pugil', zoneName = 'Buburimu Peninsula', low = 24, high = 27 }, -- 11 spawns
     { zone = 104, family = 143, name = 'Funguar', zoneName = 'Jugner Forest', low = 24, high = 25 }, -- 46 spawns
     { zone = 104, family =  53, name = 'Tiger', zoneName = 'Jugner Forest', low = 24, high = 25 }, -- 15 spawns
-    { zone = 198, family =   5, name = 'Leech', zoneName = 'Maze of [S]hakhrami', low = 24, high = 85 }, -- 44 spawns
+    { zone = 198, family =   5, name = 'Leech', zoneName = 'Maze of Shakhrami', low = 24, high = 85 }, -- 44 spawns
     { zone = 119, family =  22, name = 'Bomb', zoneName = 'Meriphataud Mountains', low = 24, high = 25 }, -- 4 spawns
     { zone = 119, family = 129, name = 'Raptor', zoneName = 'Meriphataud Mountains', low = 24, high = 25 }, -- 15 spawns
     { zone = 109, family = 144, name = 'Goobbue', zoneName = 'Pashhow Marshlands', low = 24, high = 25 }, -- 10 spawns
@@ -309,7 +309,7 @@ data.kills =
     { zone = 104, family = 173, name = 'Ghost', zoneName = 'Jugner Forest', low = 25, high = 26 }, -- 6 spawns
     { zone = 104, family =  27, name = 'Evil Weapon', zoneName = 'Jugner Forest', low = 25, high = 26 }, -- 7 spawns
     { zone = 184, family =  81, name = 'Flock Bat', zoneName = 'Lower Delkfutts Tower', low = 25, high = 27 }, -- 27 spawns
-    { zone = 198, family = 194, name = 'Scorpion', zoneName = 'Maze of [S]hakhrami', low = 25, high = 33 }, -- 17 spawns
+    { zone = 198, family = 194, name = 'Scorpion', zoneName = 'Maze of Shakhrami', low = 25, high = 33 }, -- 17 spawns
     { zone = 119, family = 173, name = 'Ghost', zoneName = 'Meriphataud Mountains', low = 25, high = 26 }, -- 4 spawns
     { zone = 119, family =  43, name = 'Coeurl', zoneName = 'Meriphataud Mountains', low = 25, high = 26 }, -- 9 spawns
     { zone = 157, family =  81, name = 'Flock Bat', zoneName = 'Middle Delkfutts Tower', low = 25, high = 29 }, -- 19 spawns
@@ -321,13 +321,13 @@ data.kills =
     { zone = 110, family =   5, name = 'Leech', zoneName = 'Rolanberry Fields', low = 25, high = 26 }, -- 15 spawns
     { zone = 120, family = 126, name = 'Lizard', zoneName = 'Sauromugue Champaign', low = 25, high = 26 }, -- 39 spawns
     { zone = 120, family =  77, name = 'Bat', zoneName = 'Sauromugue Champaign', low = 25, high = 26 }, -- 27 spawns
-    { zone = 121, family =  58, name = 'Goblin', zoneName = 'the [S]anctuary of Zitah', low = 25, high = 46 }, -- 68 spawns
+    { zone = 121, family =  58, name = 'Goblin', zoneName = 'the Sanctuary of Zitah', low = 25, high = 46 }, -- 68 spawns
     { zone = 103, family =  22, name = 'Bomb', zoneName = 'Valkurm Dunes', low = 25, high = 27 }, -- 7 spawns
     { zone = 105, family = 178, name = 'Skeleton', zoneName = 'Batallia Downs', low = 26, high = 32 }, -- 20 spawns
     { zone = 105, family =  63, name = 'Orc', zoneName = 'Batallia Downs', low = 26, high = 31 }, -- 35 spawns
     { zone = 149, family =  16, name = 'Pugil', zoneName = 'Davoi', low = 26, high = 29 }, -- 27 spawns
     { zone =  96, family = 150, name = 'Sapling', zoneName = 'Fort Karugo Narugo [S]', low = 26, high = 28 }, -- 17 spawns
-    { zone = 198, family =   8, name = 'Slime', zoneName = 'Maze of [S]hakhrami', low = 26, high = 31 }, -- 11 spawns
+    { zone = 198, family =   8, name = 'Slime', zoneName = 'Maze of Shakhrami', low = 26, high = 31 }, -- 11 spawns
     { zone = 119, family =  27, name = 'Evil Weapon', zoneName = 'Meriphataud Mountains', low = 26, high = 27 }, -- 18 spawns
     { zone =  88, family =  81, name = 'Flock Bat', zoneName = 'North Gustaberg [S]', low = 26, high = 28 }, -- 6 spawns
     { zone = 193, family =   8, name = 'Slime', zoneName = 'Ordelles Caves', low = 26, high = 28 }, -- 9 spawns
@@ -338,7 +338,7 @@ data.kills =
     { zone = 166, family =  58, name = 'Goblin', zoneName = 'Ranguemont Pass', low = 26, high = 90 }, -- 38 spawns
     { zone = 110, family =  58, name = 'Goblin', zoneName = 'Rolanberry Fields', low = 26, high = 32 }, -- 43 spawns
     { zone = 120, family =  58, name = 'Goblin', zoneName = 'Sauromugue Champaign', low = 26, high = 32 }, -- 60 spawns
-    { zone = 121, family =  77, name = 'Bat', zoneName = 'the [S]anctuary of Zitah', low = 26, high = 28 }, -- 38 spawns
+    { zone = 121, family =  77, name = 'Bat', zoneName = 'the Sanctuary of Zitah', low = 26, high = 28 }, -- 38 spawns
     { zone = 105, family =  78, name = 'Bird', zoneName = 'Batallia Downs', low = 27, high = 28 }, -- 26 spawns
     { zone =  96, family =  50, name = 'Rabbit', zoneName = 'Fort Karugo Narugo [S]', low = 27, high = 30 }, -- 15 spawns
     { zone = 196, family = 173, name = 'Ghost', zoneName = 'Gusgen Mines', low = 27, high = 34 }, -- 11 spawns
@@ -435,7 +435,7 @@ data.kills =
     { zone = 196, family = 103, name = 'Elemental', zoneName = 'Gusgen Mines', low = 33, high = 36 }, -- 4 spawns
     { zone =  24, family =  52, name = 'Sheep', zoneName = 'Lufaise Meadows', low = 33, high = 37 }, -- 23 spawns
     { zone =  24, family =   5, name = 'Leech', zoneName = 'Lufaise Meadows', low = 33, high = 36 }, -- 4 spawns
-    { zone = 198, family = 103, name = 'Elemental', zoneName = 'Maze of [S]hakhrami', low = 33, high = 36 }, -- 12 spawns
+    { zone = 198, family = 103, name = 'Elemental', zoneName = 'Maze of Shakhrami', low = 33, high = 36 }, -- 12 spawns
     { zone =  25, family =  52, name = 'Sheep', zoneName = 'Misareaux Coast', low = 33, high = 37 }, -- 14 spawns
     { zone =  11, family =  58, name = 'Goblin', zoneName = 'Oldton Movalpolos', low = 33, high = 43 }, -- 103 spawns
     { zone =  11, family =  56, name = 'Bugbear', zoneName = 'Oldton Movalpolos', low = 33, high = 45 }, -- 22 spawns
@@ -475,11 +475,11 @@ data.kills =
     { zone = 126, family = 103, name = 'Elemental', zoneName = 'Qufim Island', low = 35, high = 36 }, -- 12 spawns
     { zone = 110, family = 173, name = 'Ghost', zoneName = 'Rolanberry Fields', low = 35, high = 36 }, -- 5 spawns
     { zone = 120, family = 173, name = 'Ghost', zoneName = 'Sauromugue Champaign', low = 35, high = 36 }, -- 19 spawns
-    { zone = 176, family =   5, name = 'Leech', zoneName = 'Sea [S]erpent Grotto', low = 35, high = 53 }, -- 34 spawns
+    { zone = 176, family =   5, name = 'Leech', zoneName = 'Sea Serpent Grotto', low = 35, high = 53 }, -- 34 spawns
     { zone = 158, family = 103, name = 'Elemental', zoneName = 'Upper Delkfutts Tower', low = 35, high = 36 }, -- 10 spawns
     { zone =  83, family = 150, name = 'Sapling', zoneName = 'Vunkerl Inlet [S]', low = 35, high = 36 }, -- 32 spawns
     { zone =  83, family =   5, name = 'Leech', zoneName = 'Vunkerl Inlet [S]', low = 35, high = 37 }, -- 10 spawns
-    { zone =  95, family =  44, name = 'Dhalmel', zoneName = 'West [S]arutabaruta [S]', low = 35, high = 37 }, -- 18 spawns
+    { zone =  95, family =  44, name = 'Dhalmel', zoneName = 'West Sarutabaruta [S]', low = 35, high = 37 }, -- 18 spawns
     { zone = 124, family = 146, name = 'Mandragora', zoneName = 'Yhoator Jungle', low = 35, high = 37 }, -- 17 spawns
     { zone = 124, family =  58, name = 'Goblin', zoneName = 'Yhoator Jungle', low = 35, high = 49 }, -- 70 spawns
     { zone = 123, family =  16, name = 'Pugil', zoneName = 'Yuhtunga Jungle', low = 35, high = 38 }, -- 21 spawns
@@ -490,7 +490,7 @@ data.kills =
     { zone =  27, family =   8, name = 'Slime', zoneName = 'Phomiuna Aqueducts', low = 36, high = 47 }, -- 12 spawns
     { zone = 110, family = 147, name = 'Morbol', zoneName = 'Rolanberry Fields', low = 36, high = 37 }, -- 30 spawns
     { zone = 120, family =  79, name = 'Cockatrice', zoneName = 'Sauromugue Champaign', low = 36, high = 37 }, -- 13 spawns
-    { zone = 176, family =  81, name = 'Flock Bat', zoneName = 'Sea [S]erpent Grotto', low = 36, high = 39 }, -- 21 spawns
+    { zone = 176, family =  81, name = 'Flock Bat', zoneName = 'Sea Serpent Grotto', low = 36, high = 39 }, -- 21 spawns
     { zone =  83, family =  78, name = 'Bird', zoneName = 'Vunkerl Inlet [S]', low = 36, high = 38 }, -- 22 spawns
     { zone = 124, family = 126, name = 'Lizard', zoneName = 'Yhoator Jungle', low = 36, high = 39 }, -- 12 spawns
     { zone =   7, family = 188, name = 'Fly', zoneName = 'Attohwa Chasm', low = 37, high = 67 }, -- 60 spawns
@@ -520,22 +520,22 @@ data.kills =
     { zone =  24, family =  25, name = 'Cluster', zoneName = 'Lufaise Meadows', low = 38, high = 46 }, -- 5 spawns
     { zone =  88, family = 181, name = 'Bee', zoneName = 'North Gustaberg [S]', low = 38, high = 39 }, -- 39 spawns
     { zone =  27, family =  77, name = 'Bat', zoneName = 'Phomiuna Aqueducts', low = 38, high = 46 }, -- 11 spawns
-    { zone =  30, family = 142, name = 'Flytrap', zoneName = 'Riverne [S]ite A01', low = 38, high = 41 }, -- 35 spawns
+    { zone =  30, family = 142, name = 'Flytrap', zoneName = 'Riverne Site A01', low = 38, high = 41 }, -- 35 spawns
     { zone = 110, family = 103, name = 'Elemental', zoneName = 'Rolanberry Fields', low = 38, high = 40 }, -- 6 spawns
     { zone =  91, family = 181, name = 'Bee', zoneName = 'Rolanberry Fields [S]', low = 38, high = 48 }, -- 71 spawns
     { zone =  91, family =  77, name = 'Bat', zoneName = 'Rolanberry Fields [S]', low = 38, high = 41 }, -- 7 spawns
     { zone =  91, family =  81, name = 'Flock Bat', zoneName = 'Rolanberry Fields [S]', low = 38, high = 42 }, -- 9 spawns
     { zone =  91, family = 188, name = 'Fly', zoneName = 'Rolanberry Fields [S]', low = 38, high = 62 }, -- 15 spawns
     { zone = 120, family = 103, name = 'Elemental', zoneName = 'Sauromugue Champaign', low = 38, high = 40 }, -- 6 spawns
-    { zone = 176, family = 178, name = 'Skeleton', zoneName = 'Sea [S]erpent Grotto', low = 38, high = 41 }, -- 23 spawns
+    { zone = 176, family = 178, name = 'Skeleton', zoneName = 'Sea Serpent Grotto', low = 38, high = 41 }, -- 23 spawns
     { zone = 103, family = 103, name = 'Elemental', zoneName = 'Valkurm Dunes', low = 38, high = 40 }, -- 11 spawns
     { zone = 111, family = 173, name = 'Ghost', zoneName = 'Beaucedine Glacier', low = 39, high = 42 }, -- 5 spawns
     { zone = 114, family =  44, name = 'Dhalmel', zoneName = 'Eastern Altepa Desert', low = 39, high = 44 }, -- 35 spawns
     { zone =  82, family = 178, name = 'Skeleton', zoneName = 'Jugner Forest [S]', low = 39, high = 42 }, -- 4 spawns
     { zone =  82, family =  52, name = 'Sheep', zoneName = 'Jugner Forest [S]', low = 39, high = 41 }, -- 10 spawns
-    { zone =  30, family =  78, name = 'Bird', zoneName = 'Riverne [S]ite A01', low = 39, high = 42 }, -- 38 spawns
-    { zone = 176, family =   8, name = 'Slime', zoneName = 'Sea [S]erpent Grotto', low = 39, high = 65 }, -- 12 spawns
-    { zone = 121, family =  81, name = 'Flock Bat', zoneName = 'the [S]anctuary of Zitah', low = 39, high = 42 }, -- 50 spawns
+    { zone =  30, family =  78, name = 'Bird', zoneName = 'Riverne Site A01', low = 39, high = 42 }, -- 38 spawns
+    { zone = 176, family =   8, name = 'Slime', zoneName = 'Sea Serpent Grotto', low = 39, high = 65 }, -- 12 spawns
+    { zone = 121, family =  81, name = 'Flock Bat', zoneName = 'the Sanctuary of Zitah', low = 39, high = 42 }, -- 50 spawns
     { zone =   7, family =  22, name = 'Bomb', zoneName = 'Attohwa Chasm', low = 40, high = 75 }, -- 8 spawns
     { zone =   7, family = 103, name = 'Elemental', zoneName = 'Attohwa Chasm', low = 40, high = 76 }, -- 14 spawns
     { zone = 111, family =  87, name = 'Ahriman', zoneName = 'Beaucedine Glacier', low = 40, high = 42 }, -- 29 spawns
@@ -549,8 +549,8 @@ data.kills =
     { zone =  82, family =  78, name = 'Bird', zoneName = 'Jugner Forest [S]', low = 40, high = 42 }, -- 10 spawns
     { zone =  82, family = 103, name = 'Elemental', zoneName = 'Jugner Forest [S]', low = 40, high = 64 }, -- 8 spawns
     { zone =  11, family =  22, name = 'Bomb', zoneName = 'Oldton Movalpolos', low = 40, high = 45 }, -- 8 spawns
-    { zone =  30, family =  83, name = 'Hippogryph', zoneName = 'Riverne [S]ite A01', low = 40, high = 47 }, -- 29 spawns
-    { zone = 121, family = 144, name = 'Goobbue', zoneName = 'the [S]anctuary of Zitah', low = 40, high = 43 }, -- 13 spawns
+    { zone =  30, family =  83, name = 'Hippogryph', zoneName = 'Riverne Site A01', low = 40, high = 47 }, -- 29 spawns
+    { zone = 121, family = 144, name = 'Goobbue', zoneName = 'the Sanctuary of Zitah', low = 40, high = 43 }, -- 13 spawns
     { zone = 125, family = 195, name = 'Spider', zoneName = 'Western Altepa Desert', low = 40, high = 44 }, -- 30 spawns
     { zone = 124, family =  48, name = 'Opo Opo', zoneName = 'Yhoator Jungle', low = 40, high = 44 }, -- 69 spawns
     { zone =   7, family = 180, name = 'Antlion', zoneName = 'Attohwa Chasm', low = 41, high = 72 }, -- 62 spawns
@@ -566,10 +566,10 @@ data.kills =
     { zone =  25, family =  63, name = 'Orc', zoneName = 'Misareaux Coast', low = 41, high = 44 }, -- 22 spawns
     { zone =  88, family = 143, name = 'Funguar', zoneName = 'North Gustaberg [S]', low = 41, high = 50 }, -- 39 spawns
     { zone =  27, family =  81, name = 'Flock Bat', zoneName = 'Phomiuna Aqueducts', low = 41, high = 46 }, -- 11 spawns
-    { zone =  30, family =  99, name = 'Wyvern', zoneName = 'Riverne [S]ite A01', low = 41, high = 49 }, -- 26 spawns
+    { zone =  30, family =  99, name = 'Wyvern', zoneName = 'Riverne Site A01', low = 41, high = 49 }, -- 26 spawns
     { zone = 195, family =   4, name = 'Hecteyes', zoneName = 'the Eldieme Necropolis', low = 41, high = 43 }, -- 11 spawns
-    { zone = 121, family = 188, name = 'Fly', zoneName = 'the [S]anctuary of Zitah', low = 41, high = 44 }, -- 45 spawns
-    { zone = 121, family = 143, name = 'Funguar', zoneName = 'the [S]anctuary of Zitah', low = 41, high = 46 }, -- 58 spawns
+    { zone = 121, family = 188, name = 'Fly', zoneName = 'the Sanctuary of Zitah', low = 41, high = 44 }, -- 45 spawns
+    { zone = 121, family = 143, name = 'Funguar', zoneName = 'the Sanctuary of Zitah', low = 41, high = 46 }, -- 58 spawns
     { zone = 197, family = 186, name = 'Crawler', zoneName = 'Crawlers Nest', low = 42, high = 92 }, -- 68 spawns
     { zone = 197, family = 150, name = 'Sapling', zoneName = 'Crawlers Nest', low = 42, high = 52 }, -- 22 spawns
     { zone = 114, family = 141, name = 'Cactaur', zoneName = 'Eastern Altepa Desert', low = 42, high = 46 }, -- 16 spawns
@@ -578,9 +578,9 @@ data.kills =
     { zone =  97, family = 126, name = 'Lizard', zoneName = 'Meriphataud Mountains [S]', low = 42, high = 44 }, -- 27 spawns
     { zone =  25, family = 103, name = 'Elemental', zoneName = 'Misareaux Coast', low = 42, high = 56 }, -- 7 spawns
     { zone =  27, family = 187, name = 'Diremite', zoneName = 'Phomiuna Aqueducts', low = 42, high = 46 }, -- 26 spawns
-    { zone = 176, family =  77, name = 'Bat', zoneName = 'Sea [S]erpent Grotto', low = 42, high = 66 }, -- 18 spawns
+    { zone = 176, family =  77, name = 'Bat', zoneName = 'Sea Serpent Grotto', low = 42, high = 66 }, -- 18 spawns
     { zone = 195, family =  22, name = 'Bomb', zoneName = 'the Eldieme Necropolis', low = 42, high = 53 }, -- 7 spawns
-    { zone = 121, family =   5, name = 'Leech', zoneName = 'the [S]anctuary of Zitah', low = 42, high = 45 }, -- 47 spawns
+    { zone = 121, family =   5, name = 'Leech', zoneName = 'the Sanctuary of Zitah', low = 42, high = 45 }, -- 47 spawns
     { zone = 112, family = 178, name = 'Skeleton', zoneName = 'Xarcabard', low = 42, high = 45 }, -- 54 spawns
     { zone = 127, family =  77, name = 'Bat', zoneName = 'Behemoths Dominion', low = 43, high = 44 }, -- 6 spawns
     { zone = 204, family =  28, name = 'Golem', zoneName = 'Feiyin', low = 43, high = 58 }, -- 19 spawns
@@ -590,7 +590,7 @@ data.kills =
     { zone =   9, family =   4, name = 'Hecteyes', zoneName = 'Psoxja', low = 43, high = 68 }, -- 36 spawns
     { zone =  91, family = 103, name = 'Elemental', zoneName = 'Rolanberry Fields [S]', low = 43, high = 43 }, -- 7 spawns
     { zone =  91, family =  11, name = 'Crab', zoneName = 'Rolanberry Fields [S]', low = 43, high = 45 }, -- 6 spawns
-    { zone = 176, family =  11, name = 'Crab', zoneName = 'Sea [S]erpent Grotto', low = 43, high = 67 }, -- 82 spawns
+    { zone = 176, family =  11, name = 'Crab', zoneName = 'Sea Serpent Grotto', low = 43, high = 67 }, -- 82 spawns
     { zone = 125, family =  10, name = 'Worm', zoneName = 'Western Altepa Desert', low = 43, high = 47 }, -- 24 spawns
     { zone = 112, family = 173, name = 'Ghost', zoneName = 'Xarcabard', low = 43, high = 46 }, -- 17 spawns
     { zone = 112, family =  27, name = 'Evil Weapon', zoneName = 'Xarcabard', low = 43, high = 45 }, -- 8 spawns
@@ -606,12 +606,12 @@ data.kills =
     { zone =  27, family =  94, name = 'Taurus', zoneName = 'Phomiuna Aqueducts', low = 44, high = 48 }, -- 27 spawns
     { zone =  27, family = 172, name = 'Fomor', zoneName = 'Phomiuna Aqueducts', low = 44, high = 48 }, -- 62 spawns
     { zone =   9, family = 187, name = 'Diremite', zoneName = 'Psoxja', low = 44, high = 68 }, -- 57 spawns
-    { zone =  30, family = 103, name = 'Elemental', zoneName = 'Riverne [S]ite A01', low = 44, high = 50 }, -- 7 spawns
+    { zone =  30, family = 103, name = 'Elemental', zoneName = 'Riverne Site A01', low = 44, high = 50 }, -- 7 spawns
     { zone =  91, family =   5, name = 'Leech', zoneName = 'Rolanberry Fields [S]', low = 44, high = 47 }, -- 16 spawns
     { zone =  98, family = 182, name = 'Beetle', zoneName = 'Sauromugue Champaign [S]', low = 44, high = 94 }, -- 77 spawns
-    { zone = 176, family =  68, name = 'Sahagin', zoneName = 'Sea [S]erpent Grotto', low = 44, high = 65 }, -- 173 spawns
-    { zone = 176, family =  16, name = 'Pugil', zoneName = 'Sea [S]erpent Grotto', low = 44, high = 60 }, -- 16 spawns
-    { zone = 121, family =  43, name = 'Coeurl', zoneName = 'the [S]anctuary of Zitah', low = 44, high = 47 }, -- 31 spawns
+    { zone = 176, family =  68, name = 'Sahagin', zoneName = 'Sea Serpent Grotto', low = 44, high = 65 }, -- 173 spawns
+    { zone = 176, family =  16, name = 'Pugil', zoneName = 'Sea Serpent Grotto', low = 44, high = 60 }, -- 16 spawns
+    { zone = 121, family =  43, name = 'Coeurl', zoneName = 'the Sanctuary of Zitah', low = 44, high = 47 }, -- 31 spawns
     { zone = 125, family =  44, name = 'Dhalmel', zoneName = 'Western Altepa Desert', low = 44, high = 48 }, -- 23 spawns
     { zone = 127, family =  27, name = 'Evil Weapon', zoneName = 'Behemoths Dominion', low = 45, high = 46 }, -- 4 spawns
     { zone = 127, family = 178, name = 'Skeleton', zoneName = 'Behemoths Dominion', low = 45, high = 46 }, -- 4 spawns
@@ -632,11 +632,11 @@ data.kills =
     { zone =  27, family = 170, name = 'Doomed', zoneName = 'Phomiuna Aqueducts', low = 45, high = 47 }, -- 7 spawns
     { zone =  27, family = 103, name = 'Elemental', zoneName = 'Phomiuna Aqueducts', low = 45, high = 50 }, -- 7 spawns
     { zone =   9, family = 126, name = 'Lizard', zoneName = 'Psoxja', low = 45, high = 65 }, -- 45 spawns
-    { zone =  30, family = 188, name = 'Fly', zoneName = 'Riverne [S]ite A01', low = 45, high = 85 }, -- 50 spawns
-    { zone =  30, family =  25, name = 'Cluster', zoneName = 'Riverne [S]ite A01', low = 45, high = 48 }, -- 16 spawns
+    { zone =  30, family = 188, name = 'Fly', zoneName = 'Riverne Site A01', low = 45, high = 85 }, -- 50 spawns
+    { zone =  30, family =  25, name = 'Cluster', zoneName = 'Riverne Site A01', low = 45, high = 48 }, -- 16 spawns
     { zone =  98, family = 126, name = 'Lizard', zoneName = 'Sauromugue Champaign [S]', low = 45, high = 48 }, -- 26 spawns
     { zone = 195, family = 178, name = 'Skeleton', zoneName = 'the Eldieme Necropolis', low = 45, high = 63 }, -- 121 spawns
-    { zone = 121, family = 173, name = 'Ghost', zoneName = 'the [S]anctuary of Zitah', low = 45, high = 47 }, -- 7 spawns
+    { zone = 121, family = 173, name = 'Ghost', zoneName = 'the Sanctuary of Zitah', low = 45, high = 47 }, -- 7 spawns
     { zone = 169, family =  81, name = 'Flock Bat', zoneName = 'Toraimarai Canal', low = 45, high = 97 }, -- 33 spawns
     { zone =  83, family = 103, name = 'Elemental', zoneName = 'Vunkerl Inlet [S]', low = 45, high = 60 }, -- 7 spawns
     { zone = 112, family =  87, name = 'Ahriman', zoneName = 'Xarcabard', low = 45, high = 46 }, -- 33 spawns
@@ -654,7 +654,7 @@ data.kills =
     { zone =  25, family =  16, name = 'Pugil', zoneName = 'Misareaux Coast', low = 46, high = 49 }, -- 12 spawns
     { zone =  28, family =  81, name = 'Flock Bat', zoneName = 'Sacrarium', low = 46, high = 48 }, -- 12 spawns
     { zone = 195, family = 174, name = 'Hound', zoneName = 'the Eldieme Necropolis', low = 46, high = 95 }, -- 62 spawns
-    { zone = 121, family = 174, name = 'Hound', zoneName = 'the [S]anctuary of Zitah', low = 46, high = 50 }, -- 20 spawns
+    { zone = 121, family = 174, name = 'Hound', zoneName = 'the Sanctuary of Zitah', low = 46, high = 50 }, -- 20 spawns
     { zone =   7, family = 126, name = 'Lizard', zoneName = 'Attohwa Chasm', low = 47, high = 68 }, -- 40 spawns
     { zone =  84, family = 182, name = 'Beetle', zoneName = 'Batallia Downs [S]', low = 47, high = 50 }, -- 13 spawns
     { zone = 147, family = 103, name = 'Elemental', zoneName = 'Beadeaux', low = 47, high = 49 }, -- 8 spawns
@@ -677,11 +677,11 @@ data.kills =
     { zone =  25, family = 147, name = 'Morbol', zoneName = 'Misareaux Coast', low = 47, high = 50 }, -- 4 spawns
     { zone =  25, family =  84, name = 'Greater Bird', zoneName = 'Misareaux Coast', low = 47, high = 51 }, -- 10 spawns
     { zone =   9, family =  22, name = 'Bomb', zoneName = 'Psoxja', low = 47, high = 65 }, -- 21 spawns
-    { zone =  29, family =  84, name = 'Greater Bird', zoneName = 'Riverne [S]ite B01', low = 47, high = 51 }, -- 27 spawns
+    { zone =  29, family =  84, name = 'Greater Bird', zoneName = 'Riverne Site B01', low = 47, high = 51 }, -- 27 spawns
     { zone =  91, family = 143, name = 'Funguar', zoneName = 'Rolanberry Fields [S]', low = 47, high = 49 }, -- 36 spawns
     { zone =  28, family =  94, name = 'Taurus', zoneName = 'Sacrarium', low = 47, high = 58 }, -- 13 spawns
     { zone =  98, family =  43, name = 'Coeurl', zoneName = 'Sauromugue Champaign [S]', low = 47, high = 50 }, -- 24 spawns
-    { zone = 121, family =  22, name = 'Bomb', zoneName = 'the [S]anctuary of Zitah', low = 47, high = 49 }, -- 4 spawns
+    { zone = 121, family =  22, name = 'Bomb', zoneName = 'the Sanctuary of Zitah', low = 47, high = 49 }, -- 4 spawns
     { zone = 169, family =  77, name = 'Bat', zoneName = 'Toraimarai Canal', low = 47, high = 49 }, -- 33 spawns
     { zone = 125, family = 182, name = 'Beetle', zoneName = 'Western Altepa Desert', low = 47, high = 51 }, -- 100 spawns
     { zone = 124, family =  43, name = 'Coeurl', zoneName = 'Yhoator Jungle', low = 47, high = 50 }, -- 17 spawns
@@ -689,7 +689,7 @@ data.kills =
     { zone = 161, family = 103, name = 'Elemental', zoneName = 'Castle Zvahl Baileys', low = 48, high = 49 }, -- 10 spawns
     { zone =  82, family = 152, name = 'Treant', zoneName = 'Jugner Forest [S]', low = 48, high = 49 }, -- 5 spawns
     { zone =  28, family =   4, name = 'Hecteyes', zoneName = 'Sacrarium', low = 48, high = 59 }, -- 10 spawns
-    { zone = 121, family = 103, name = 'Elemental', zoneName = 'the [S]anctuary of Zitah', low = 48, high = 49 }, -- 8 spawns
+    { zone = 121, family = 103, name = 'Elemental', zoneName = 'the Sanctuary of Zitah', low = 48, high = 49 }, -- 8 spawns
     { zone = 125, family = 141, name = 'Cactaur', zoneName = 'Western Altepa Desert', low = 48, high = 53 }, -- 37 spawns
     { zone = 112, family = 103, name = 'Elemental', zoneName = 'Xarcabard', low = 48, high = 50 }, -- 15 spawns
     { zone = 112, family =  88, name = 'Demon', zoneName = 'Xarcabard', low = 48, high = 50 }, -- 56 spawns
@@ -698,20 +698,20 @@ data.kills =
     { zone =  24, family = 150, name = 'Sapling', zoneName = 'Lufaise Meadows', low = 49, high = 53 }, -- 7 spawns
     { zone =  97, family =  43, name = 'Coeurl', zoneName = 'Meriphataud Mountains [S]', low = 49, high = 72 }, -- 30 spawns
     { zone =  97, family = 174, name = 'Hound', zoneName = 'Meriphataud Mountains [S]', low = 49, high = 49 }, -- 5 spawns
-    { zone =  29, family =  83, name = 'Hippogryph', zoneName = 'Riverne [S]ite B01', low = 49, high = 57 }, -- 37 spawns
+    { zone =  29, family =  83, name = 'Hippogryph', zoneName = 'Riverne Site B01', low = 49, high = 57 }, -- 37 spawns
     { zone =  98, family =  81, name = 'Flock Bat', zoneName = 'Sauromugue Champaign [S]', low = 49, high = 52 }, -- 12 spawns
     { zone =  98, family =  77, name = 'Bat', zoneName = 'Sauromugue Champaign [S]', low = 49, high = 51 }, -- 11 spawns
-    { zone = 121, family =  28, name = 'Golem', zoneName = 'the [S]anctuary of Zitah', low = 49, high = 50 }, -- 17 spawns
-    { zone = 121, family = 178, name = 'Skeleton', zoneName = 'the [S]anctuary of Zitah', low = 49, high = 55 }, -- 28 spawns
+    { zone = 121, family =  28, name = 'Golem', zoneName = 'the Sanctuary of Zitah', low = 49, high = 50 }, -- 17 spawns
+    { zone = 121, family = 178, name = 'Skeleton', zoneName = 'the Sanctuary of Zitah', low = 49, high = 55 }, -- 28 spawns
     { zone = 169, family =  11, name = 'Crab', zoneName = 'Toraimarai Canal', low = 49, high = 97 }, -- 38 spawns
     { zone = 169, family =  16, name = 'Pugil', zoneName = 'Toraimarai Canal', low = 49, high = 97 }, -- 71 spawns
-    { zone =  95, family = 149, name = 'Rafflesia', zoneName = 'West [S]arutabaruta [S]', low = 49, high = 52 }, -- 43 spawns
+    { zone =  95, family = 149, name = 'Rafflesia', zoneName = 'West Sarutabaruta [S]', low = 49, high = 52 }, -- 43 spawns
     { zone = 125, family = 178, name = 'Skeleton', zoneName = 'Western Altepa Desert', low = 49, high = 54 }, -- 15 spawns
     { zone = 161, family =  88, name = 'Demon', zoneName = 'Castle Zvahl Baileys', low = 50, high = 66 }, -- 119 spawns
     { zone =  81, family = 195, name = 'Spider', zoneName = 'East Ronfaure [S]', low = 50, high = 52 }, -- 6 spawns
     { zone = 213, family =  79, name = 'Cockatrice', zoneName = 'Labyrinth of Onzozo', low = 50, high = 53 }, -- 24 spawns
     { zone =  22, family = 115, name = 'Wanderer', zoneName = 'Promyvion Vahzl', low = 50, high = 142 }, -- 124 spawns
-    { zone =  29, family =  99, name = 'Wyvern', zoneName = 'Riverne [S]ite B01', low = 50, high = 86 }, -- 48 spawns
+    { zone =  29, family =  99, name = 'Wyvern', zoneName = 'Riverne Site B01', low = 50, high = 86 }, -- 48 spawns
     { zone =  91, family = 178, name = 'Skeleton', zoneName = 'Rolanberry Fields [S]', low = 50, high = 60 }, -- 5 spawns
     { zone = 195, family = 173, name = 'Ghost', zoneName = 'the Eldieme Necropolis', low = 50, high = 65 }, -- 37 spawns
     { zone = 197, family = 143, name = 'Funguar', zoneName = 'Crawlers Nest', low = 51, high = 95 }, -- 41 spawns
@@ -720,8 +720,8 @@ data.kills =
     { zone = 208, family = 182, name = 'Beetle', zoneName = 'Quicksand Caves', low = 51, high = 58 }, -- 35 spawns
     { zone =  98, family = 129, name = 'Raptor', zoneName = 'Sauromugue Champaign [S]', low = 51, high = 53 }, -- 18 spawns
     { zone = 159, family =  48, name = 'Opo Opo', zoneName = 'Temple of Uggalepih', low = 51, high = 54 }, -- 22 spawns
-    { zone =  95, family = 107, name = 'Pixie', zoneName = 'West [S]arutabaruta [S]', low = 51, high = 54 }, -- 10 spawns
-    { zone =  95, family =  13, name = 'Frog', zoneName = 'West [S]arutabaruta [S]', low = 51, high = 54 }, -- 14 spawns
+    { zone =  95, family = 107, name = 'Pixie', zoneName = 'West Sarutabaruta [S]', low = 51, high = 54 }, -- 10 spawns
+    { zone =  95, family =  13, name = 'Frog', zoneName = 'West Sarutabaruta [S]', low = 51, high = 54 }, -- 14 spawns
     { zone = 125, family =  58, name = 'Goblin', zoneName = 'Western Altepa Desert', low = 51, high = 55 }, -- 9 spawns
     { zone = 124, family = 147, name = 'Morbol', zoneName = 'Yhoator Jungle', low = 51, high = 54 }, -- 9 spawns
     { zone = 167, family =  81, name = 'Flock Bat', zoneName = 'Bostaunieux Oubliette', low = 52, high = 55 }, -- 19 spawns
@@ -774,11 +774,11 @@ data.kills =
     { zone = 213, family =  19, name = 'Sea Monk', zoneName = 'Labyrinth of Onzozo', low = 55, high = 59 }, -- 16 spawns
     { zone =  97, family =  81, name = 'Flock Bat', zoneName = 'Meriphataud Mountains [S]', low = 55, high = 57 }, -- 4 spawns
     { zone =  97, family =  77, name = 'Bat', zoneName = 'Meriphataud Mountains [S]', low = 55, high = 55 }, -- 4 spawns
-    { zone =  29, family = 147, name = 'Morbol', zoneName = 'Riverne [S]ite B01', low = 55, high = 58 }, -- 18 spawns
-    { zone =  29, family =  25, name = 'Cluster', zoneName = 'Riverne [S]ite B01', low = 55, high = 57 }, -- 12 spawns
+    { zone =  29, family = 147, name = 'Morbol', zoneName = 'Riverne Site B01', low = 55, high = 58 }, -- 18 spawns
+    { zone =  29, family =  25, name = 'Cluster', zoneName = 'Riverne Site B01', low = 55, high = 57 }, -- 12 spawns
     { zone =  28, family = 173, name = 'Ghost', zoneName = 'Sacrarium', low = 55, high = 55 }, -- 6 spawns
-    { zone = 176, family = 103, name = 'Elemental', zoneName = 'Sea [S]erpent Grotto', low = 55, high = 68 }, -- 15 spawns
-    { zone = 176, family =   4, name = 'Hecteyes', zoneName = 'Sea [S]erpent Grotto', low = 55, high = 69 }, -- 16 spawns
+    { zone = 176, family = 103, name = 'Elemental', zoneName = 'Sea Serpent Grotto', low = 55, high = 68 }, -- 15 spawns
+    { zone = 176, family =   4, name = 'Hecteyes', zoneName = 'Sea Serpent Grotto', low = 55, high = 69 }, -- 16 spawns
     { zone = 159, family =  43, name = 'Coeurl', zoneName = 'Temple of Uggalepih', low = 55, high = 58 }, -- 9 spawns
     { zone =  81, family =  58, name = 'Goblin', zoneName = 'East Ronfaure [S]', low = 56, high = 59 }, -- 15 spawns
     { zone = 200, family = 182, name = 'Beetle', zoneName = 'Garlaige Citadel', low = 56, high = 96 }, -- 36 spawns
@@ -788,11 +788,11 @@ data.kills =
     { zone = 208, family = 126, name = 'Lizard', zoneName = 'Quicksand Caves', low = 56, high = 59 }, -- 27 spawns
     { zone =  91, family =  58, name = 'Goblin', zoneName = 'Rolanberry Fields [S]', low = 56, high = 63 }, -- 13 spawns
     { zone =  91, family =   9, name = 'Slug', zoneName = 'Rolanberry Fields [S]', low = 56, high = 62 }, -- 15 spawns
-    { zone =  95, family =  58, name = 'Goblin', zoneName = 'West [S]arutabaruta [S]', low = 56, high = 59 }, -- 14 spawns
-    { zone =  95, family =  65, name = 'Poroggo', zoneName = 'West [S]arutabaruta [S]', low = 56, high = 67 }, -- 6 spawns
+    { zone =  95, family =  58, name = 'Goblin', zoneName = 'West Sarutabaruta [S]', low = 56, high = 59 }, -- 14 spawns
+    { zone =  95, family =  65, name = 'Poroggo', zoneName = 'West Sarutabaruta [S]', low = 56, high = 67 }, -- 6 spawns
     { zone = 125, family = 103, name = 'Elemental', zoneName = 'Western Altepa Desert', low = 56, high = 58 }, -- 12 spawns
     { zone =  84, family = 107, name = 'Pixie', zoneName = 'Batallia Downs [S]', low = 57, high = 58 }, -- 8 spawns
-    { zone =  29, family = 103, name = 'Elemental', zoneName = 'Riverne [S]ite B01', low = 57, high = 64 }, -- 7 spawns
+    { zone =  29, family = 103, name = 'Elemental', zoneName = 'Riverne Site B01', low = 57, high = 64 }, -- 7 spawns
     { zone = 125, family =  84, name = 'Greater Bird', zoneName = 'Western Altepa Desert', low = 57, high = 60 }, -- 9 spawns
     { zone =  97, family = 188, name = 'Fly', zoneName = 'Meriphataud Mountains [S]', low = 58, high = 60 }, -- 28 spawns
     { zone = 169, family = 194, name = 'Scorpion', zoneName = 'Toraimarai Canal', low = 58, high = 98 }, -- 4 spawns
@@ -834,7 +834,7 @@ data.kills =
     { zone = 175, family =  53, name = 'Tiger', zoneName = 'the Eldieme Necropolis [S]', low = 61, high = 64 }, -- 21 spawns
     { zone =   5, family =  53, name = 'Tiger', zoneName = 'Uleguerand Range', low = 61, high = 63 }, -- 14 spawns
     { zone =  83, family =  77, name = 'Bat', zoneName = 'Vunkerl Inlet [S]', low = 61, high = 63 }, -- 7 spawns
-    { zone =  95, family =  74, name = 'Yagudo', zoneName = 'West [S]arutabaruta [S]', low = 61, high = 64 }, -- 24 spawns
+    { zone =  95, family =  74, name = 'Yagudo', zoneName = 'West Sarutabaruta [S]', low = 61, high = 64 }, -- 24 spawns
     { zone =   7, family = 178, name = 'Skeleton', zoneName = 'Attohwa Chasm', low = 62, high = 73 }, -- 12 spawns
     { zone =  84, family =  58, name = 'Goblin', zoneName = 'Batallia Downs [S]', low = 62, high = 64 }, -- 37 spawns
     { zone = 113, family = 126, name = 'Lizard', zoneName = 'Cape Teriggan', low = 62, high = 66 }, -- 36 spawns
@@ -912,8 +912,8 @@ data.kills =
     { zone = 169, family = 182, name = 'Beetle', zoneName = 'Toraimarai Canal', low = 65, high = 97 }, -- 19 spawns
     { zone =   5, family =  81, name = 'Flock Bat', zoneName = 'Uleguerand Range', low = 65, high = 72 }, -- 23 spawns
     { zone =   7, family = 168, name = 'Corse', zoneName = 'Attohwa Chasm', low = 66, high = 80 }, -- 7 spawns
-    { zone =  68, family = 150, name = 'Sapling', zoneName = 'Aydeewa [S]ubterrane', low = 66, high = 68 }, -- 22 spawns
-    { zone =  68, family = 185, name = 'Chigoe', zoneName = 'Aydeewa [S]ubterrane', low = 66, high = 68 }, -- 48 spawns
+    { zone =  68, family = 150, name = 'Sapling', zoneName = 'Aydeewa Subterrane', low = 66, high = 68 }, -- 22 spawns
+    { zone =  68, family = 185, name = 'Chigoe', zoneName = 'Aydeewa Subterrane', low = 66, high = 68 }, -- 48 spawns
     { zone =  52, family = 150, name = 'Sapling', zoneName = 'Bhaflau Thickets', low = 66, high = 68 }, -- 17 spawns
     { zone = 113, family = 178, name = 'Skeleton', zoneName = 'Cape Teriggan', low = 66, high = 71 }, -- 20 spawns
     { zone = 113, family = 129, name = 'Raptor', zoneName = 'Cape Teriggan', low = 66, high = 69 }, -- 54 spawns
@@ -931,10 +931,10 @@ data.kills =
     { zone =  90, family =  58, name = 'Goblin', zoneName = 'Pashhow Marshlands [S]', low = 66, high = 69 }, -- 11 spawns
     { zone = 122, family =  22, name = 'Bomb', zoneName = 'Romaeve', low = 66, high = 70 }, -- 4 spawns
     { zone =  98, family =  58, name = 'Goblin', zoneName = 'Sauromugue Champaign [S]', low = 66, high = 69 }, -- 14 spawns
-    { zone = 176, family =  19, name = 'Sea Monk', zoneName = 'Sea [S]erpent Grotto', low = 66, high = 69 }, -- 13 spawns
+    { zone = 176, family =  19, name = 'Sea Monk', zoneName = 'Sea Serpent Grotto', low = 66, high = 69 }, -- 13 spawns
     { zone = 175, family = 177, name = 'Shadow', zoneName = 'the Eldieme Necropolis [S]', low = 66, high = 69 }, -- 31 spawns
-    { zone = 128, family = 129, name = 'Raptor', zoneName = 'Valley of [S]orrows', low = 66, high = 69 }, -- 16 spawns
-    { zone = 128, family = 103, name = 'Elemental', zoneName = 'Valley of [S]orrows', low = 66, high = 68 }, -- 4 spawns
+    { zone = 128, family = 129, name = 'Raptor', zoneName = 'Valley of Sorrows', low = 66, high = 69 }, -- 16 spawns
+    { zone = 128, family = 103, name = 'Elemental', zoneName = 'Valley of Sorrows', low = 66, high = 68 }, -- 4 spawns
     { zone =  83, family =  58, name = 'Goblin', zoneName = 'Vunkerl Inlet [S]', low = 66, high = 69 }, -- 13 spawns
     { zone =  83, family = 123, name = 'Bugard', zoneName = 'Vunkerl Inlet [S]', low = 66, high = 68 }, -- 4 spawns
     { zone =  83, family =  45, name = 'Gnole', zoneName = 'Vunkerl Inlet [S]', low = 66, high = 68 }, -- 6 spawns
@@ -942,7 +942,7 @@ data.kills =
     { zone =  51, family = 147, name = 'Morbol', zoneName = 'Wajaom Woodlands', low = 66, high = 74 }, -- 17 spawns
     { zone =  51, family = 195, name = 'Spider', zoneName = 'Wajaom Woodlands', low = 66, high = 67 }, -- 33 spawns
     { zone =  51, family = 150, name = 'Sapling', zoneName = 'Wajaom Woodlands', low = 66, high = 68 }, -- 11 spawns
-    { zone =  68, family = 142, name = 'Flytrap', zoneName = 'Aydeewa [S]ubterrane', low = 67, high = 70 }, -- 20 spawns
+    { zone =  68, family = 142, name = 'Flytrap', zoneName = 'Aydeewa Subterrane', low = 67, high = 70 }, -- 20 spawns
     { zone =  52, family =  53, name = 'Tiger', zoneName = 'Bhaflau Thickets', low = 67, high = 69 }, -- 14 spawns
     { zone =  79, family = 178, name = 'Skeleton', zoneName = 'Caedarva Mire', low = 67, high = 80 }, -- 24 spawns
     { zone =  79, family =  66, name = 'Qiqirn', zoneName = 'Caedarva Mire', low = 67, high = 69 }, -- 7 spawns
@@ -955,10 +955,10 @@ data.kills =
     { zone = 158, family = 173, name = 'Ghost', zoneName = 'Upper Delkfutts Tower', low = 67, high = 69 }, -- 6 spawns
     { zone =  83, family =  53, name = 'Tiger', zoneName = 'Vunkerl Inlet [S]', low = 67, high = 70 }, -- 6 spawns
     { zone =  51, family =  53, name = 'Tiger', zoneName = 'Wajaom Woodlands', low = 67, high = 68 }, -- 24 spawns
-    { zone =  68, family =   8, name = 'Slime', zoneName = 'Aydeewa [S]ubterrane', low = 68, high = 70 }, -- 34 spawns
-    { zone =  68, family =  66, name = 'Qiqirn', zoneName = 'Aydeewa [S]ubterrane', low = 68, high = 75 }, -- 64 spawns
-    { zone =  68, family =   5, name = 'Leech', zoneName = 'Aydeewa [S]ubterrane', low = 68, high = 70 }, -- 52 spawns
-    { zone =  68, family = 186, name = 'Crawler', zoneName = 'Aydeewa [S]ubterrane', low = 68, high = 89 }, -- 41 spawns
+    { zone =  68, family =   8, name = 'Slime', zoneName = 'Aydeewa Subterrane', low = 68, high = 70 }, -- 34 spawns
+    { zone =  68, family =  66, name = 'Qiqirn', zoneName = 'Aydeewa Subterrane', low = 68, high = 75 }, -- 64 spawns
+    { zone =  68, family =   5, name = 'Leech', zoneName = 'Aydeewa Subterrane', low = 68, high = 70 }, -- 52 spawns
+    { zone =  68, family = 186, name = 'Crawler', zoneName = 'Aydeewa Subterrane', low = 68, high = 89 }, -- 41 spawns
     { zone =  79, family =  52, name = 'Sheep', zoneName = 'Caedarva Mire', low = 68, high = 70 }, -- 14 spawns
     { zone = 171, family = 143, name = 'Funguar', zoneName = 'Crawlers Nest [S]', low = 68, high = 70 }, -- 6 spawns
     { zone = 160, family = 103, name = 'Elemental', zoneName = 'Den of Rancor', low = 68, high = 73 }, -- 7 spawns
@@ -975,7 +975,7 @@ data.kills =
     { zone = 158, family =  26, name = 'Doll', zoneName = 'Upper Delkfutts Tower', low = 68, high = 70 }, -- 5 spawns
     { zone =  51, family =   5, name = 'Leech', zoneName = 'Wajaom Woodlands', low = 68, high = 71 }, -- 11 spawns
     { zone =  51, family =  97, name = 'Puk', zoneName = 'Wajaom Woodlands', low = 68, high = 70 }, -- 32 spawns
-    { zone =  68, family =  10, name = 'Worm', zoneName = 'Aydeewa [S]ubterrane', low = 69, high = 89 }, -- 35 spawns
+    { zone =  68, family =  10, name = 'Worm', zoneName = 'Aydeewa Subterrane', low = 69, high = 89 }, -- 35 spawns
     { zone =  92, family = 143, name = 'Funguar', zoneName = 'Beadeaux [S]', low = 69, high = 71 }, -- 13 spawns
     { zone = 171, family =  22, name = 'Bomb', zoneName = 'Crawlers Nest [S]', low = 69, high = 70 }, -- 6 spawns
     { zone = 171, family = 186, name = 'Crawler', zoneName = 'Crawlers Nest [S]', low = 69, high = 135 }, -- 64 spawns
@@ -985,12 +985,12 @@ data.kills =
     { zone = 148, family =  67, name = 'Quadav', zoneName = 'Qulun Dome', low = 69, high = 72 }, -- 14 spawns
     { zone = 153, family = 103, name = 'Elemental', zoneName = 'the Boyahda Tree', low = 69, high = 72 }, -- 30 spawns
     { zone =   5, family =   4, name = 'Hecteyes', zoneName = 'Uleguerand Range', low = 69, high = 72 }, -- 12 spawns
-    { zone = 128, family =  84, name = 'Greater Bird', zoneName = 'Valley of [S]orrows', low = 69, high = 72 }, -- 9 spawns
+    { zone = 128, family =  84, name = 'Greater Bird', zoneName = 'Valley of Sorrows', low = 69, high = 72 }, -- 9 spawns
     { zone =  83, family = 178, name = 'Skeleton', zoneName = 'Vunkerl Inlet [S]', low = 69, high = 71 }, -- 14 spawns
     { zone =  54, family =  76, name = 'Apkallu', zoneName = 'Arrapago Reef', low = 70, high = 83 }, -- 31 spawns
-    { zone =  68, family = 103, name = 'Elemental', zoneName = 'Aydeewa [S]ubterrane', low = 70, high = 70 }, -- 5 spawns
-    { zone =  68, family = 187, name = 'Diremite', zoneName = 'Aydeewa [S]ubterrane', low = 70, high = 74 }, -- 13 spawns
-    { zone =  68, family = 143, name = 'Funguar', zoneName = 'Aydeewa [S]ubterrane', low = 70, high = 90 }, -- 30 spawns
+    { zone =  68, family = 103, name = 'Elemental', zoneName = 'Aydeewa Subterrane', low = 70, high = 70 }, -- 5 spawns
+    { zone =  68, family = 187, name = 'Diremite', zoneName = 'Aydeewa Subterrane', low = 70, high = 74 }, -- 13 spawns
+    { zone =  68, family = 143, name = 'Funguar', zoneName = 'Aydeewa Subterrane', low = 70, high = 90 }, -- 30 spawns
     { zone =  79, family = 103, name = 'Elemental', zoneName = 'Caedarva Mire', low = 70, high = 71 }, -- 9 spawns
     { zone =  79, family = 152, name = 'Treant', zoneName = 'Caedarva Mire', low = 70, high = 82 }, -- 11 spawns
     { zone =  99, family =  81, name = 'Flock Bat', zoneName = 'Castle Oztroja [S]', low = 70, high = 72 }, -- 18 spawns
@@ -1024,7 +1024,7 @@ data.kills =
     { zone =  90, family = 144, name = 'Goobbue', zoneName = 'Pashhow Marshlands [S]', low = 71, high = 73 }, -- 8 spawns
     { zone =  90, family =  67, name = 'Quadav', zoneName = 'Pashhow Marshlands [S]', low = 71, high = 74 }, -- 53 spawns
     { zone =  98, family =  74, name = 'Yagudo', zoneName = 'Sauromugue Champaign [S]', low = 71, high = 74 }, -- 21 spawns
-    { zone = 178, family =  34, name = 'Spheroid', zoneName = 'the [S]hrine of Ruavitau', low = 71, high = 76 }, -- 30 spawns
+    { zone = 178, family =  34, name = 'Spheroid', zoneName = 'the Shrine of Ruavitau', low = 71, high = 76 }, -- 30 spawns
     { zone =   5, family = 103, name = 'Elemental', zoneName = 'Uleguerand Range', low = 71, high = 84 }, -- 17 spawns
     { zone =   5, family = 173, name = 'Ghost', zoneName = 'Uleguerand Range', low = 71, high = 76 }, -- 4 spawns
     { zone =  83, family =  63, name = 'Orc', zoneName = 'Vunkerl Inlet [S]', low = 71, high = 74 }, -- 34 spawns
@@ -1057,8 +1057,8 @@ data.kills =
     { zone =  54, family = 173, name = 'Ghost', zoneName = 'Arrapago Reef', low = 73, high = 82 }, -- 12 spawns
     { zone =  54, family = 176, name = 'Qutrub', zoneName = 'Arrapago Reef', low = 73, high = 82 }, -- 47 spawns
     { zone =  54, family =   5, name = 'Leech', zoneName = 'Arrapago Reef', low = 73, high = 89 }, -- 33 spawns
-    { zone =  68, family = 147, name = 'Morbol', zoneName = 'Aydeewa [S]ubterrane', low = 73, high = 76 }, -- 9 spawns
-    { zone =  68, family =  53, name = 'Tiger', zoneName = 'Aydeewa [S]ubterrane', low = 73, high = 76 }, -- 15 spawns
+    { zone =  68, family = 147, name = 'Morbol', zoneName = 'Aydeewa Subterrane', low = 73, high = 76 }, -- 9 spawns
+    { zone =  68, family =  53, name = 'Tiger', zoneName = 'Aydeewa Subterrane', low = 73, high = 76 }, -- 15 spawns
     { zone =   4, family =  50, name = 'Rabbit', zoneName = 'Bibiki Bay', low = 73, high = 137 }, -- 38 spawns
     { zone = 160, family =  16, name = 'Pugil', zoneName = 'Den of Rancor', low = 73, high = 76 }, -- 11 spawns
     { zone = 160, family =   4, name = 'Hecteyes', zoneName = 'Den of Rancor', low = 73, high = 76 }, -- 23 spawns
@@ -1071,7 +1071,7 @@ data.kills =
     { zone =  61, family = 173, name = 'Ghost', zoneName = 'Mount Zhayolm', low = 73, high = 76 }, -- 20 spawns
     { zone =  61, family =  25, name = 'Cluster', zoneName = 'Mount Zhayolm', low = 73, high = 78 }, -- 18 spawns
     { zone =  90, family = 128, name = 'Peiste', zoneName = 'Pashhow Marshlands [S]', low = 73, high = 81 }, -- 32 spawns
-    { zone = 178, family = 103, name = 'Elemental', zoneName = 'the [S]hrine of Ruavitau', low = 73, high = 106 }, -- 44 spawns
+    { zone = 178, family = 103, name = 'Elemental', zoneName = 'the Shrine of Ruavitau', low = 73, high = 106 }, -- 44 spawns
     { zone =  83, family = 152, name = 'Treant', zoneName = 'Vunkerl Inlet [S]', low = 73, high = 76 }, -- 12 spawns
     { zone =  79, family =  59, name = 'Lamiae', zoneName = 'Caedarva Mire', low = 74, high = 83 }, -- 7 spawns
     { zone = 160, family = 146, name = 'Mandragora', zoneName = 'Den of Rancor', low = 74, high = 77 }, -- 23 spawns
@@ -1104,7 +1104,7 @@ data.kills =
     { zone =  91, family = 185, name = 'Chigoe', zoneName = 'Rolanberry Fields [S]', low = 75, high = 78 }, -- 10 spawns
     { zone =  98, family = 189, name = 'Gnat', zoneName = 'Sauromugue Champaign [S]', low = 75, high = 78 }, -- 7 spawns
     { zone = 153, family =   5, name = 'Leech', zoneName = 'the Boyahda Tree', low = 75, high = 78 }, -- 4 spawns
-    { zone = 178, family =  31, name = 'Magic Pot', zoneName = 'the [S]hrine of Ruavitau', low = 75, high = 80 }, -- 31 spawns
+    { zone = 178, family =  31, name = 'Magic Pot', zoneName = 'the Shrine of Ruavitau', low = 75, high = 80 }, -- 31 spawns
     { zone = 177, family =  31, name = 'Magic Pot', zoneName = 'Velugannon Palace', low = 75, high = 78 }, -- 76 spawns
     { zone =  83, family = 185, name = 'Chigoe', zoneName = 'Vunkerl Inlet [S]', low = 75, high = 78 }, -- 20 spawns
     { zone =  51, family = 103, name = 'Elemental', zoneName = 'Wajaom Woodlands', low = 75, high = 75 }, -- 6 spawns
@@ -1136,7 +1136,7 @@ data.kills =
     { zone = 174, family =  53, name = 'Tiger', zoneName = 'Kuftal Tunnel', low = 77, high = 103 }, -- 25 spawns
     { zone =  85, family =  92, name = 'Imp', zoneName = 'La Vaule [S]', low = 77, high = 79 }, -- 7 spawns
     { zone =  65, family =  11, name = 'Crab', zoneName = 'Mamook', low = 77, high = 78 }, -- 8 spawns
-    { zone = 178, family =  26, name = 'Doll', zoneName = 'the [S]hrine of Ruavitau', low = 77, high = 82 }, -- 47 spawns
+    { zone = 178, family =  26, name = 'Doll', zoneName = 'the Shrine of Ruavitau', low = 77, high = 82 }, -- 47 spawns
     { zone = 177, family =  28, name = 'Golem', zoneName = 'Velugannon Palace', low = 77, high = 80 }, -- 42 spawns
     { zone =  51, family =  47, name = 'Marid', zoneName = 'Wajaom Woodlands', low = 77, high = 78 }, -- 8 spawns
     { zone = 172, family =  10, name = 'Worm', zoneName = 'Zeruhn Mines', low = 77, high = 79 }, -- 17 spawns
@@ -1170,7 +1170,7 @@ data.kills =
     { zone =  61, family =  72, name = 'Troll', zoneName = 'Mount Zhayolm', low = 79, high = 83 }, -- 36 spawns
     { zone =  61, family = 198, name = 'Wamouracampa', zoneName = 'Mount Zhayolm', low = 79, high = 81 }, -- 38 spawns
     { zone =  61, family =   3, name = 'Flan', zoneName = 'Mount Zhayolm', low = 79, high = 80 }, -- 10 spawns
-    { zone = 178, family =  27, name = 'Evil Weapon', zoneName = 'the [S]hrine of Ruavitau', low = 79, high = 82 }, -- 121 spawns
+    { zone = 178, family =  27, name = 'Evil Weapon', zoneName = 'the Shrine of Ruavitau', low = 79, high = 82 }, -- 121 spawns
     { zone = 177, family = 103, name = 'Elemental', zoneName = 'Velugannon Palace', low = 79, high = 80 }, -- 44 spawns
     { zone = 137, family = 167, name = 'Corpselight', zoneName = 'Xarcabard [S]', low = 79, high = 80 }, -- 27 spawns
     { zone = 137, family =  18, name = 'Ruszor', zoneName = 'Xarcabard [S]', low = 79, high = 82 }, -- 17 spawns
@@ -1209,7 +1209,7 @@ data.kills =
     { zone = 155, family =  74, name = 'Yagudo', zoneName = 'Castle Zvahl Keep [S]', low = 81, high = 83 }, -- 20 spawns
     { zone =  65, family =  99, name = 'Wyvern', zoneName = 'Mamook', low = 81, high = 83 }, -- 11 spawns
     { zone =  61, family =  95, name = 'Dragon', zoneName = 'Mount Zhayolm', low = 81, high = 83 }, -- 4 spawns
-    { zone = 178, family =  28, name = 'Golem', zoneName = 'the [S]hrine of Ruavitau', low = 81, high = 84 }, -- 50 spawns
+    { zone = 178, family =  28, name = 'Golem', zoneName = 'the Shrine of Ruavitau', low = 81, high = 84 }, -- 50 spawns
     { zone =   5, family =  88, name = 'Demon', zoneName = 'Uleguerand Range', low = 81, high = 84 }, -- 36 spawns
     { zone = 137, family = 173, name = 'Ghost', zoneName = 'Xarcabard [S]', low = 81, high = 82 }, -- 7 spawns
     { zone =  54, family =  93, name = 'Soulflayer', zoneName = 'Arrapago Reef', low = 82, high = 83 }, -- 7 spawns
@@ -1478,17 +1478,17 @@ data.nms =
     [17187111] = { zone = 100, name = 'Jaggedy-Eared_Jack', display = 'Jaggedy-Eared Jack', zoneName = 'West Ronfaure', low = 9, high = 10 },
     [17191196] = { zone = 101, name = 'Bigmouth_Billy', display = 'Bigmouth Billy', zoneName = 'East Ronfaure', low = 9, high = 10 },
     [17211537] = { zone = 106, name = 'Stinging_Sophie', display = 'Stinging Sophie', zoneName = 'North Gustaberg', low = 9, high = 10 },
-    [17248468] = { zone = 115, name = 'Tom_Tit_Tat', display = 'Tom Tit Tat', zoneName = 'West [S]arutabaruta', low = 9, high = 10 },
-    [17252657] = { zone = 116, name = 'Spiny_Spipi', display = 'Spiny Spipi', zoneName = 'East [S]arutabaruta', low = 9, high = 10 },
+    [17248468] = { zone = 115, name = 'Tom_Tit_Tat', display = 'Tom Tit Tat', zoneName = 'West Sarutabaruta', low = 9, high = 10 },
+    [17252657] = { zone = 116, name = 'Spiny_Spipi', display = 'Spiny Spipi', zoneName = 'East Sarutabaruta', low = 9, high = 10 },
     [17187047] = { zone = 100, name = 'Fungus_Beetle', display = 'Fungus Beetle', zoneName = 'West Ronfaure', low = 10, high = 15 },
     [17215868] = { zone = 107, name = 'Leaping_Lizzy', display = 'Leaping Lizzy', zoneName = 'South Gustaberg', low = 10, high = 11 },
-    [17252489] = { zone = 116, name = 'Sharp-Eared_Ropipi', display = 'Sharp-Eared Ropipi', zoneName = 'East [S]arutabaruta', low = 10, high = 11 },
+    [17252489] = { zone = 116, name = 'Sharp-Eared_Ropipi', display = 'Sharp-Eared Ropipi', zoneName = 'East Sarutabaruta', low = 10, high = 11 },
     [17191189] = { zone = 101, name = 'Swamfisk', display = 'Swamfisk', zoneName = 'East Ronfaure', low = 11, high = 15 },
     [17211702] = { zone = 106, name = 'Maighdean_Uaine', display = 'Maighdean Uaine', zoneName = 'North Gustaberg', low = 11, high = 11 },
     [17215613] = { zone = 107, name = 'Carnero', display = 'Carnero', zoneName = 'South Gustaberg', low = 11, high = 12 },
     [17350826] = { zone = 140, name = 'Thousandarm_Deshglesh', display = 'Thousandarm Deshglesh', zoneName = 'Ghelsba Outpost', low = 11, high = 13 },
     [17191044] = { zone = 101, name = 'Rambukk', display = 'Rambukk', zoneName = 'East Ronfaure', low = 12, high = 13 },
-    [17248517] = { zone = 115, name = 'Nunyenunc', display = 'Nunyenunc', zoneName = 'West [S]arutabaruta', low = 12, high = 12 },
+    [17248517] = { zone = 115, name = 'Nunyenunc', display = 'Nunyenunc', zoneName = 'West Sarutabaruta', low = 12, high = 12 },
     [17354828] = { zone = 141, name = 'Hundredscar_Hajwaj', display = 'Hundredscar Hajwaj', zoneName = 'Fort Ghelsba', low = 12, high = 13 },
     [17363181] = { zone = 143, name = 'BuGhi_Howlblade', display = 'BuGhi Howlblade', zoneName = 'Palborough Mines', low = 12, high = 12 },
     [17371300] = { zone = 145, name = 'Juu_Duzu_the_Whirlwind', display = 'Juu Duzu the Whirlwind', zoneName = 'Giddeus', low = 13, high = 13 },
@@ -1498,7 +1498,7 @@ data.nms =
     [17371143] = { zone = 145, name = 'Zhuu_Buxu_the_Silent', display = 'Zhuu Buxu the Silent', zoneName = 'Giddeus', low = 16, high = 16 },
     [17371515] = { zone = 145, name = 'Hoo_Mjuu_the_Torrent', display = 'Hoo Mjuu the Torrent', zoneName = 'Giddeus', low = 16, high = 17 },
     [17572094] = { zone = 194, name = 'Bomb_King', display = 'Bomb King', zoneName = 'Outer Horutoto Ruins', low = 16, high = 18 },
-    [17166543] = { zone =  95, name = 'Jeduah', display = 'Jeduah', zoneName = 'West [S]arutabaruta [S]', low = 17, high = 18 },
+    [17166543] = { zone =  95, name = 'Jeduah', display = 'Jeduah', zoneName = 'West Sarutabaruta [S]', low = 17, high = 18 },
     [17358932] = { zone = 142, name = 'Ashmaker_Gotblut', display = 'Ashmaker Gotblut', zoneName = 'Yughott Grotto', low = 17, high = 18 },
     [17363080] = { zone = 143, name = 'QuVho_Deathhurler', display = 'QuVho Deathhurler', zoneName = 'Palborough Mines', low = 17, high = 17 },
     [17195259] = { zone = 102, name = 'Tumbling_Truffle', display = 'Tumbling Truffle', zoneName = 'La Theine Plateau', low = 19, high = 20 },
@@ -1575,8 +1575,8 @@ data.nms =
     [17228236] = { zone = 110, name = 'Drooling_Daisy', display = 'Drooling Daisy', zoneName = 'Rolanberry Fields', low = 39, high = 40 },
     [17268851] = { zone = 120, name = 'Deadly_Dodo', display = 'Deadly Dodo', zoneName = 'Sauromugue Champaign', low = 39, high = 40 },
     [17387644] = { zone = 149, name = 'Poisonhand_Gnadgad', display = 'Poisonhand Gnadgad', zoneName = 'Davoi', low = 39, high = 40 },
-    [17498159] = { zone = 176, name = 'Masan', display = 'Masan', zoneName = 'Sea [S]erpent Grotto', low = 39, high = 39 },
-    [17498184] = { zone = 176, name = 'Namtar', display = 'Namtar', zoneName = 'Sea [S]erpent Grotto', low = 39, high = 41 },
+    [17498159] = { zone = 176, name = 'Masan', display = 'Masan', zoneName = 'Sea Serpent Grotto', low = 39, high = 39 },
+    [17498184] = { zone = 176, name = 'Namtar', display = 'Namtar', zoneName = 'Sea Serpent Grotto', low = 39, high = 41 },
     [17424385] = { zone = 158, name = 'Enkelados', display = 'Enkelados', zoneName = 'Upper Delkfutts Tower', low = 40, high = 40 },
     [17530932] = { zone = 184, name = 'Tyrant', display = 'Tyrant', zoneName = 'Lower Delkfutts Tower', low = 40, high = 42 },
     [17231971] = { zone = 111, name = 'Nue', display = 'Nue', zoneName = 'Beaucedine Glacier', low = 41, high = 42 },
@@ -1588,16 +1588,16 @@ data.nms =
     [17228086] = { zone = 110, name = 'Ravenous_Crawler', display = 'Ravenous Crawler', zoneName = 'Rolanberry Fields', low = 42, high = 43 },
     [17264722] = { zone = 119, name = 'Chonchon', display = 'Chonchon', zoneName = 'Meriphataud Mountains', low = 42, high = 43 },
     [17486171] = { zone = 173, name = 'Thoon', display = 'Thoon', zoneName = 'Korroloka Tunnel', low = 42, high = 43 },
-    [17498199] = { zone = 176, name = 'Wuur_the_Sandcomber', display = 'Wuur the Sandcomber', zoneName = 'Sea [S]erpent Grotto', low = 42, high = 44 },
+    [17498199] = { zone = 176, name = 'Wuur_the_Sandcomber', display = 'Wuur the Sandcomber', zoneName = 'Sea Serpent Grotto', low = 42, high = 44 },
     [17567801] = { zone = 193, name = 'Donggu', display = 'Donggu', zoneName = 'Ordelles Caves', low = 42, high = 44 },
     [17568132] = { zone = 193, name = 'Bombast', display = 'Bombast', zoneName = 'Ordelles Caves', low = 42, high = 44 },
     [17223797] = { zone = 109, name = 'NiZho_Bladebender', display = 'NiZho Bladebender', zoneName = 'Pashhow Marshlands', low = 43, high = 45 },
     [17395896] = { zone = 151, name = 'Lii_Jixa_the_Somnolist', display = 'Lii Jixa the Somnolist', zoneName = 'Castle Oztroja', low = 43, high = 43 },
     [17395954] = { zone = 151, name = 'Yaa_Haqa_the_Profane', display = 'Yaa Haqa the Profane', zoneName = 'Castle Oztroja', low = 43, high = 43 },
     [17457236] = { zone = 166, name = 'Hyakume', display = 'Hyakume', zoneName = 'Ranguemont Pass', low = 43, high = 43 },
-    [17588589] = { zone = 198, name = 'Lesath', display = 'Lesath', zoneName = 'Maze of [S]hakhrami', low = 43, high = 44 },
+    [17588589] = { zone = 198, name = 'Lesath', display = 'Lesath', zoneName = 'Maze of Shakhrami', low = 43, high = 44 },
     [16793646] = { zone =   4, name = 'Serra', display = 'Serra', zoneName = 'Bibiki Bay', low = 44, high = 46 },
-    [16900230] = { zone =  30, name = 'Carmine_Dobsonfly', display = 'Carmine Dobsonfly', zoneName = 'Riverne [S]ite A01', low = 44, high = 46 },
+    [16900230] = { zone =  30, name = 'Carmine_Dobsonfly', display = 'Carmine Dobsonfly', zoneName = 'Riverne Site A01', low = 44, high = 46 },
     [16879810] = { zone =  25, name = 'Upyri', display = 'Upyri', zoneName = 'Misareaux Coast', low = 45, high = 45 },
     [17207302] = { zone = 105, name = 'Weeping_Willow', display = 'Weeping Willow', zoneName = 'Batallia Downs', low = 45, high = 45 },
     [17244396] = { zone = 114, name = 'Dune_Widow', display = 'Dune Widow', zoneName = 'Eastern Altepa Desert', low = 45, high = 47 },
@@ -1606,22 +1606,22 @@ data.nms =
     [17457245] = { zone = 166, name = 'Mucoid_Mass', display = 'Mucoid Mass', zoneName = 'Ranguemont Pass', low = 45, high = 48 },
     [16793742] = { zone =   4, name = 'Intulo', display = 'Intulo', zoneName = 'Bibiki Bay', low = 46, high = 47 },
     [17207608] = { zone = 105, name = 'Eyegouger', display = 'Eyegouger', zoneName = 'Batallia Downs', low = 46, high = 46 },
-    [17272915] = { zone = 121, name = 'Elusive_Edwin', display = 'Elusive Edwin', zoneName = 'the [S]anctuary of Zitah', low = 46, high = 47 },
+    [17272915] = { zone = 121, name = 'Elusive_Edwin', display = 'Elusive Edwin', zoneName = 'the Sanctuary of Zitah', low = 46, high = 47 },
     [17580248] = { zone = 196, name = 'Juggler_Hecatomb', display = 'Juggler Hecatomb', zoneName = 'Gusgen Mines', low = 46, high = 48 },
     [16887908] = { zone =  27, name = 'Tres_Duendes', display = 'Tres Duendes', zoneName = 'Phomiuna Aqueducts', low = 47, high = 49 },
-    [17166705] = { zone =  95, name = 'Ramponneau', display = 'Ramponneau', zoneName = 'West [S]arutabaruta [S]', low = 47, high = 54 },
+    [17166705] = { zone =  95, name = 'Ramponneau', display = 'Ramponneau', zoneName = 'West Sarutabaruta [S]', low = 47, high = 54 },
     [17232079] = { zone = 111, name = 'Gargantua', display = 'Gargantua', zoneName = 'Beaucedine Glacier', low = 47, high = 48 },
     [17268816] = { zone = 120, name = 'Thunderclaw_Thuban', display = 'Thunderclaw Thuban', zoneName = 'Sauromugue Champaign', low = 47, high = 48 },
     [17289453] = { zone = 125, name = 'Celphie', display = 'Celphie', zoneName = 'Western Altepa Desert', low = 47, high = 50 },
     [17293597] = { zone = 126, name = 'Qoofim', display = 'Qoofim', zoneName = 'Qufim Island', low = 47, high = 48 },
     [17379626] = { zone = 147, name = 'GaBhu_Unvanquished', display = 'GaBhu Unvanquished', zoneName = 'Beadeaux', low = 47, high = 48 },
-    [17588469] = { zone = 198, name = 'Gloombound_Lurker', display = 'Gloombound Lurker', zoneName = 'Maze of [S]hakhrami', low = 47, high = 48 },
+    [17588469] = { zone = 198, name = 'Gloombound_Lurker', display = 'Gloombound Lurker', zoneName = 'Maze of Shakhrami', low = 47, high = 48 },
     [17236180] = { zone = 112, name = 'Shadow_Eye', display = 'Shadow Eye', zoneName = 'Xarcabard', low = 48, high = 49 },
-    [17498269] = { zone = 176, name = 'Fyuu_the_Seabellow', display = 'Fyuu the Seabellow', zoneName = 'Sea [S]erpent Grotto', low = 48, high = 48 },
-    [17498301] = { zone = 176, name = 'Seww_the_Squidlimbed', display = 'Seww the Squidlimbed', zoneName = 'Sea [S]erpent Grotto', low = 48, high = 49 },
+    [17498269] = { zone = 176, name = 'Fyuu_the_Seabellow', display = 'Fyuu the Seabellow', zoneName = 'Sea Serpent Grotto', low = 48, high = 48 },
+    [17498301] = { zone = 176, name = 'Seww_the_Squidlimbed', display = 'Seww the Squidlimbed', zoneName = 'Sea Serpent Grotto', low = 48, high = 49 },
     [16879737] = { zone =  25, name = 'Odqan', display = 'Odqan', zoneName = 'Misareaux Coast', low = 49, high = 51 },
     [17264768] = { zone = 119, name = 'Naa_Zeku_the_Unwaiting', display = 'Naa Zeku the Unwaiting', zoneName = 'Meriphataud Mountains', low = 49, high = 49 },
-    [17498285] = { zone = 176, name = 'Qull_the_Shellbuster', display = 'Qull the Shellbuster', zoneName = 'Sea [S]erpent Grotto', low = 49, high = 51 },
+    [17498285] = { zone = 176, name = 'Qull_the_Shellbuster', display = 'Qull the Shellbuster', zoneName = 'Sea Serpent Grotto', low = 49, high = 51 },
     [16814320] = { zone =   9, name = 'Gyre-Carlin_PX', display = 'Gyre-Carlin PX', zoneName = 'Psoxja', low = 50, high = 50 },
     [16822423] = { zone =  11, name = 'Bugbear_Strongman', display = 'Bugbear Strongman', zoneName = 'Oldton Movalpolos', low = 50, high = 50 },
     [16867387] = { zone =  22, name = 'Memory_Receptacle_PV', display = 'Memory Receptacle PV', zoneName = 'Promyvion Vahzl', low = 50, high = 50 },
@@ -1629,7 +1629,7 @@ data.nms =
     [16879665] = { zone =  25, name = 'Goaftrap', display = 'Goaftrap', zoneName = 'Misareaux Coast', low = 50, high = 51 },
     [17137705] = { zone =  88, name = 'Ankabut', display = 'Ankabut', zoneName = 'North Gustaberg [S]', low = 50, high = 53 },
     [17203475] = { zone = 104, name = 'Supplespine_Mujwuj', display = 'Supplespine Mujwuj', zoneName = 'Jugner Forest', low = 50, high = 50 },
-    [16900306] = { zone =  30, name = 'Aiatar', display = 'Aiatar', zoneName = 'Riverne [S]ite A01', low = 51, high = 52 },
+    [16900306] = { zone =  30, name = 'Aiatar', display = 'Aiatar', zoneName = 'Riverne Site A01', low = 51, high = 52 },
     [17207640] = { zone = 105, name = 'Prankster_Maverix', display = 'Prankster Maverix', zoneName = 'Batallia Downs', low = 51, high = 52 },
     [17645609] = { zone = 212, name = 'Goblinsavior_Heronox', display = 'Goblinsavior Heronox', zoneName = 'Gustav Tunnel', low = 51, high = 52 },
     [16793698] = { zone =   4, name = 'Shankha', display = 'Shankha', zoneName = 'Bibiki Bay', low = 52, high = 53 },
@@ -1637,7 +1637,7 @@ data.nms =
     [16822322] = { zone =  11, name = 'Bugbear_Muscleman', display = 'Bugbear Muscleman', zoneName = 'Oldton Movalpolos', low = 52, high = 53 },
     [17170594] = { zone =  96, name = 'Emela-ntouka', display = 'Emela-ntouka', zoneName = 'Fort Karugo Narugo [S]', low = 52, high = 52 },
     [17232117] = { zone = 111, name = 'Calcabrina', display = 'Calcabrina', zoneName = 'Beaucedine Glacier', low = 52, high = 55 },
-    [17166441] = { zone =  95, name = 'Belladonna', display = 'Belladonna', zoneName = 'West [S]arutabaruta [S]', low = 53, high = 54 },
+    [17166441] = { zone =  95, name = 'Belladonna', display = 'Belladonna', zoneName = 'West Sarutabaruta [S]', low = 53, high = 54 },
     [17236202] = { zone = 112, name = 'Boreal_Hound', display = 'Boreal Hound', zoneName = 'Xarcabard', low = 53, high = 53 },
     [17236203] = { zone = 112, name = 'Boreal_Coeurl', display = 'Boreal Coeurl', zoneName = 'Xarcabard', low = 53, high = 53 },
     [17236204] = { zone = 112, name = 'Boreal_Tiger', display = 'Boreal Tiger', zoneName = 'Xarcabard', low = 53, high = 53 },
@@ -1649,34 +1649,34 @@ data.nms =
     [17219887] = { zone = 108, name = 'Steelfleece_Baldarich', display = 'Steelfleece Baldarich', zoneName = 'Konschtat Highlands', low = 55, high = 56 },
     [17228150] = { zone = 110, name = 'Eldritch_Edge', display = 'Eldritch Edge', zoneName = 'Rolanberry Fields', low = 55, high = 55 },
     [17289560] = { zone = 125, name = 'Cactuar_Cantautor', display = 'Cactuar Cantautor', zoneName = 'Western Altepa Desert', low = 55, high = 59 },
-    [17588278] = { zone = 198, name = 'Trembler_Tabitha', display = 'Trembler Tabitha', zoneName = 'Maze of [S]hakhrami', low = 55, high = 55 },
+    [17588278] = { zone = 198, name = 'Trembler_Tabitha', display = 'Trembler Tabitha', zoneName = 'Maze of Shakhrami', low = 55, high = 55 },
     [17629301] = { zone = 208, name = 'Sagittarius_X-XIII', display = 'Sagittarius X-XIII', zoneName = 'Quicksand Caves', low = 55, high = 57 },
     [17109358] = { zone =  81, name = 'Goblin_Picaroon_Large', display = 'Goblin Picaroon Large', zoneName = 'East Ronfaure [S]', low = 56, high = 59 },
     [17109359] = { zone =  81, name = 'Goblin_Picaroon', display = 'Goblin Picaroon', zoneName = 'East Ronfaure [S]', low = 56, high = 59 },
     [17113332] = { zone =  82, name = 'Boll_Weevil', display = 'Boll Weevil', zoneName = 'Jugner Forest [S]', low = 56, high = 57 },
     [17121610] = { zone =  84, name = 'Chaneque', display = 'Chaneque', zoneName = 'Batallia Downs [S]', low = 56, high = 57 },
-    [17272978] = { zone = 121, name = 'Keeper_of_Halidom', display = 'Keeper of Halidom', zoneName = 'the [S]anctuary of Zitah', low = 56, high = 58 },
+    [17272978] = { zone = 121, name = 'Keeper_of_Halidom', display = 'Keeper of Halidom', zoneName = 'the Sanctuary of Zitah', low = 56, high = 58 },
     [17461433] = { zone = 167, name = 'Arioch', display = 'Arioch', zoneName = 'Bostaunieux Oubliette', low = 56, high = 62 },
-    [17498341] = { zone = 176, name = 'Pahh_the_Gullcaller', display = 'Pahh the Gullcaller', zoneName = 'Sea [S]erpent Grotto', low = 56, high = 58 },
+    [17498341] = { zone = 176, name = 'Pahh_the_Gullcaller', display = 'Pahh the Gullcaller', zoneName = 'Sea Serpent Grotto', low = 56, high = 58 },
     [17629238] = { zone = 208, name = 'Centurio_X-I', display = 'Centurio X-I', zoneName = 'Quicksand Caves', low = 56, high = 58 },
     [16879847] = { zone =  25, name = 'Okyupete', display = 'Okyupete', zoneName = 'Misareaux Coast', low = 57, high = 60 },
-    [17166721] = { zone =  95, name = 'Goblin_Picaroon_Large', display = 'Goblin Picaroon Large', zoneName = 'West [S]arutabaruta [S]', low = 57, high = 62 },
-    [17166722] = { zone =  95, name = 'Goblin_Picaroon', display = 'Goblin Picaroon', zoneName = 'West [S]arutabaruta [S]', low = 57, high = 62 },
+    [17166721] = { zone =  95, name = 'Goblin_Picaroon_Large', display = 'Goblin Picaroon Large', zoneName = 'West Sarutabaruta [S]', low = 57, high = 62 },
+    [17166722] = { zone =  95, name = 'Goblin_Picaroon', display = 'Goblin Picaroon', zoneName = 'West Sarutabaruta [S]', low = 57, high = 62 },
     [17236045] = { zone = 112, name = 'Timeworn_Warrior', display = 'Timeworn Warrior', zoneName = 'Xarcabard', low = 57, high = 58 },
     [17596520] = { zone = 200, name = 'Hazmat', display = 'Hazmat', zoneName = 'Garlaige Citadel', low = 57, high = 58 },
-    [16896131] = { zone =  29, name = 'Boroka', display = 'Boroka', zoneName = 'Riverne [S]ite B01', low = 58, high = 60 },
+    [16896131] = { zone =  29, name = 'Boroka', display = 'Boroka', zoneName = 'Riverne Site B01', low = 58, high = 60 },
     [17178885] = { zone =  98, name = 'Hyakinthos', display = 'Hyakinthos', zoneName = 'Sauromugue Champaign [S]', low = 58, high = 59 },
     [17596628] = { zone = 200, name = 'Hovering_Hotpot', display = 'Hovering Hotpot', zoneName = 'Garlaige Citadel', low = 58, high = 60 },
     [17203448] = { zone = 104, name = 'Fradubio', display = 'Fradubio', zoneName = 'Jugner Forest', low = 59, high = 60 },
     [17428651] = { zone = 159, name = 'Manipulator', display = 'Manipulator', zoneName = 'Temple of Uggalepih', low = 59, high = 61 },
     [17428737] = { zone = 159, name = 'Flauros', display = 'Flauros', zoneName = 'Temple of Uggalepih', low = 59, high = 61 },
     [17629264] = { zone = 208, name = 'Sabotender_Bailarin', display = 'Sabotender Bailarin', zoneName = 'Quicksand Caves', low = 59, high = 61 },
-    [16896107] = { zone =  29, name = 'Imdugud', display = 'Imdugud', zoneName = 'Riverne [S]ite B01', low = 60, high = 60 },
+    [16896107] = { zone =  29, name = 'Imdugud', display = 'Imdugud', zoneName = 'Riverne Site B01', low = 60, high = 60 },
     [17109296] = { zone =  81, name = 'Goblintrap', display = 'Goblintrap', zoneName = 'East Ronfaure [S]', low = 60, high = 60 },
     [17109338] = { zone =  81, name = 'Skogs_Fru', display = 'Skogs Fru', zoneName = 'East Ronfaure [S]', low = 60, high = 65 },
     [17244268] = { zone = 114, name = 'Donnergugi', display = 'Donnergugi', zoneName = 'Eastern Altepa Desert', low = 60, high = 60 },
     [17485998] = { zone = 173, name = 'Jammer_Leech', display = 'Jammer Leech', zoneName = 'Korroloka Tunnel', low = 60, high = 60 },
-    [17498413] = { zone = 176, name = 'Worr_the_Clawfisted', display = 'Worr the Clawfisted', zoneName = 'Sea [S]erpent Grotto', low = 60, high = 61 },
+    [17498413] = { zone = 176, name = 'Worr_the_Clawfisted', display = 'Worr the Clawfisted', zoneName = 'Sea Serpent Grotto', low = 60, high = 61 },
     [17584398] = { zone = 197, name = 'Demonic_Tiphia', display = 'Demonic Tiphia', zoneName = 'Crawlers Nest', low = 60, high = 60 },
     [17629403] = { zone = 208, name = 'Nussknacker', display = 'Nussknacker', zoneName = 'Quicksand Caves', low = 60, high = 61 },
     [17289638] = { zone = 125, name = 'Picolaton', display = 'Picolaton', zoneName = 'Western Altepa Desert', low = 61, high = 64 },
@@ -1684,8 +1684,8 @@ data.nms =
     [17649761] = { zone = 213, name = 'Peg_Powler', display = 'Peg Powler', zoneName = 'Labyrinth of Onzozo', low = 61, high = 62 },
     [17121576] = { zone =  84, name = 'La_Velue', display = 'La Velue', zoneName = 'Batallia Downs [S]', low = 62, high = 67 },
     [17150081] = { zone =  91, name = 'Erle', display = 'Erle', zoneName = 'Rolanberry Fields [S]', low = 62, high = 62 },
-    [17273190] = { zone = 121, name = 'Bastet', display = 'Bastet', zoneName = 'the [S]anctuary of Zitah', low = 62, high = 62 },
-    [17498420] = { zone = 176, name = 'Sea_Hog', display = 'Sea Hog', zoneName = 'Sea [S]erpent Grotto', low = 62, high = 63 },
+    [17273190] = { zone = 121, name = 'Bastet', display = 'Bastet', zoneName = 'the Sanctuary of Zitah', low = 62, high = 62 },
+    [17498420] = { zone = 176, name = 'Sea_Hog', display = 'Sea Hog', zoneName = 'Sea Serpent Grotto', low = 62, high = 63 },
     [17613045] = { zone = 204, name = 'Goliath', display = 'Goliath', zoneName = 'Feiyin', low = 62, high = 62 },
     [17178763] = { zone =  98, name = 'Herensugue', display = 'Herensugue', zoneName = 'Sauromugue Champaign [S]', low = 63, high = 64 },
     [17436876] = { zone = 161, name = 'Marquis_Naberius', display = 'Marquis Naberius', zoneName = 'Castle Zvahl Baileys', low = 63, high = 64 },
@@ -1695,12 +1695,12 @@ data.nms =
     [17613109] = { zone = 204, name = 'Eastern_Shadow', display = 'Eastern Shadow', zoneName = 'Feiyin', low = 63, high = 63 },
     [17613120] = { zone = 204, name = 'Southern_Shadow', display = 'Southern Shadow', zoneName = 'Feiyin', low = 63, high = 63 },
     [17121603] = { zone =  84, name = 'Habergoass', display = 'Habergoass', zoneName = 'Batallia Downs [S]', low = 64, high = 64 },
-    [17272958] = { zone = 121, name = 'Huwasi', display = 'Huwasi', zoneName = 'the [S]anctuary of Zitah', low = 64, high = 65 },
+    [17272958] = { zone = 121, name = 'Huwasi', display = 'Huwasi', zoneName = 'the Sanctuary of Zitah', low = 64, high = 65 },
     [17461307] = { zone = 167, name = 'Sewer_Syrup', display = 'Sewer Syrup', zoneName = 'Bostaunieux Oubliette', low = 64, high = 66 },
-    [17498356] = { zone = 176, name = 'Mouu_the_Waverider', display = 'Mouu the Waverider', zoneName = 'Sea [S]erpent Grotto', low = 64, high = 66 },
-    [17498428] = { zone = 176, name = 'Voll_the_Sharkfinned', display = 'Voll the Sharkfinned', zoneName = 'Sea [S]erpent Grotto', low = 64, high = 66 },
-    [17498436] = { zone = 176, name = 'Yarr_the_Pearleyed', display = 'Yarr the Pearleyed', zoneName = 'Sea [S]erpent Grotto', low = 64, high = 66 },
-    [17498464] = { zone = 176, name = 'Denn_the_Orcavoiced', display = 'Denn the Orcavoiced', zoneName = 'Sea [S]erpent Grotto', low = 64, high = 65 },
+    [17498356] = { zone = 176, name = 'Mouu_the_Waverider', display = 'Mouu the Waverider', zoneName = 'Sea Serpent Grotto', low = 64, high = 66 },
+    [17498428] = { zone = 176, name = 'Voll_the_Sharkfinned', display = 'Voll the Sharkfinned', zoneName = 'Sea Serpent Grotto', low = 64, high = 66 },
+    [17498436] = { zone = 176, name = 'Yarr_the_Pearleyed', display = 'Yarr the Pearleyed', zoneName = 'Sea Serpent Grotto', low = 64, high = 66 },
+    [17498464] = { zone = 176, name = 'Denn_the_Orcavoiced', display = 'Denn the Orcavoiced', zoneName = 'Sea Serpent Grotto', low = 64, high = 65 },
     [17567901] = { zone = 193, name = 'Agar_Agar', display = 'Agar Agar', zoneName = 'Ordelles Caves', low = 64, high = 66 },
     [17150047] = { zone =  91, name = 'Dyinyinga', display = 'Dyinyinga', zoneName = 'Rolanberry Fields [S]', low = 65, high = 68 },
     [17170499] = { zone =  96, name = 'Kirtimukha', display = 'Kirtimukha', zoneName = 'Fort Karugo Narugo [S]', low = 65, high = 65 },
@@ -1717,7 +1717,7 @@ data.nms =
     [17428486] = { zone = 159, name = 'Bonze_Marberry', display = 'Bonze Marberry', zoneName = 'Temple of Uggalepih', low = 66, high = 66 },
     [17428554] = { zone = 159, name = 'Sozu_Sarberry', display = 'Sozu Sarberry', zoneName = 'Temple of Uggalepih', low = 66, high = 66 },
     [17432659] = { zone = 160, name = 'Carmine-tailed_Janberry', display = 'Carmine-tailed Janberry', zoneName = 'Den of Rancor', low = 66, high = 67 },
-    [17498445] = { zone = 176, name = 'Novv_the_Whitehearted', display = 'Novv the Whitehearted', zoneName = 'Sea [S]erpent Grotto', low = 66, high = 67 },
+    [17498445] = { zone = 176, name = 'Novv_the_Whitehearted', display = 'Novv the Whitehearted', zoneName = 'Sea Serpent Grotto', low = 66, high = 67 },
     [17649795] = { zone = 213, name = 'Hellion', display = 'Hellion', zoneName = 'Labyrinth of Onzozo', low = 66, high = 66 },
     [16806162] = { zone =   7, name = 'Citipati', display = 'Citipati', zoneName = 'Attohwa Chasm', low = 67, high = 70 },
     [17277079] = { zone = 122, name = 'Rogue_Receptacle', display = 'Rogue Receptacle', zoneName = 'Romaeve', low = 67, high = 68 },
@@ -1745,11 +1745,11 @@ data.nms =
     [17461315] = { zone = 167, name = 'Shii', display = 'Shii', zoneName = 'Bostaunieux Oubliette', low = 70, high = 71 },
     [17461478] = { zone = 167, name = 'Bloodsucker_NM', display = 'Bloodsucker NM', zoneName = 'Bostaunieux Oubliette', low = 70, high = 73 },
     [17490159] = { zone = 174, name = 'Bloodthirster_Madkix', display = 'Bloodthirster Madkix', zoneName = 'Kuftal Tunnel', low = 70, high = 72 },
-    [17498516] = { zone = 176, name = 'Zuug_the_Shoreleaper', display = 'Zuug the Shoreleaper', zoneName = 'Sea [S]erpent Grotto', low = 70, high = 70 },
+    [17498516] = { zone = 176, name = 'Zuug_the_Shoreleaper', display = 'Zuug the Shoreleaper', zoneName = 'Sea Serpent Grotto', low = 70, high = 70 },
     [17629430] = { zone = 208, name = 'Diamond_Daig', display = 'Diamond Daig', zoneName = 'Quicksand Caves', low = 70, high = 70 },
     [17629644] = { zone = 208, name = 'Proconsul_XII', display = 'Proconsul XII', zoneName = 'Quicksand Caves', low = 70, high = 72 },
     [17645640] = { zone = 212, name = 'Wyvernpoacher_Drachlox', display = 'Wyvernpoacher Drachlox', zoneName = 'Gustav Tunnel', low = 70, high = 72 },
-    [17056140] = { zone =  68, name = 'Lizardtrap', display = 'Lizardtrap', zoneName = 'Aydeewa [S]ubterrane', low = 71, high = 72 },
+    [17056140] = { zone =  68, name = 'Lizardtrap', display = 'Lizardtrap', zoneName = 'Aydeewa Subterrane', low = 71, high = 72 },
     [17138042] = { zone =  88, name = 'Goblin_Picaroon_Large', display = 'Goblin Picaroon Large', zoneName = 'North Gustaberg [S]', low = 71, high = 73 },
     [17138043] = { zone =  88, name = 'Goblin_Picaroon', display = 'Goblin Picaroon', zoneName = 'North Gustaberg [S]', low = 71, high = 73 },
     [17240232] = { zone = 113, name = 'Tegmine', display = 'Tegmine', zoneName = 'Cape Teriggan', low = 71, high = 72 },
@@ -1763,7 +1763,7 @@ data.nms =
     [17117295] = { zone =  83, name = 'Warabouc', display = 'Warabouc', zoneName = 'Vunkerl Inlet [S]', low = 72, high = 73 },
     [17141872] = { zone =  89, name = 'Sarcopsylla', display = 'Sarcopsylla', zoneName = 'Grauberg [S]', low = 72, high = 72 },
     [17150280] = { zone =  91, name = 'Delicieuse_Delphine', display = 'Delicieuse Delphine', zoneName = 'Rolanberry Fields [S]', low = 72, high = 73 },
-    [17166669] = { zone =  95, name = 'Tiffenotte', display = 'Tiffenotte', zoneName = 'West [S]arutabaruta [S]', low = 72, high = 72 },
+    [17166669] = { zone =  95, name = 'Tiffenotte', display = 'Tiffenotte', zoneName = 'West Sarutabaruta [S]', low = 72, high = 72 },
     [17174561] = { zone =  97, name = 'Muq_Shabeel', display = 'Muq Shabeel', zoneName = 'Meriphataud Mountains [S]', low = 72, high = 72 },
     [17244350] = { zone = 114, name = 'Sabotender_Corrido', display = 'Sabotender Corrido', zoneName = 'Eastern Altepa Desert', low = 72, high = 73 },
     [17277011] = { zone = 122, name = 'Martinet', display = 'Martinet', zoneName = 'Romaeve', low = 72, high = 74 },
@@ -1775,8 +1775,8 @@ data.nms =
     [17432989] = { zone = 160, name = 'Tonberry_Decapitator', display = 'Tonberry Decapitator', zoneName = 'Den of Rancor', low = 72, high = 74 },
     [17433001] = { zone = 160, name = 'Tonberry_Tracker', display = 'Tonberry Tracker', zoneName = 'Den of Rancor', low = 72, high = 74 },
     [17461471] = { zone = 167, name = 'Manes', display = 'Manes', zoneName = 'Bostaunieux Oubliette', low = 72, high = 73 },
-    [17498545] = { zone = 176, name = 'Abyss_Sahagin', display = 'Abyss Sahagin', zoneName = 'Sea [S]erpent Grotto', low = 72, high = 74 },
-    [17498559] = { zone = 176, name = 'Coral_Sahagin', display = 'Coral Sahagin', zoneName = 'Sea [S]erpent Grotto', low = 72, high = 74 },
+    [17498545] = { zone = 176, name = 'Abyss_Sahagin', display = 'Abyss Sahagin', zoneName = 'Sea Serpent Grotto', low = 72, high = 74 },
+    [17498559] = { zone = 176, name = 'Coral_Sahagin', display = 'Coral Sahagin', zoneName = 'Sea Serpent Grotto', low = 72, high = 74 },
     [17584416] = { zone = 197, name = 'Aqrabuamelu', display = 'Aqrabuamelu', zoneName = 'Crawlers Nest', low = 72, high = 75 },
     [17596599] = { zone = 200, name = 'Frogamander', display = 'Frogamander', zoneName = 'Garlaige Citadel', low = 72, high = 73 },
     [17629524] = { zone = 208, name = 'Triarius_X-XV', display = 'Triarius X-XV', zoneName = 'Quicksand Caves', low = 72, high = 74 },
@@ -1804,7 +1804,7 @@ data.nms =
     [17117349] = { zone =  83, name = 'Big_Bang', display = 'Big Bang', zoneName = 'Vunkerl Inlet [S]', low = 75, high = 75 },
     [17121399] = { zone =  84, name = 'Burlibix_Brawnback', display = 'Burlibix Brawnback', zoneName = 'Batallia Downs [S]', low = 75, high = 75 },
     [17433003] = { zone = 160, name = 'Tonberry_Pontifex', display = 'Tonberry Pontifex', zoneName = 'Den of Rancor', low = 75, high = 75 },
-    [17498560] = { zone = 176, name = 'Ocean_Sahagin', display = 'Ocean Sahagin', zoneName = 'Sea [S]erpent Grotto', low = 75, high = 75 },
+    [17498560] = { zone = 176, name = 'Ocean_Sahagin', display = 'Ocean Sahagin', zoneName = 'Sea Serpent Grotto', low = 75, high = 75 },
     [17572203] = { zone = 194, name = 'Thunder_Elemental_SA', display = 'Thunder Elemental SA', zoneName = 'Outer Horutoto Ruins', low = 75, high = 75 },
     [17629641] = { zone = 208, name = 'Antican_Consul', display = 'Antican Consul', zoneName = 'Quicksand Caves', low = 75, high = 75 },
     [17649784] = { zone = 213, name = 'Narasimha', display = 'Narasimha', zoneName = 'Labyrinth of Onzozo', low = 75, high = 77 },
@@ -1838,7 +1838,7 @@ data.nms =
     [17031446] = { zone =  62, name = 'Kirlirger_the_Abhorrent', display = 'Kirlirger the Abhorrent', zoneName = 'Halvung', low = 80, high = 80 },
     [17031481] = { zone =  62, name = 'Farlarder_the_Shrewd', display = 'Farlarder the Shrewd', zoneName = 'Halvung', low = 80, high = 80 },
     [17043779] = { zone =  65, name = 'Firedance_Magmaal_Ja', display = 'Firedance Magmaal Ja', zoneName = 'Mamook', low = 80, high = 82 },
-    [17056156] = { zone =  68, name = 'Bluestreak_Gyugyuroon', display = 'Bluestreak Gyugyuroon', zoneName = 'Aydeewa [S]ubterrane', low = 80, high = 80 },
+    [17056156] = { zone =  68, name = 'Bluestreak_Gyugyuroon', display = 'Bluestreak Gyugyuroon', zoneName = 'Aydeewa Subterrane', low = 80, high = 80 },
     [17072150] = { zone =  72, name = 'Cookieduster_Lipiroon', display = 'Cookieduster Lipiroon', zoneName = 'Alzadaal Undersea Ruins', low = 80, high = 82 },
     [17109386] = { zone =  81, name = 'Quagmire_Pugil', display = 'Quagmire Pugil', zoneName = 'East Ronfaure [S]', low = 80, high = 80 },
     [17109390] = { zone =  81, name = 'Sunderclaw', display = 'Sunderclaw', zoneName = 'East Ronfaure [S]', low = 80, high = 80 },
@@ -1867,8 +1867,8 @@ data.nms =
     [17150346] = { zone =  91, name = 'Lacus', display = 'Lacus', zoneName = 'Rolanberry Fields [S]', low = 80, high = 80 },
     [17154148] = { zone =  92, name = 'BaTho_Mercifulheart', display = 'BaTho Mercifulheart', zoneName = 'Beadeaux [S]', low = 80, high = 81 },
     [17154195] = { zone =  92, name = 'DaDha_Hundredmask', display = 'DaDha Hundredmask', zoneName = 'Beadeaux [S]', low = 80, high = 81 },
-    [17166771] = { zone =  95, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'West [S]arutabaruta [S]', low = 80, high = 80 },
-    [17166775] = { zone =  95, name = 'Raker_Bee', display = 'Raker Bee', zoneName = 'West [S]arutabaruta [S]', low = 80, high = 80 },
+    [17166771] = { zone =  95, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'West Sarutabaruta [S]', low = 80, high = 80 },
+    [17166775] = { zone =  95, name = 'Raker_Bee', display = 'Raker Bee', zoneName = 'West Sarutabaruta [S]', low = 80, high = 80 },
     [17174910] = { zone =  97, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'Meriphataud Mountains [S]', low = 80, high = 80 },
     [17174914] = { zone =  97, name = 'Raker_Bee', display = 'Raker Bee', zoneName = 'Meriphataud Mountains [S]', low = 80, high = 80 },
     [17178925] = { zone =  98, name = 'Aither', display = 'Aither', zoneName = 'Sauromugue Champaign [S]', low = 80, high = 80 },
@@ -1914,8 +1914,8 @@ data.nms =
     [17236234] = { zone = 112, name = 'Gjenganger', display = 'Gjenganger', zoneName = 'Xarcabard', low = 80, high = 80 },
     [17236238] = { zone = 112, name = 'Gorehound', display = 'Gorehound', zoneName = 'Xarcabard', low = 80, high = 80 },
     [17240376] = { zone = 113, name = 'Frostmane', display = 'Frostmane', zoneName = 'Cape Teriggan', low = 80, high = 80 },
-    [17248617] = { zone = 115, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'West [S]arutabaruta', low = 80, high = 80 },
-    [17248621] = { zone = 115, name = 'Raker_Bee', display = 'Raker Bee', zoneName = 'West [S]arutabaruta', low = 80, high = 80 },
+    [17248617] = { zone = 115, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'West Sarutabaruta', low = 80, high = 80 },
+    [17248621] = { zone = 115, name = 'Raker_Bee', display = 'Raker Bee', zoneName = 'West Sarutabaruta', low = 80, high = 80 },
     [17256911] = { zone = 117, name = 'Void_Hare', display = 'Void Hare', zoneName = 'Tahrongi Canyon', low = 80, high = 80 },
     [17256915] = { zone = 117, name = 'Prickly_Sheep', display = 'Prickly Sheep', zoneName = 'Tahrongi Canyon', low = 80, high = 80 },
     [17265122] = { zone = 119, name = 'Rummager_Beetle', display = 'Rummager Beetle', zoneName = 'Meriphataud Mountains', low = 80, high = 80 },
@@ -1963,8 +1963,8 @@ data.nms =
     [17146178] = { zone =  90, name = 'Lamprey_Lord', display = 'Lamprey Lord', zoneName = 'Pashhow Marshlands [S]', low = 82, high = 82 },
     [17150337] = { zone =  91, name = 'Urd', display = 'Urd', zoneName = 'Rolanberry Fields [S]', low = 82, high = 82 },
     [17150338] = { zone =  91, name = 'Skuld', display = 'Skuld', zoneName = 'Rolanberry Fields [S]', low = 82, high = 82 },
-    [17166769] = { zone =  95, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'West [S]arutabaruta [S]', low = 82, high = 82 },
-    [17166770] = { zone =  95, name = 'Jyeshtha', display = 'Jyeshtha', zoneName = 'West [S]arutabaruta [S]', low = 82, high = 82 },
+    [17166769] = { zone =  95, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'West Sarutabaruta [S]', low = 82, high = 82 },
+    [17166770] = { zone =  95, name = 'Jyeshtha', display = 'Jyeshtha', zoneName = 'West Sarutabaruta [S]', low = 82, high = 82 },
     [17174908] = { zone =  97, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'Meriphataud Mountains [S]', low = 82, high = 82 },
     [17174909] = { zone =  97, name = 'Jyeshtha', display = 'Jyeshtha', zoneName = 'Meriphataud Mountains [S]', low = 82, high = 82 },
     [17178923] = { zone =  98, name = 'Urd', display = 'Urd', zoneName = 'Sauromugue Champaign [S]', low = 82, high = 82 },
@@ -1989,8 +1989,8 @@ data.nms =
     [17232151] = { zone = 111, name = 'Erebus', display = 'Erebus', zoneName = 'Beaucedine Glacier', low = 82, high = 82 },
     [17236232] = { zone = 112, name = 'Feuerunke', display = 'Feuerunke', zoneName = 'Xarcabard', low = 82, high = 82 },
     [17236233] = { zone = 112, name = 'Erebus', display = 'Erebus', zoneName = 'Xarcabard', low = 82, high = 82 },
-    [17248615] = { zone = 115, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'West [S]arutabaruta', low = 82, high = 82 },
-    [17248616] = { zone = 115, name = 'Jyeshtha', display = 'Jyeshtha', zoneName = 'West [S]arutabaruta', low = 82, high = 82 },
+    [17248615] = { zone = 115, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'West Sarutabaruta', low = 82, high = 82 },
+    [17248616] = { zone = 115, name = 'Jyeshtha', display = 'Jyeshtha', zoneName = 'West Sarutabaruta', low = 82, high = 82 },
     [17256909] = { zone = 117, name = 'Tammuz', display = 'Tammuz', zoneName = 'Tahrongi Canyon', low = 82, high = 82 },
     [17256910] = { zone = 117, name = 'Chesma', display = 'Chesma', zoneName = 'Tahrongi Canyon', low = 82, high = 82 },
     [17265120] = { zone = 119, name = 'Farruca_Fly', display = 'Farruca Fly', zoneName = 'Meriphataud Mountains', low = 82, high = 82 },
@@ -2034,8 +2034,8 @@ data.nms =
     [17338586] = { zone = 137, name = 'Greater_Amphiptere', display = 'Greater Amphiptere', zoneName = 'Xarcabard [S]', low = 83, high = 85 },
     [17424488] = { zone = 158, name = 'Autarch', display = 'Autarch', zoneName = 'Upper Delkfutts Tower', low = 83, high = 85 },
     [17502570] = { zone = 177, name = 'Zipacna', display = 'Zipacna', zoneName = 'Velugannon Palace', low = 83, high = 85 },
-    [17506370] = { zone = 178, name = 'Faust', display = 'Faust', zoneName = 'the [S]hrine of Ruavitau', low = 83, high = 84 },
-    [17506396] = { zone = 178, name = 'Mother_Globe', display = 'Mother Globe', zoneName = 'the [S]hrine of Ruavitau', low = 83, high = 84 },
+    [17506370] = { zone = 178, name = 'Faust', display = 'Faust', zoneName = 'the Shrine of Ruavitau', low = 83, high = 84 },
+    [17506396] = { zone = 178, name = 'Mother_Globe', display = 'Mother Globe', zoneName = 'the Shrine of Ruavitau', low = 83, high = 84 },
     [17027423] = { zone =  61, name = 'Ignamoth', display = 'Ignamoth', zoneName = 'Mount Zhayolm', low = 84, high = 84 },
     [16998862] = { zone =  54, name = 'Medusa', display = 'Medusa', zoneName = 'Arrapago Reef', low = 85, high = 85 },
     [17027458] = { zone =  61, name = 'Cerberus', display = 'Cerberus', zoneName = 'Mount Zhayolm', low = 85, high = 85 },
@@ -2051,8 +2051,8 @@ data.nms =
     [17138070] = { zone =  88, name = 'Blobdingnag', display = 'Blobdingnag', zoneName = 'North Gustaberg [S]', low = 85, high = 85 },
     [17146170] = { zone =  90, name = 'Blobdingnag', display = 'Blobdingnag', zoneName = 'Pashhow Marshlands [S]', low = 85, high = 85 },
     [17150336] = { zone =  91, name = 'Verthandi', display = 'Verthandi', zoneName = 'Rolanberry Fields [S]', low = 85, high = 85 },
-    [17166720] = { zone =  95, name = 'Sandworm', display = 'Sandworm', zoneName = 'West [S]arutabaruta [S]', low = 85, high = 85 },
-    [17166768] = { zone =  95, name = 'Orcus', display = 'Orcus', zoneName = 'West [S]arutabaruta [S]', low = 85, high = 85 },
+    [17166720] = { zone =  95, name = 'Sandworm', display = 'Sandworm', zoneName = 'West Sarutabaruta [S]', low = 85, high = 85 },
+    [17166768] = { zone =  95, name = 'Orcus', display = 'Orcus', zoneName = 'West Sarutabaruta [S]', low = 85, high = 85 },
     [17174888] = { zone =  97, name = 'Sandworm', display = 'Sandworm', zoneName = 'Meriphataud Mountains [S]', low = 85, high = 85 },
     [17174907] = { zone =  97, name = 'Orcus', display = 'Orcus', zoneName = 'Meriphataud Mountains [S]', low = 85, high = 85 },
     [17178901] = { zone =  98, name = 'Sandworm', display = 'Sandworm', zoneName = 'Sauromugue Champaign [S]', low = 85, high = 85 },
@@ -2067,7 +2067,7 @@ data.nms =
     [17232149] = { zone = 111, name = 'Lord_Ruthven', display = 'Lord Ruthven', zoneName = 'Beaucedine Glacier', low = 85, high = 85 },
     [17236231] = { zone = 112, name = 'Lord_Ruthven', display = 'Lord Ruthven', zoneName = 'Xarcabard', low = 85, high = 85 },
     [17240180] = { zone = 113, name = 'Killer_Jonny', display = 'Killer Jonny', zoneName = 'Cape Teriggan', low = 85, high = 85 },
-    [17248614] = { zone = 115, name = 'Orcus', display = 'Orcus', zoneName = 'West [S]arutabaruta', low = 85, high = 85 },
+    [17248614] = { zone = 115, name = 'Orcus', display = 'Orcus', zoneName = 'West Sarutabaruta', low = 85, high = 85 },
     [17256908] = { zone = 117, name = 'Dawon', display = 'Dawon', zoneName = 'Tahrongi Canyon', low = 85, high = 85 },
     [17265119] = { zone = 119, name = 'Orcus', display = 'Orcus', zoneName = 'Meriphataud Mountains', low = 85, high = 85 },
     [17269116] = { zone = 120, name = 'Verthandi', display = 'Verthandi', zoneName = 'Sauromugue Champaign', low = 85, high = 85 },
@@ -2084,7 +2084,7 @@ data.nms =
     [17138069] = { zone =  88, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'North Gustaberg [S]', low = 90, high = 92 },
     [17146169] = { zone =  90, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Pashhow Marshlands [S]', low = 90, high = 92 },
     [17150335] = { zone =  91, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Rolanberry Fields [S]', low = 90, high = 92 },
-    [17166767] = { zone =  95, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'West [S]arutabaruta [S]', low = 90, high = 92 },
+    [17166767] = { zone =  95, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'West Sarutabaruta [S]', low = 90, high = 92 },
     [17174906] = { zone =  97, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Meriphataud Mountains [S]', low = 90, high = 92 },
     [17178921] = { zone =  98, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Sauromugue Champaign [S]', low = 90, high = 92 },
     [17191323] = { zone = 101, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'East Ronfaure', low = 90, high = 92 },
@@ -2098,7 +2098,7 @@ data.nms =
     [17228250] = { zone = 110, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Rolanberry Fields', low = 90, high = 92 },
     [17232148] = { zone = 111, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Beaucedine Glacier', low = 90, high = 92 },
     [17236230] = { zone = 112, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Xarcabard', low = 90, high = 92 },
-    [17248613] = { zone = 115, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'West [S]arutabaruta', low = 90, high = 92 },
+    [17248613] = { zone = 115, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'West Sarutabaruta', low = 90, high = 92 },
     [17256907] = { zone = 117, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Tahrongi Canyon', low = 90, high = 92 },
     [17265118] = { zone = 119, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Meriphataud Mountains', low = 90, high = 92 },
     [17269115] = { zone = 120, name = 'Yilbegan', display = 'Yilbegan', zoneName = 'Sauromugue Champaign', low = 90, high = 92 },

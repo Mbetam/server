@@ -423,6 +423,22 @@ auto CZoneInstance::ZoneServer(timer::time_point tick) -> Task<void>
     {
         ShowDebug("[CZoneInstance] ZoneServer cleaned up Instance %s", PInstance->GetName());
 
+        // Custom fix (2026-10-05): characters assigned to this instance who never entered it (e.g. a party member stuck
+        // on the entry event) still point at it. instance.lua's 35 s entry failsafe timer then reads freed memory
+        // (crash in CZone::GetID). Clear those pointers before the instance is freed.
+        // clang-format off
+        zoneutils::ForEachZone([&](CZone* PZone)
+        {
+            PZone->ForEachChar([&](CCharEntity* PChar)
+            {
+                if (PChar->PInstance == PInstance)
+                {
+                    PChar->PInstance = nullptr;
+                }
+            });
+        });
+        // clang-format on
+
         instancesByRun_.erase(PInstance->runId());
 
         m_InstanceList.erase(

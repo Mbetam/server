@@ -144,8 +144,8 @@ spellObject.onMobSpawn = function(mob)
 
     -- Unity ranking high : xi.trust.message(mob, xi.trust.messageOffset.TEAMWORK_1)
 
-    -- TODO: UC trusts are supposed to get bonuses depending on unity ranking. Needs research.
-    -- TODO: Custom spawn messages if Unity ranking is higher.
+    -- Unity rank: BG Wiki documents no rank-based bonus for her (Eric, 2026-10-04: use the maximum where one is known).
+    -- Rank spawn messages left out.
     -- Curaga (3+ hurt), Martyr and Devotion: see partyCombatTick above
 
     mob:addGambit(ai.t.SELF, { { ai.c.MPP_LT, 51 }, { ai.c.LVL_GTE, 50 }, { ai.c.TP_GTE, 1000 } }, { ai.r.MS, ai.s.SPECIFIC, xi.mobSkill.NOTT })

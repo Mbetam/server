@@ -472,6 +472,11 @@ Maybe<SpellID> CMobSpellContainer::EnSpellAgainstTargetWeakness(CBattleEntity* P
 
 Maybe<SpellID> CMobSpellContainer::StormDayAgainstTargetWeakness(CBattleEntity* PTarget)
 {
+    if (PTarget == nullptr) // custom (2026-10-04): callers now pass the battle target, which can be unset
+    {
+        return std::nullopt;
+    }
+
     // Look up what the target has the _least resistance to_:
     // clang-format off
     std::vector<int16> resistances
@@ -539,6 +544,11 @@ Maybe<SpellID> CMobSpellContainer::StormDayAgainstTargetWeakness(CBattleEntity* 
 
 Maybe<SpellID> CMobSpellContainer::HelixAgainstTargetWeakness(CBattleEntity* PTarget)
 {
+    if (PTarget == nullptr) // custom (2026-10-04): callers now pass the battle target, which can be unset
+    {
+        return std::nullopt;
+    }
+
     // Look up what the target has the _least resistance to_:
     // clang-format off
     std::vector<int16> resistances
