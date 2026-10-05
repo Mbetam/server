@@ -2355,3 +2355,16 @@ Eric: fix the five "partially working" trusts with real gameplay gaps; for Unity
   meant re-singing. trust_song_kit now counts a bard's own songs on the bard (always in its own range) and checks
   "another bard provides this" on both the master and the bard. Note: a melee player can still be out of song
   range of a bard standing back (mid range = 6' from the monster), as in retail. Full suite 680/680.
+
+## 2026-10-05 — Melee and magic weapon skills x1.45
+
+Roddy on a level 99 dummy: tier VI nukes 23k+, tier V 16k+, melee weapon skills about 16k. Eric: magic is right;
+melee weapon skills should be on par with tier VI magic, and magic weapon skills were a bit low too.
+- `modules/custom/lua/ws_power.lua` (after ranged_ws_bonus in init.txt): while a physical (melee, hybrid included) or
+  magical weapon skill runs, xi.settings.main.WEAPON_SKILL_POWER (the server multiplier every weapon skill path applies
+  to its final damage) is x1.45, then put back. 23k / 16k ~ 1.45. A true multiplier, not the gear WSD bucket (adding
+  +45 there would give less than x1.45 to anyone already wearing WSD gear). Ranged weapon skills are untouched (they
+  have their own +25%). Trusts using player weapon skills rise too; monster TP moves don't.
+- Magic weapon skills got the same x1.45 as a starting point (no number given): to be checked by Roddy after the
+  restart. Both factors are one line each (wsPower.physical / wsPower.magical).
+- Tests: `scripts/tests/modules/ws_power.lua`. Full suite 681/681.

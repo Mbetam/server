@@ -70,6 +70,7 @@ custom/lua/trust_refresh.lua
 custom/lua/trust_survival.lua
 custom/lua/trust_tank_hate.lua
 custom/lua/ranged_ws_bonus.lua
+custom/lua/ws_power.lua
 custom/sql/job_fixes.sql
 custom/sql/trust_casters.sql
 custom/sql/trust_melee.sql
