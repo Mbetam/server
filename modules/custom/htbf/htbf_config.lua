@@ -94,6 +94,9 @@ config.floors =
 config.magicTaken = nil
 
 -- Every boss's final HP (tier multiplier or retail `hp`) is multiplied by this (Eric 2026-10-04: more HP for all)
+-- TP moves: a boss uses one once its TP passes a random goal in this range (the engine's own goal is 1000-3000, about
+-- 2000 on average; measured 2026-10-05: T1-T3 bosses held 2000-3000 TP before using a move). nil = engine default.
+config.tpUse = { min = 1000, max = 1500 }
 config.hpScale = 1 -- was 1.5 (2026-10-04); every boss now has its final HP in `hp` (Eric, 2026-10-05)
 
 -----------------------------------

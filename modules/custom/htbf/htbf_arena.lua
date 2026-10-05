@@ -303,6 +303,26 @@ local function bossScript(boss)
         end)
     end
 
+    -- TP moves sooner: once TP passes a goal rolled in config.tpUse (re-rolled after each move), the boss uses a random
+    -- move from its list. The engine's own check (goal 1000-3000) still runs too; whichever comes first.
+    if config.tpUse then
+        hooks.onMobFight = chain(hooks.onMobFight, function(mob, target)
+            local goal = mob:getLocalVar('HTBF_TP_GOAL')
+
+            if goal == 0 then
+                goal = math.random(config.tpUse.min, config.tpUse.max)
+                mob:setLocalVar('HTBF_TP_GOAL', goal)
+            end
+
+            local action = mob:getCurrentAction()
+
+            if mob:getTP() >= goal and action ~= 30 and action ~= 34 and action ~= 3 and action ~= 6 then
+                mob:setLocalVar('HTBF_TP_GOAL', 0)
+                mob:useMobAbility()
+            end
+        end)
+    end
+
     scripts[boss.key] = { hooks = hooks, mixins = mixins }
 
     return scripts[boss.key]

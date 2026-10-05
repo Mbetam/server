@@ -153,6 +153,26 @@ config.difficulty =
         [xi.zone.ABYSSEA_ALTEPA]     = 1.30, [xi.zone.ABYSSEA_ULEGUERAND] = 1.30, [xi.zone.ABYSSEA_GRAUBERG]  = 1.30, -- Empyrean
     },
     megabossExtra = 1.25,
+    -- LSB data gaps (JSE boss audit, 2026-10-05). Levels: the Misareaux, Attohwa, Altepa and Uleguerand NMs below have
+    -- spawn points with no level and came up level 1 (Cirein-croin had 47 HP); these follow their zone siblings.
+    -- Base HP (before the multipliers): the Relic-zone NMs have real HP in the data (31k-75k, Briareus 74.6k), the
+    -- Mythic / Empyrean ones none, so they had only 5-10k: 50k for the NMs, 70k for the megabosses.
+    levels =
+    {
+        Ironclad_Pulverizer = 87, Sobek = 88, ['Cirein-croin'] = 90,
+        Smok = 87, Ulhuadshi = 88,
+        Orthrus = 102, Dragua = 105,
+        Isgebind = 105,
+    },
+    baseHP =
+    {
+        Karkadann = 50000, Bukhis = 50000, Sedna = 70000,
+        Ironclad_Pulverizer = 50000, Sobek = 50000, ['Cirein-croin'] = 70000,
+        Smok = 50000, Ulhuadshi = 50000, Itzpapalotl = 70000,
+        Hedjedjet = 50000, Orthrus = 50000, Dragua = 70000,
+        Empousa = 50000, Apademak = 50000, Isgebind = 70000,
+        Fuath = 50000, Alfard = 50000, Azdaja = 70000,
+    },
     megabosses    =
     {
         Glavoid = true, Briareus = true, Kukulkan = true,
@@ -160,5 +180,9 @@ config.difficulty =
         Dragua = true, Isgebind = true, Azdaja = true,
     },
 }
+
+-- The timed NMs (no ???): respawn after this many seconds instead of the data's 15 minutes (Eric, 2026-10-05)
+config.timed     = { Ovni = true, Chukwa = true, Turul = true, Fistule = true, Hedjedjet = true, Empousa = true, Fuath = true }
+config.respawn   = 60
 
 return config

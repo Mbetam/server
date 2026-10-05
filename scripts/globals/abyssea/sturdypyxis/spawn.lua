@@ -545,9 +545,11 @@ local function SetPyxisData(npc, mob, player)
         xi.pyxis.messageChest(player, ID.text.MONSTER_CONCEALED_CHEST, 0, 0, 0, 0)
         npc:setModelId(chestModel)
 
+        -- Custom fix (2026-10-05): the player is not passed on. 3 minutes later they may have logged out, and calling
+        -- anything on a gone player's object crashed the map server (CZone::GetID, Abyssea - La Theine).
         npc:timer(180000, function(npcArg)
             if npcArg:getStatus() == xi.status.NORMAL then
-                xi.pyxis.removeChest(player, npc, 0, 1)
+                xi.pyxis.removeChest(nil, npcArg, 0, 1)
             end
         end)
     else

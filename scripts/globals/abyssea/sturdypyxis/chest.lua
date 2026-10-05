@@ -92,7 +92,7 @@ xi.pyxis.isChestEmpty = function(contentsTable)
 end
 
 xi.pyxis.removeChest = function(player, npc, addcruor, delay)
-    local ID = zones[player:getZoneID()]
+    local ID = zones[(player or npc):getZoneID()] -- player is nil when the chest expires on its own (spawn.lua)
     local amount = npc:getLocalVar('TIER') * 10
 
     if addcruor ~= 0 then

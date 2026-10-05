@@ -136,7 +136,10 @@ describe('Bard trusts and the last melee trusts', function()
         assert(#songsFrom(ulmia) == 2, 'Ulmia did not put up her two songs first')
 
         local joachim = summon(xi.magic.spell.JOACHIM)
-        fight(50)
+        for _ = 1, 5 do
+            joachim:setMP(joachim:getMaxMP()) -- under 75% MP he rightly picks a Ballad first (he cures too)
+            fight(10)
+        end
 
         local mine = songsFrom(joachim)
         assert(not has(mine, xi.effect.MARCH, 2) and not has(mine, xi.effect.MARCH, 1), 'Joachim sang a March over Ulmia: ' .. table.concat(mine, ', '))

@@ -205,8 +205,7 @@ describe('JSE weapon progression', function()
 
         SpawnMob(17666500)
         xi.test.world:skipTime(1)
-        local base = sedna:getLocalVar('JSE_BASE_HP')
-        assert(base > 0, 'Sedna was not scaled')
+        local base = config.difficulty.baseHP.Sedna -- LSB has no HP for her: jse_config.lua sets her base
         assert(sedna:getMaxHP() == math.floor(base * 1.15 * 1.25), string.format('max HP %d, base %d', sedna:getMaxHP(), base))
         assert(sedna:getMod(xi.mod.ATTP) == 44, 'attack bonus ' .. sedna:getMod(xi.mod.ATTP))
 

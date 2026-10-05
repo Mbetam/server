@@ -78,7 +78,7 @@ describe('Tank trust hate', function()
         local mob = bossNear(player)
         player.actions:engage(mob)
 
-        for _ = 1, 20 do
+        for _ = 1, 30 do -- one action per gambit tick: Flash and Cures may come first
             xi.test.world:tickEntity(player)
             xi.test.world:skipTime(1)
         end

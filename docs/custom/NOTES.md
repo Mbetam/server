@@ -2368,3 +2368,94 @@ melee weapon skills should be on par with tier VI magic, and magic weapon skills
 - Magic weapon skills got the same x1.45 as a starting point (no number given): to be checked by Roddy after the
   restart. Both factors are one line each (wsPower.physical / wsPower.magical).
 - Tests: `scripts/tests/modules/ws_power.lua`. Full suite 681/681.
+
+## 2026-10-05 — Boss arenas: TP moves sooner
+
+Eric: the arena bosses don't use TP moves as often as expected for the TP players feed them.
+- Engine rule (mob_controller.cpp / mob_entity.cpp shouldUseTPMove): a mob uses a TP move once its TP passes a goal
+  rolled in 1000-3000 (about 2000 on average), re-rolled after each; casting comes first. Measured (one WAR feeding
+  TP, 2 min): T1-T3 bosses held 2000-3000 TP before a move; 0-5 moves per 2 minutes (Fu 0, Wopket / Gorger 1).
+- `config.tpUse = { min = 1000, max = 1500 }` (htbf_config.lua) + an onMobFight hook in bossScript (htbf_arena.lua):
+  once TP passes a goal in that range (re-rolled after each move), the boss uses a random move from its list when it
+  is not casting / mid-move. After: every move at 1000-1500 TP, about 1.5-2x as many (Adamantoise 5 -> 9, Behemoth
+  3 -> 5, Wopket 1 -> 3, Fu 0 -> 2). A full party feeds more TP than the test's single WAR, so more in play.
+- Further lever if still too few: Regain on bosses (only Tier 5 has it, +100); Tier 4 bosses gain TP slowly.
+- Arena tests 33/33. Hot-reloaded live (two players online); certain after the next restart.
+
+## 2026-10-05 — Skillchains: step 6 reachable, +20% per step
+
+Eric: is the skillchain damage formula right, and reward multi-step chains.
+- Checked: scripts/combat/skillchain.lua multiplies the closing weapon skill's damage (our x1.45 included) by a table
+  by level (1-4) and step (1-6), then SC bonus gear, day / weather, elemental resistance, magic damage taken. Window:
+  10 s after the first link, 1 s less per step, the next weapon skill at least 3 s after the last (retail-like).
+  Bug: battleutils.cpp capped the step count at 5, so the table's 6th column (Light / Darkness x2.50, Radiance /
+  Umbra x3.00) could never be reached.
+- Core: cap raised to 6 (battleutils.cpp). The magic burst bonus (+0.1 per step for players) follows the count.
+- `modules/custom/lua/skillchain_steps.lua`: +20% skillchain damage per step after the first (x1.2 at step 2 ...
+  x2.0 at step 6) through SKILLCHAINDMG while calculateSkillchainDamage runs. Light / Darkness: step 3 x1.75 ->
+  x2.45, step 4 x2.00 -> x3.20, step 6 x2.50 -> x5.00.
+- Test `skillchain_steps.lua` (day / weather neutralised: it randomly adds or takes 10%). Full suite 679/682: Joachim
+  sang a Ballad (his MP had dropped under 75% from curing: right, the test now keeps his MP full), Curilla's Provoke
+  needed more than 20 s (now 30), and Kupipi's Protectra count (known flake). Both hardened tests 3/3.
+
+## 2026-10-05 — Ambuscade: Gorpa's exchange and a custom wave run
+
+Eric: is Gorpa-Masorpa working? No: LSB's Ambuscade is a stub (Gorpa's menus return zeros, trading is a TODO, the
+tome launches one placeholder fight, instance 30000 with Bozzetto Breadwinner). Eric: build the exchange with no
+monthly limits, and a custom Ambuscade of mob waves (3 / 5 / 7 / 10, harder each wave, the last a level 128 boss),
+entered from the book next to Gorpa, like the boss arena. Claude picks the mobs and proposes the Hallmarks.
+- `modules/custom/ambuscade/` (amb_npcs.lua in init.txt; amb_config.lua holds every number):
+  - Gorpa (amb_shop.lua): talk to buy with Hallmarks: Ambuscade armor base pieces (the 10 retail sets, at the retail
+    chit price: head 250 / body 600 / hands 150 / legs 400 / feet 100), set rings 1,000, the JSE cape of your main job
+    500 (unaugmented), materials (Pluton / Beitetsu / Boulder 50, Alexandrite 15, H-P Bayld 35, Heavy Metal 200,
+    Riftdross / Riftcinder 1,500, Umbral Marrow 30,000, Scoria 50,000), Dynamis coins (20 / 2,000) and Rem's Tales
+    (Ch.1-5 100, Ch.6-10 300), x1 / x10 / x50 / x99. Trade him a piece to upgrade it: +1 for the retail chit +1's
+    Gallantry (750 / 1,800 / 450 / 1,200 / 300), +2 for 10x the chit in Hallmarks (not retail: 2,500 / 6,000 / 1,500 /
+    4,000 / 1,000). Augmenter augments carry over. No RoE step needed. Not done: retail cape augments with Abdhaljs
+    thread etc. (augment rules stay as they are), weapons.
+  - The wave run (amb_waves.lua, instance 30100 `ambuscade_waves`, modules/custom/sql/ambuscade_waves.sql): the Mhaura
+    tome opens a private copy of Maquette Abdhaljs-Legion B (same wing layout as the arena; navmesh checked in the
+    test) for you and your party / alliance within 15 yalms. Waves: the retail Legion beasts already in zone 287's
+    mob_groups (Lofty -> Mired -> Soaring -> Veiled, spread over the run), packs of 3 (first half) / 4 (second half),
+    +1 at 4+ players, +1 at 7+; level 110 -> 125, HP 12k -> 40k each, stat floors up to the arena's Tier 1. Last wave:
+    one random Paramount (Naraka, Harpeia, Ironclad, Botulus), level 128, 300k HP, the arena's Tier 2 numbers, immune
+    to sleep / petrify / terror. TP moves at 1000-1500 TP like the arena. 10 s between waves.
+  - Proposed rewards per player on a clear (amb_config.lua `runs`, Eric to confirm): 3 waves 15 min 1,500 Hallmarks /
+    150 Gallantry; 5 waves 20 min 3,000 / 300; 7 waves 30 min 5,000 / 500; 10 waves 40 min 8,000 / 800. A failed run
+    (time up, or everyone KO'd for 2 minutes) pays half the Hallmarks for the share of waves cleared, no Gallantry.
+  - The tome inside sends you to Mhaura; the instance closes 30 s after it's empty; logging back in after it closed
+    lands you next to Gorpa.
+- Tests: `scripts/tests/modules/ambuscade.lua` 15/15 (menus within 149 bytes, every item exists, buys / no double Rare,
+  upgrades, a whole 3-wave run, time-out and wipe payouts, every group and boss spawns). Arena tests 33/33.
+- Needs a restart (new module, new instance row already in the live DB).
+
+## 2026-10-05 — JSE boss audit, 1-minute timed NMs, trusts engage with you, map crash (Sturdy Pyxis)
+
+Eric: check all the JSE weapon bosses (Ovni attacks but won't come down); respawn 1 min instead of 15; trusts should
+run in and attack when he engages. Then: the server is crashing.
+- New test `scripts/tests/modules/jse_bosses.lua` (27 cases): each NM pops the player's way (every one of its ???,
+  timed spawn, or Lachrymater), fights, has a real level / HP, drops its material, and timed ones respawn in <= 60 s.
+  Writes pops / poses / HP to $JSE_BOSSES_REPORT. Found and fixed:
+  - Ovni: data spawns it in the yovra "floating high" pose (animation 5) with no script, so it never came down.
+    jse_abyssea.lua: animation 6 on engage, 5 on disengage (like AlTaieu/mobs/Omyovra.lua).
+  - The second and third ??? of most NMs did nothing: xi.abyssea.qmOnTrigger only pops ids in the zone IDs table,
+    which lists the first copy (SMOK_OFFSET), while qm_x_2 / _3 pass OFFSET + 4 / + 8. abyssea_pops.lua now registers
+    every id a ??? asks for. (Affected all KI-popped NMs with several ???, e.g. Smok, Itzpapalotl, Orthrus, Alfard.)
+  - Level 1 NMs: Cirein-croin, Ironclad Pulverizer, Sobek (Misareaux), Smok, Ulhuadshi (Attohwa), Dragua, Orthrus
+    (Altepa), Isgebind (Uleguerand) had spawn points with no level (Cirein-croin: 47 HP). jse_config.lua
+    difficulty.levels: 87-90 (Mythic zones), 102-105 (Empyrean), from their zone siblings.
+  - HP: the Relic-zone NMs have retail-ish HP in the data (31k-75k); all 18 Mythic / Empyrean ones had none (5-10k).
+    difficulty.baseHP: 50k (NMs), 70k (megabosses), before the tier multipliers -> 57k-114k now.
+  - Timed NMs (Ovni, Chukwa, Turul, Fistule, Hedjedjet, Empousa, Fuath): config.respawn = 60 s via setRespawnTime on
+    spawn. (The general NM_RESPAWN_CAP 120 in map.lua only applies when Lua sets a timer, not to the data's 900.)
+  - Poses of the others (4 / 8 / 12 ...) are their families' normal ones; only Ovni was stuck.
+- Trusts: `modules/custom/lua/trust_engage_default.lua` + `ENABLE_TRUST_CUSTOM_ENGAGEMENT = 1` (settings/main.lua):
+  LSB's engage type 1 (trusts engage when the master engages, no swing needed) is set once per character at login;
+  `!trustengage 0` goes back to retail and sticks. Test `trust_engage_default.lua` (Naji runs in from 15 yalms).
+- Crash 22:29 (xi_map SIGSEGV, CZone::GetID from Lua, during Abyssea - La Theine's tick; same signature as the
+  Gigadaphnia / La Theine tombstones of 09-30, 10-04 and 10-05 13:07, the old "NM drops: Ovni" xi_test segfault).
+  Cause (very likely): the Sturdy Pyxis 3-minute expiry timer (sturdypyxis/spawn.lua) captured the `player` and
+  called xi.pyxis.removeChest(player, ...) -> player:getZoneID() on a player who had since logged out (freed). Fix:
+  the timer passes nil and removeChest uses the chest for the zone (2 lines in LSB scripts, hot-reloaded live 22:33).
+  Not reproduced directly (would need a logout during the 3 minutes); the 47 JSE / Abyssea tests ran clean.
+- xi_map restarted 22:31 (it was down): also loaded the Ambuscade module and the skillchain / arena changes.

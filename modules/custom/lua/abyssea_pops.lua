@@ -67,6 +67,20 @@ m:addOverride('xi.mob.onMobDeathEx', function(mob, player, isKiller, isWeaponSki
     return super(mob, player, isKiller, isWeaponSkillKill)
 end)
 
+-----------------------------------
+-- Second and third ??? of an NM (found 2026-10-05, JSE boss audit): most NMs have three ??? and three mob copies
+-- (qm_smok_1 / _2 / _3 pop Smok, Smok +4, Smok +8), but xi.abyssea.qmOnTrigger only pops ids listed in the zone's IDs
+-- table, which holds the first copy only (SMOK_OFFSET). So the _2 / _3 ??? took the key items' event and did nothing.
+-- Every id a ??? asks for is registered first. (Trade pops, qmOnTrade, have no such check.)
+-----------------------------------
+m:addOverride('xi.abyssea.qmOnTrigger', function(player, npc, mobId, kis, tradeReqs)
+    if mobId and mobId ~= 0 then
+        zones[player:getZoneID()].mob[string.format('CUSTOM_POP_%d', mobId)] = mobId
+    end
+
+    return super(player, npc, mobId, kis, tradeReqs)
+end)
+
 xi = xi or {}
 xi.custom = xi.custom or {}
 xi.custom.abysseaPops = data -- for tests

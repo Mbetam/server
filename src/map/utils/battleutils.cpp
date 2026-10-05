@@ -3521,7 +3521,9 @@ auto GetSkillChainEffect(const CBattleEntity* PDefender, uint8 primary, uint8 se
         PSCEffect->SetDuration(PSCEffect->GetDuration() - 1s);
         PSCEffect->SetTier(GetSkillchainTier(skillchain));
         PSCEffect->SetPower(skillchain);
-        PSCEffect->SetSubPower(std::min(PSCEffect->GetSubPower() + 1, 5)); // Linked, limited to 5
+        // Linked steps. Custom (2026-10-05): limited to 6, not 5, so the 6th column of skillchain.lua's chainMultipliers
+        // (Light / Darkness x2.50, Radiance / Umbra x3.00) can be reached
+        PSCEffect->SetSubPower(std::min(PSCEffect->GetSubPower() + 1, 6));
 
         return GetSkillchainSubeffect(skillchain);
     }
